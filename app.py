@@ -8,10 +8,6 @@ from authlib.integrations.flask_client import OAuth
 
 import os
 
-# Production settings
-if os.getenv('FLASK_ENV') == 'production':
-    app.debug = False
-    app.config['DEBUG'] = False
 
 
 # Add these imports at the top
@@ -79,6 +75,10 @@ app.config['MAIL_DEFAULT_SENDER'] = os.getenv('MAIL_DEFAULT_SENDER')
 app.config['UPLOAD_FOLDER'] = 'uploads'
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 ALLOWED_EXTENSIONS = {'pdf', 'docx', 'txt', 'png', 'jpg', 'jpeg', 'gif'}
+# Production settings
+if os.getenv('FLASK_ENV') == 'production':
+    app.debug = False
+    app.config['DEBUG'] = False
 
 # Ensure upload folder exists
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
