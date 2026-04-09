@@ -3427,12 +3427,14 @@ def debug_scopes():
 # ==================== Run ====================
 
 if __name__ == '__main__':
+    import os
+    
     print("\n" + "="*60)
     print("🌑 AI RESUME SCREENER - PROFESSIONAL EDITION")
     print("="*60)
     print(f"✅ MongoDB Connected")
     print(f"✅ AI Matcher Initialized")
-    print(f"📧 Email: {'✅ Configured' if app.config['MAIL_USERNAME'] else '⚠️ Not Configured'}")
+    print(f"📧 Email: {'✅ Configured' if app.config.get('MAIL_USERNAME') else '⚠️ Not Configured'}")
     print(f"🌐 Server: http://localhost:5000")
     print("="*60)
     print("\nFeatures:")
@@ -3446,8 +3448,6 @@ if __name__ == '__main__':
     print("  • Saved Jobs")
     print("="*60)
     
-  
-    app.run(debug=True, host='0.0.0.0', port=5000)
-if __name__ == '__main__':
-    # For local development
-    app.run(debug=True, host='127.0.0.1', port=5000)
+    # For Render deployment - use PORT environment variable
+    port = int(os.environ.get('PORT', 5000))
+    app.run(debug=False, host='0.0.0.0', port=port)
