@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block title %}Access Denied - TalentAI{% endblock %}
+
+{% block content %}
+<div class="error-container">
+    <div class="error-content">
+        <div class="error-code">403</div>
+        <h1>Access Denied</h1>
+        <p>You don't have permission to access this page.</p>
+        <div class="error-actions">
+            <a href="{{ url_for('index') }}" class="btn btn-primary">
+                <i class="fas fa-home"></i> Go to Homepage
+            </a>
+            {% if not session.get('user_id') %}
+            <a href="{{ url_for('login') }}" class="btn btn-secondary">
+                <i class="fas fa-sign-in-alt"></i> Login
+            </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+    .error-container {
+        min-height: 70vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 2rem;
+    }
+
+    .error-content {
+        max-width: 500px;
+    }
+
+    .error-code {
+        font-size: 8rem;
+        font-weight: 800;
+        color: #ff9800;
+        line-height: 1;
+        margin-bottom: 1rem;
+        text-shadow: 4px 4px 8px rgba(0,0,0,0.1);
+    }
+
+    .error-content h1 {
+        font-size: 2rem;
+        color: var(--text-primary);
+        margin-bottom: 1rem;
+    }
+
+    .error-content p {
+        color: var(--text-secondary);
+        margin-bottom: 2rem;
+        font-size: 1.1rem;
+    }
+
+    .error-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+    }
+
+    @media (max-width: 768px) {
+        .error-code {
+            font-size: 5rem;
+        }
+
+        .error-content h1 {
+            font-size: 1.5rem;
+        }
+
+        .error-actions {
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .error-actions .btn {
+            width: 200px;
+        }
+    }
+</style>
+{% endblock %}

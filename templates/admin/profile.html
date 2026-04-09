@@ -1,0 +1,238 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Profile - AI Resume Screener{% endblock %}
+
+{% block content %}
+<div class="profile-container">
+    <div class="profile-header">
+        <div class="profile-avatar">
+            {{ user.full_name[:1] if user and user.full_name else 'A' }}
+        </div>
+        <div class="profile-info">
+            <h1>{{ user.full_name if user else 'Admin' }}</h1>
+            <p class="text-muted">{{ user.email }}</p>
+            <p class="role-badge role-admin">Administrator</p>
+        </div>
+    </div>
+
+    <div class="profile-card">
+        <h2><i class="fas fa-user-cog"></i> Admin Information</h2>
+        
+        <div class="info-grid">
+            <div class="info-item">
+                <span class="info-label">Full Name</span>
+                <span class="info-value">{{ user.full_name }}</span>
+            </div>
+            
+            <div class="info-item">
+                <span class="info-label">Email</span>
+                <span class="info-value">{{ user.email }}</span>
+            </div>
+            
+            <div class="info-item">
+                <span class="info-label">Role</span>
+                <span class="info-value">System Administrator</span>
+            </div>
+            
+            <div class="info-item">
+                <span class="info-label">Member Since</span>
+                <span class="info-value">{{ user.created_at.strftime('%B %d, %Y') if user.created_at else 'N/A' }}</span>
+            </div>
+            
+            <div class="info-item">
+                <span class="info-label">Account Status</span>
+                <span class="info-value">
+                    <span class="status-badge active">Active</span>
+                </span>
+            </div>
+        </div>
+        
+        <div class="admin-actions">
+            <h3>Quick Actions</h3>
+            <div class="action-buttons">
+                <a href="{{ url_for('admin_dashboard') }}" class="btn btn-primary">
+                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                </a>
+                <a href="{{ url_for('admin_users') }}" class="btn btn-secondary">
+                    <i class="fas fa-users"></i> Manage Users
+                </a>
+                <a href="{{ url_for('admin_jobs') }}" class="btn btn-secondary">
+                    <i class="fas fa-briefcase"></i> Manage Jobs
+                </a>
+                <a href="{{ url_for('admin_stats') }}" class="btn btn-secondary">
+                    <i class="fas fa-chart-bar"></i> View Statistics
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .profile-container {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .profile-header {
+        display: flex;
+        align-items: center;
+        gap: 2rem;
+        margin-bottom: 2rem;
+        padding: 2rem;
+        background: var(--bg-card);
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        box-shadow: var(--shadow);
+    }
+
+    .profile-avatar {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.5rem;
+        font-weight: bold;
+        color: white;
+    }
+
+    .profile-info h1 {
+        font-size: 2rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .text-muted {
+        color: var(--text-secondary);
+    }
+
+    .role-badge {
+        display: inline-block;
+        padding: 0.25rem 1rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        margin-top: 0.5rem;
+    }
+
+    .role-admin {
+        background: #fef2f2;
+        color: #991b1b;
+    }
+
+    .profile-card {
+        background: var(--bg-card);
+        border-radius: 12px;
+        padding: 2rem;
+        border: 1px solid var(--border);
+        box-shadow: var(--shadow);
+    }
+
+    .profile-card h2 {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 2rem;
+        font-size: 1.3rem;
+    }
+
+    .profile-card h2 i {
+        color: var(--accent-primary);
+    }
+
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .info-item {
+        padding: 1rem;
+        background: var(--bg-primary);
+        border-radius: 8px;
+    }
+
+    .info-label {
+        display: block;
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+        margin-bottom: 0.25rem;
+    }
+
+    .info-value {
+        font-size: 1.1rem;
+        font-weight: 500;
+        color: var(--text-primary);
+    }
+
+    .status-badge {
+        padding: 0.2rem 0.6rem;
+        border-radius: 12px;
+        font-size: 0.8rem;
+        font-weight: 500;
+    }
+
+    .status-badge.active {
+        background: #ecfdf5;
+        color: #065f46;
+    }
+
+    .admin-actions h3 {
+        font-size: 1rem;
+        color: var(--text-secondary);
+        margin-bottom: 1rem;
+    }
+
+    .action-buttons {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 1rem;
+    }
+
+    .btn {
+        padding: 0.75rem 1rem;
+        font-size: 0.9rem;
+        text-align: center;
+        text-decoration: none;
+        border-radius: 8px;
+        transition: all 0.2s;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+        color: white;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-lg);
+    }
+
+    .btn-secondary {
+        background: var(--bg-primary);
+        color: var(--text-primary);
+        border: 1px solid var(--border);
+    }
+
+    .btn-secondary:hover {
+        background: var(--border);
+    }
+
+    @media (max-width: 768px) {
+        .profile-header {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .info-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .action-buttons {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}

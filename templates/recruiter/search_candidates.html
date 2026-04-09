@@ -1,0 +1,559 @@
+{% extends "base.html" %}
+
+{% block title %}Search Candidates - AI Resume Screener{% endblock %}
+
+{% block content %}
+<div class="search-container">
+    <!-- Search Header -->
+    <div class="search-header">
+        <h1>Search Candidates</h1>
+        <form method="GET" action="{{ url_for('search_candidates') }}" class="search-form">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" name="q" placeholder="Search by name, email, or skills..." 
+                       value="{{ search_query }}" class="search-input">
+                <button type="submit" class="btn btn-primary">Search</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Filters Bar -->
+    <div class="filters-bar">
+        <form method="GET" action="{{ url_for('search_candidates') }}" id="filter-form" class="filters-form">
+            <input type="hidden" name="q" value="{{ search_query }}">
+            
+            <div class="filter-group">
+                <label>Job</label>
+                <select name="job_id" class="filter-select" onchange="this.form.submit()">
+                    <option value="all">All Jobs</option>
+                    {% for job in jobs %}
+                        <option value="{{ job._id }}" {% if job._id == selected_job %}selected{% endif %}>
+                            {{ job.title }} - {{ job.company }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <label>Status</label>
+                <select name="status" class="filter-select" onchange="this.form.submit()">
+                    <option value="">All Status</option>
+                    <option value="pending" {% if selected_status == 'pending' %}selected{% endif %}>Pending</option>
+                    <option value="shortlisted" {% if selected_status == 'shortlisted' %}selected{% endif %}>Shortlisted</option>
+                    <option value="hired" {% if selected_status == 'hired' %}selected{% endif %}>Hired</option>
+                    <option value="rejected" {% if selected_status == 'rejected' %}selected{% endif %}>Rejected</option>
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <label>Min Score</label>
+                <select name="min_score" class="filter-select" onchange="this.form.submit()">
+                    <option value="0" {% if selected_min_score == 0 %}selected{% endif %}>Any Score</option>
+                    <option value="50" {% if selected_min_score == 50 %}selected{% endif %}>50%+</option>
+                    <option value="60" {% if selected_min_score == 60 %}selected{% endif %}>60%+</option>
+                    <option value="70" {% if selected_min_score == 70 %}selected{% endif %}>70%+</option>
+                    <option value="80" {% if selected_min_score == 80 %}selected{% endif %}>80%+</option>
+                    <option value="90" {% if selected_min_score == 90 %}selected{% endif %}>90%+</option>
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <label>Sort By</label>
+                <select name="sort_by" class="filter-select" onchange="this.form.submit()">
+                    <option value="score" {% if selected_sort == 'score' %}selected{% endif %}>Match Score</option>
+                    <option value="date" {% if selected_sort == 'date' %}selected{% endif %}>Application Date</option>
+                    <option value="name" {% if selected_sort == 'name' %}selected{% endif %}>Name</option>
+                </select>
+            </div>
+            
+            <a href="{{ url_for('search_candidates') }}" class="clear-filters">Clear</a>
+        </form>
+    </div>
+
+    <!-- Results -->
+    <div class="results-container">
+        <div class="results-header">
+            <h3>{{ candidates|length }} Candidates Found</h3>
+        </div>
+
+        {% if candidates %}
+            <div class="candidates-grid">
+                {% for candidate in candidates %}
+                    <div class="candidate-card">
+                        <div class="candidate-header">
+                            <div class="candidate-avatar">
+                                {{ candidate.name[:1] }}
+                            </div>
+                            <div class="candidate-info">
+                                <h3>{{ candidate.name }}</h3>
+                                <p class="text-muted">{{ candidate.email }}</p>
+                                {% if candidate.location %}
+                                    <p class="text-muted small">
+                                        <i class="fas fa-map-marker-alt"></i> {{ candidate.location }}
+                                    </p>
+                                {% endif %}
+                            </div>
+                            <span class="status-badge status-{{ candidate.status }}">
+                                {{ candidate.status|title }}
+                            </span>
+                        </div>
+
+                        <!-- Match Score -->
+                        <div class="score-section">
+                            <div class="overall-score">
+                                <div class="score-circle" style="--score: {{ candidate.score }}%">
+                                    <span class="score-value">{{ candidate.score }}%</span>
+                                </div>
+                                <span class="score-label">Overall Match</span>
+                            </div>
+                            
+                            <div class="score-details">
+                                <div class="mini-score">
+                                    <span class="label">Technical</span>
+                                    <span class="value">{{ candidate.technical_score }}%</span>
+                                </div>
+                                <div class="mini-score">
+                                    <span class="label">Soft Skills</span>
+                                    <span class="value">{{ candidate.soft_score }}%</span>
+                                </div>
+                                <div class="mini-score">
+                                    <span class="label">Experience</span>
+                                    <span class="value">{{ candidate.experience_score }}%</span>
+                                </div>
+                                <div class="mini-score">
+                                    <span class="label">Education</span>
+                                    <span class="value">{{ candidate.education_score }}%</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Job Applied For -->
+                        <div class="job-info">
+                            <p><i class="fas fa-briefcase"></i> {{ candidate.job_title }} at {{ candidate.company }}</p>
+                            <p class="text-muted small">
+                                <i class="fas fa-calendar"></i> Applied: {{ candidate.applied_date.strftime('%B %d, %Y') if candidate.applied_date else 'N/A' }}
+                            </p>
+                        </div>
+
+                        <!-- Skills -->
+                        {% if candidate.skills %}
+                            <div class="skills-section">
+                                <span class="label">Skills:</span>
+                                <div class="skill-tags">
+                                    {% for skill in candidate.skills.split(',')[:3] %}
+                                        <span class="skill-tag">{{ skill.strip() }}</span>
+                                    {% endfor %}
+                                    {% if candidate.skills.split(',')|length > 3 %}
+                                        <span class="skill-tag">+{{ candidate.skills.split(',')|length - 3 }}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endif %}
+
+                        <!-- Actions -->
+                        <div class="candidate-actions">
+                            <a href="{{ url_for('view_candidates', job_id=candidate.job_id) }}#candidate-{{ candidate.id }}" 
+                               class="btn btn-primary btn-sm">
+                                <i class="fas fa-eye"></i> View Full Profile
+                            </a>
+                            
+                            {% if candidate.resume_file %}
+                                <a href="{{ url_for('download_file', filename=candidate.resume_file) }}" 
+                                   class="btn btn-secondary btn-sm">
+                                    <i class="fas fa-file-pdf"></i> Resume
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <i class="fas fa-users"></i>
+                <h3>No Candidates Found</h3>
+                <p>Try adjusting your search filters</p>
+                <a href="{{ url_for('search_candidates') }}" class="btn btn-primary">Clear Filters</a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+    .search-container {
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+    .search-header {
+        margin-bottom: 2rem;
+    }
+
+    .search-header h1 {
+        font-size: 2rem;
+        margin-bottom: 1.5rem;
+        color: var(--text-primary);
+    }
+
+    .search-form {
+        display: flex;
+        gap: 1rem;
+    }
+
+    .search-box {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        overflow: hidden;
+    }
+
+    .search-box i {
+        padding: 0 1rem;
+        color: var(--text-secondary);
+    }
+
+    .search-input {
+        flex: 1;
+        padding: 1rem 1rem 1rem 0;
+        background: none;
+        border: none;
+        color: var(--text-primary);
+        font-size: 1rem;
+    }
+
+    .search-input:focus {
+        outline: none;
+    }
+
+    .filters-bar {
+        background: var(--bg-card);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        border: 1px solid var(--border);
+    }
+
+    .filters-form {
+        display: flex;
+        gap: 1rem;
+        align-items: flex-end;
+        flex-wrap: wrap;
+    }
+
+    .filter-group {
+        flex: 1;
+        min-width: 150px;
+    }
+
+    .filter-group label {
+        display: block;
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+        margin-bottom: 0.25rem;
+    }
+
+    .filter-select {
+        width: 100%;
+        padding: 0.6rem;
+        background: var(--bg-primary);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        color: var(--text-primary);
+        cursor: pointer;
+    }
+
+    .filter-select:focus {
+        outline: none;
+        border-color: var(--accent-primary);
+    }
+
+    .clear-filters {
+        padding: 0.6rem 1.2rem;
+        background: var(--bg-primary);
+        color: var(--text-secondary);
+        text-decoration: none;
+        border-radius: 6px;
+        border: 1px solid var(--border);
+        font-size: 0.9rem;
+        white-space: nowrap;
+    }
+
+    .clear-filters:hover {
+        background: var(--error);
+        color: white;
+        border-color: var(--error);
+    }
+
+    .results-header {
+        margin-bottom: 1.5rem;
+    }
+
+    .candidates-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .candidate-card {
+        background: var(--bg-card);
+        border-radius: 16px;
+        padding: 1.5rem;
+        border: 1px solid var(--border);
+        transition: all 0.3s;
+    }
+
+    .candidate-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        border-color: var(--accent-primary);
+    }
+
+    .candidate-header {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+        position: relative;
+    }
+
+    .candidate-avatar {
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.3rem;
+        font-weight: bold;
+        color: white;
+    }
+
+    .candidate-info {
+        flex: 1;
+    }
+
+    .candidate-info h3 {
+        font-size: 1.1rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .text-muted {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+    }
+
+    .text-muted.small {
+        font-size: 0.8rem;
+    }
+
+    .text-muted i {
+        margin-right: 0.25rem;
+        color: var(--accent-primary);
+    }
+
+    .status-badge {
+        position: absolute;
+        top: 0;
+        right: 0;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 500;
+    }
+
+    .status-pending {
+        background: rgba(243, 156, 18, 0.15);
+        color: var(--warning);
+    }
+
+    .status-shortlisted {
+        background: rgba(46, 204, 113, 0.15);
+        color: var(--success);
+    }
+
+    .status-hired {
+        background: rgba(52, 152, 219, 0.15);
+        color: var(--info);
+    }
+
+    .status-rejected {
+        background: rgba(231, 76, 60, 0.15);
+        color: var(--error);
+    }
+
+    .score-section {
+        display: flex;
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .overall-score {
+        text-align: center;
+    }
+
+    .score-circle {
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        background: conic-gradient(var(--accent-primary) var(--score), var(--border) 0);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 0.25rem;
+        position: relative;
+    }
+
+    .score-circle::before {
+        content: '';
+        position: absolute;
+        width: 55px;
+        height: 55px;
+        background: var(--bg-card);
+        border-radius: 50%;
+    }
+
+    .score-value {
+        position: relative;
+        font-size: 1rem;
+        font-weight: bold;
+        color: var(--accent-primary);
+    }
+
+    .score-label {
+        font-size: 0.75rem;
+        color: var(--text-secondary);
+    }
+
+    .score-details {
+        flex: 1;
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.75rem;
+    }
+
+    .mini-score {
+        text-align: center;
+        padding: 0.5rem;
+        background: var(--bg-primary);
+        border-radius: 6px;
+    }
+
+    .mini-score .label {
+        display: block;
+        font-size: 0.7rem;
+        color: var(--text-secondary);
+        margin-bottom: 0.25rem;
+    }
+
+    .mini-score .value {
+        display: block;
+        font-size: 0.9rem;
+        font-weight: bold;
+        color: var(--accent-primary);
+    }
+
+    .job-info {
+        margin-bottom: 1rem;
+        padding: 0.75rem;
+        background: var(--bg-primary);
+        border-radius: 8px;
+    }
+
+    .job-info p {
+        margin-bottom: 0.25rem;
+        color: var(--text-primary);
+    }
+
+    .job-info i {
+        margin-right: 0.5rem;
+        color: var(--accent-primary);
+    }
+
+    .skills-section {
+        margin-bottom: 1rem;
+    }
+
+    .label {
+        display: block;
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+        margin-bottom: 0.5rem;
+    }
+
+    .skill-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .skill-tag {
+        padding: 0.2rem 0.6rem;
+        background: rgba(109, 93, 252, 0.1);
+        border: 1px solid var(--accent-primary);
+        border-radius: 16px;
+        font-size: 0.75rem;
+        color: var(--accent-primary);
+    }
+
+    .candidate-actions {
+        display: flex;
+        gap: 0.5rem;
+        margin-top: 1rem;
+    }
+
+    .btn-sm {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.8rem;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 4rem;
+        background: var(--bg-card);
+        border-radius: 16px;
+        border: 2px dashed var(--border);
+    }
+
+    .empty-state i {
+        font-size: 4rem;
+        color: var(--text-secondary);
+        margin-bottom: 1rem;
+    }
+
+    @media (max-width: 768px) {
+        .search-form {
+            flex-direction: column;
+        }
+
+        .filters-form {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .filter-group {
+            width: 100%;
+        }
+
+        .clear-filters {
+            text-align: center;
+        }
+
+        .candidates-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .score-section {
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .candidate-actions {
+            flex-direction: column;
+        }
+    }
+</style>
+{% endblock %}

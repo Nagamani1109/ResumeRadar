@@ -1,0 +1,468 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - AI Resume Screener{% endblock %}
+
+{% block content %}
+<div class="dashboard-header">
+    <div>
+        <h1>Welcome, {{ user_name }}!</h1>
+        <p class="text-muted">Find your dream job with AI-powered matching</p>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+<!-- Resume Status -->
+<div class="resume-section">
+    <div class="resume-card {% if has_resume %}uploaded{% else %}missing{% endif %}">
+        <div class="resume-icon">
+            <i class="fas fa-file-alt"></i>
+        </div>
+        <div class="resume-info">
+            <h3>Your Resume</h3>
+            {% if has_resume %}
+                <p class="text-success"><i class="fas fa-check-circle"></i> Uploaded and ready for AI analysis</p>
+            {% else %}
+                <p class="text-warning"><i class="fas fa-exclamation-triangle"></i> Upload your resume to start applying</p>
+            {% endif %}
+        </div>
+        <form method="POST" action="{{ url_for('upload_resume') }}" enctype="multipart/form-data" class="resume-upload-form">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="file-input-wrapper">
+                <input type="file" name="resume" id="resume" accept=".pdf,.docx,.txt" class="file-input" onchange="updateFileName(this)">
+                <label for="resume" class="btn btn-filter">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <span id="file-name">Choose File</span>
+                </label>
+            </div>
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-upload"></i> Upload
+            </button>
+        </form>
+    </div>
+</div>
+
+
+
+
+
+<!-- Add this after the resume section -->
+<div class="quick-search">
+    <form method="GET" action="{{ url_for('search_jobs') }}" class="quick-search-form">
+        <div class="search-box">
+            <i class="fas fa-search"></i>
+            <input type="text" name="q" placeholder="Search jobs by title, company, or keywords..." class="search-input">
+            <button type="submit" class="btn btn-search">Search</button>
+        </div>
+        <a href="{{ url_for('search_jobs') }}" class="btn btn-filter">
+            <i class="fas fa-sliders-h"></i> Advanced Filters
+        </a>
+    </form>
+</div>
+
+<style>
+.btn-search
+{
+color:white;
+background:#2c8c4c;
+}
+.btn-filter
+{
+background:var(--accent-primary);
+color:white;
+}
+.btn-filter:hover
+{
+background:var(--accent-primary);
+color:white;
+transform: translateY(-3px);
+}
+    .quick-search {
+        margin-bottom: 5rem;
+    }
+    
+    .quick-search-form {
+        display: flex;
+        gap: 1rem;
+    }
+    
+    .search-box {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        background: var(--bg-card);
+        border: 1px solid #2C8c4c;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+    
+    .search-box i {
+        padding: 0 1rem;
+        color: var(--text-secondary);
+    }
+    
+    .search-input {
+        flex: 1;
+        padding: 0.75rem 1rem 0.75rem 0;
+        background: none;
+        border: none;
+        color: var(--text-primary);
+    }
+    
+    .search-input:focus {
+        outline: none;
+    }
+    
+    @media (max-width: 768px) {
+        .quick-search-form {
+            flex-direction: column;
+        }
+    }
+</style>
+<!-- Available Jobs -->
+<h2 class="section-title">
+    <i class="fas fa-briefcase"></i> Available Jobs
+    <span class="job-count">{{ jobs|length }} positions</span>
+</h2>
+
+{% if jobs %}
+<div class="jobs-grid">
+    {% for job in jobs %}
+    <div class="job-card">
+        <div class="job-card-header">
+            <h3>{{ job.title }}</h3>
+            <div class="job-actions">
+                {% if job.is_saved %}
+                    <button class="save-btn saved" onclick="toggleSave('{{ job._id }}')" title="Remove from saved">
+                        <i class="fas fa-bookmark"></i>
+                    </button>
+                {% else %}
+                    <button class="save-btn" onclick="toggleSave('{{ job._id }}')" title="Save for later">
+                        <i class="far fa-bookmark"></i>
+                    </button>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="job-company">
+            <i class="fas fa-building"></i> {{ job.company }}
+        </div>
+        
+        <div class="job-details">
+            <span><i class="fas fa-map-marker-alt"></i> {{ job.location }}</span>
+            <span><i class="fas fa-clock"></i> {{ job.job_type }}</span>
+        </div>
+        
+        <div class="job-description">
+            {{ job.description[:150] }}{% if job.description|length > 150 %}...{% endif %}
+        </div>
+        
+        <div class="job-footer">
+            <div class="job-salary">
+                {% if job.salary_min and job.salary_max %}
+                    ${{ job.salary_min }} - ${{ job.salary_max }}
+                {% endif %}
+            </div>
+            
+            {% if not job.has_applied %}
+                <a href="{{ url_for('jobseeker_job_detail', job_id=job._id) }}" class="btn btn-primary btn-sm">
+                    <i class="fas fa-eye"></i> View Details
+                </a>
+            {% else %}
+                <button class="btn btn-secondary btn-sm" disabled>
+                    <i class="fas fa-check"></i> Applied
+                </button>
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">
+    <i class="fas fa-briefcase"></i>
+    <h3>No Jobs Available</h3>
+    <p>Check back later for new opportunities</p>
+</div>
+{% endif %}
+
+<style>
+    .dashboard-header {
+        margin-bottom: 2rem;
+margin-top:3rem;
+    }
+
+    .text-muted {
+        color: var(--text-secondary);
+    }
+
+    .resume-section {
+        margin-bottom: 3rem;
+    }
+
+    .resume-card {
+        background: var(--bg-card);
+        border-radius: 16px;
+        padding: 2rem;
+        display: flex;
+        align-items: center;
+        gap: 2rem;
+        border: 2px solid;
+        transition: all 0.3s;
+    }
+
+    .resume-card.uploaded {
+        border-color: var(--success);
+    }
+
+    .resume-card.missing {
+        border-color: var(--warning);
+    }
+
+    .resume-icon {
+        width: 60px;
+        height: 60px;
+        background: var(--bg-primary);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.8rem;
+        color: var(--accent-primary);
+    }
+
+    .resume-info {
+        flex: 1;
+    }
+
+    .resume-info h3 {
+        margin-bottom: 0.25rem;
+    }
+
+    .text-success {
+        color: var(--success);
+    }
+
+    .text-warning {
+        color: var(--warning);
+    }
+
+    .resume-upload-form {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+    }
+
+    .file-input-wrapper {
+        position: relative;
+    }
+
+    .file-input {
+        position: absolute;
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    .file-input + label {
+        cursor: pointer;
+        margin: 0;
+    }
+
+    .section-title {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1.5rem;
+        font-size: 1.5rem;
+    }
+
+    .job-count {
+        font-size: 1rem;
+        background: var(--bg-card);
+        padding: 0.25rem 1rem;
+        border-radius: 20px;
+        color: var(--text-secondary);
+    }
+
+    .jobs-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .job-card {
+        background: var(--bg-card);
+        border-radius: 16px;
+        padding: 1.5rem;
+        border: 1px solid #2c8c4c;
+        transition: all 0.3s;
+margin-bottom:3rem;
+    }
+
+    .job-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        border-color: var(--accent-primary);
+    }
+
+    .job-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.5rem;
+    }
+
+    .job-card-header h3 {
+        font-size: 1.2rem;
+    }
+
+    .save-btn {
+        background: none;
+        border: none;
+        color: var(--text-secondary);
+        font-size: 1.3rem;
+        cursor: pointer;
+        transition: color 0.3s;
+    }
+
+    .save-btn.saved {
+        color: var(--accent-primary);
+    }
+
+    .job-company {
+        color: var(--accent-primary);
+        margin-bottom: 0.75rem;
+        font-size: 0.95rem;
+    }
+
+    .job-details {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1rem;
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+    }
+
+    .job-details i {
+        margin-right: 0.25rem;
+        color: var(--accent-primary);
+    }
+
+    .job-description {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+        line-height: 1.6;
+        margin-bottom: 1rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .job-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .job-salary {
+        color: var(--success);
+        font-weight: 500;
+    }
+
+    .btn-sm {
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+    }
+
+    .btn-secondary:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 4rem;
+        background: var(--bg-card);
+        border-radius: 16px;
+        border: 2px dashed var(--border);
+    }
+
+    .empty-state i {
+        font-size: 4rem;
+        color: var(--text-secondary);
+        margin-bottom: 1rem;
+    }
+
+    .empty-state h3 {
+        margin-bottom: 0.5rem;
+    }
+
+    .empty-state p {
+        color: var(--text-secondary);
+    }
+
+    @media (max-width: 768px) {
+        .resume-card {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .resume-upload-form {
+            flex-direction: column;
+            width: 100%;
+        }
+
+        .file-input-wrapper {
+            width: 100%;
+        }
+
+        .file-input + label {
+            width: 100%;
+            text-align: center;
+        }
+
+        .jobs-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .job-footer {
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .job-footer a {
+            width: 100%;
+            text-align: center;
+        }
+    }
+</style>
+
+<script>
+    function updateFileName(input) {
+        const fileName = input.files[0] ? input.files[0].name : 'Choose File';
+        document.getElementById('file-name').textContent = fileName;
+    }
+
+    function toggleSave(jobId) {
+        fetch(`/jobseeker/save-job/${jobId}`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token() }}',
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            }
+        });
+    }
+</script>
+{% endblock %}

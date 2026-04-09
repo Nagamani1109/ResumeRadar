@@ -1,0 +1,683 @@
+{% extends "base.html" %}
+
+{% block title %}FAQs - HireSmart{% endblock %}
+
+{% block content %}
+<div class="page-wrapper">
+    <div class="page-header">
+        <h1>Frequently Asked Questions</h1>
+        <p>Find answers to common questions about HireSmart</p>
+    </div>
+    
+    <div class="faq-search">
+        <i class="fas fa-search"></i>
+        <input type="text" id="faqSearch" placeholder="Search FAQs..." onkeyup="searchFaq()">
+    </div>
+    
+    <div class="faq-content">
+        <!-- For Job Seekers -->
+        <div class="faq-category">
+            <h2><i class="fas fa-user-graduate"></i> For Job Seekers </h2>
+            
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleAnswer(this)">
+                    <span>How do I create a profile?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>Click the "Register" button on the homepage, select "Job Seeker" as your role, fill in your details, and complete your profile. You'll be ready to start applying for jobs in minutes!</p>
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleAnswer(this)">
+                    <span>What file formats do you accept for resumes?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>We accept PDF, DOCX, and TXT files. Maximum file size is 10MB. For best results, we recommend using PDF format as it preserves formatting and is most compatible with our AI parser.</p>
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleAnswer(this)">
+                    <span>How does the AI matching work?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>Our AI analyzes your resume to extract skills, experience, education, and other qualifications. It then compares this information against job descriptions to calculate a match score. The AI understands synonyms (e.g., "5 years" = "five years") and related skills (e.g., Python and Django are related).</p>
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleAnswer(this)">
+                    <span>Can I apply to multiple jobs?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>Absolutely! You can apply to as many jobs as you want. We recommend focusing on positions where your match score is 60% or higher for the best chances.</p>
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleAnswer(this)">
+                    <span>How do I track my applications?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>You can track all your applications from your dashboard. You'll see real-time status updates including "Pending", "Shortlisted", "Interview", and "Hired". You'll also receive email notifications when your application status changes.</p>
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleAnswer(this)">
+                    <span>Is it free to use for job seekers?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>Yes! Creating a profile, uploading your resume, and applying to jobs is completely free for job seekers. You can apply to unlimited jobs without any cost.</p>
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleAnswer(this)">
+                    <span>How often should I update my resume?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>We recommend updating your resume whenever you gain new skills, complete a project, or change jobs. Regular updates help our AI provide better job matches.</p>
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleAnswer(this)">
+                    <span>Can I save jobs to apply later?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>Yes! You can save jobs you're interested in by clicking the bookmark icon. Saved jobs can be accessed from your dashboard under "Saved Jobs".</p>
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleAnswer(this)">
+                    <span>How do I know if my application was received?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>After applying, you'll receive a confirmation email and the application status will show as "Pending" in your dashboard. You'll be notified when the recruiter reviews your application.</p>
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleAnswer(this)">
+                    <span>What happens after I'm shortlisted?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>When shortlisted, you'll receive an email notification. The recruiter may contact you for an interview or additional information. Check your dashboard for next steps.</p>
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleAnswer(this)">
+                    <span>Can I delete my account?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>Yes, you can delete your account from profile settings. This action is permanent and will remove all your data from our system.</p>
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleAnswer(this)">
+                    <span>How do I improve my match score?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>Complete your profile with detailed skills, experience, and education. Use relevant keywords from job descriptions and keep your resume updated with your latest achievements.</p>
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleAnswer(this)">
+                    <span>What should I include in my resume?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>Include your work experience, skills, education, certifications, and achievements. Use bullet points to highlight accomplishments and quantify results where possible.</p>
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleAnswer(this)">
+                    <span>Can I upload multiple resumes?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>You can upload one primary resume, but you can update it anytime. For different job types, you can tailor your resume before applying.</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- For Recruiters -->
+        <div class="faq-category">
+            <h2><i class="fas fa-briefcase"></i> For Recruiters </h2>
+            
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleAnswer(this)">
+                    <span>How do I post a job?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>After logging in as a recruiter, click "Post Job" from your dashboard. Fill in the job title, description, requirements, location, salary range, and other details. Your job will be published immediately and visible to job seekers.</p>
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleAnswer(this)">
+                    <span>How do I review candidates?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>Visit your job listing and click "View Candidates". You'll see all applicants ranked by their AI match score. You can filter by score, status, skills, and more. Click on any candidate to view their full profile and resume.</p>
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleAnswer(this)">
+                    <span>Can I shortlist candidates?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>Yes! You can shortlist candidates directly from the candidates list. Shortlisted candidates will receive an email notification and can be easily filtered in your dashboard for quick access.</p>
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleAnswer(this)">
+                    <span>How accurate is the AI matching?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>Our AI achieves 95% accuracy in matching candidates to jobs. It uses multiple algorithms including keyword matching, semantic similarity, skill relationship mapping, and experience calculation to ensure the most relevant candidates rise to the top.</p>
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleAnswer(this)">
+                    <span>Is there a limit on job postings?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>Basic accounts can post up to 10 active jobs. Premium accounts offer unlimited job postings, featured listings, and advanced analytics. Contact our sales team for enterprise plans.</p>
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleAnswer(this)">
+                    <span>Can I export candidate data?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>Yes! You can export candidate lists to Excel format. This includes candidate names, scores, contact information, and application status for offline analysis.</p>
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleAnswer(this)">
+                    <span>How do I reject candidates professionally?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>Use the "Reject" button on a candidate's profile. The candidate will receive a polite rejection email with constructive feedback to help them improve.</p>
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleAnswer(this)">
+                    <span>Can I edit a posted job?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>Yes, you can edit your job postings at any time. Changes are immediately reflected for candidates viewing the job.</p>
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleAnswer(this)">
+                    <span>What happens when a job is filled?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>You can mark the job as "Hired" to close it. The job will no longer accept new applications, and candidates will see it as filled.</p>
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleAnswer(this)">
+                    <span>Can I communicate with candidates directly?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>Yes, you can send messages to candidates through the platform. All communications are tracked and stored for reference.</p>
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleAnswer(this)">
+                    <span>How do I search for specific candidates?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>Use the search bar to find candidates by name, email, phone, or skills. You can also filter by match score, status, location, and experience level.</p>
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleAnswer(this)">
+                    <span>Can I create candidate shortlists?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>Yes! You can create custom shortlists for different positions. Shortlisted candidates can be easily accessed from your dashboard.</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Account & Security -->
+        <div class="faq-category">
+            <h2><i class="fas fa-shield-alt"></i> Account & Security </h2>
+            
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleAnswer(this)">
+                    <span>How do I reset my password?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>Click "Forgot Password" on the login page. Enter your email address, and we'll send you a secure link to reset your password. The link expires in 1 hour for security.</p>
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleAnswer(this)">
+                    <span>Is my data secure?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>Yes! We take security seriously. All data is encrypted in transit (SSL/TLS) and at rest. Passwords are hashed using bcrypt, and we never store sensitive information in plain text. We're GDPR compliant and regularly audited for security.</p>
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleAnswer(this)">
+                    <span>Can I change my email address?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>Yes, you can update your email address in profile settings. You'll need to verify the new email address before it becomes active.</p>
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleAnswer(this)">
+                    <span>How do I enable two-factor authentication?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>2FA is available for premium accounts. Go to Security Settings in your profile to enable it. You'll need an authenticator app like Google Authenticator.</p>
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleAnswer(this)">
+                    <span>What happens if I forget my password?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>Use the "Forgot Password" link on the login page. You'll receive a password reset email with instructions to create a new password.</p>
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleAnswer(this)">
+                    <span>Can I have multiple accounts?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>Users are limited to one account per email address. If you need both recruiter and job seeker access, contact support for assistance.</p>
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleAnswer(this)">
+                    <span>How do I report suspicious activity?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>Contact our support team immediately at security@hiresmart.com or use the "Report" button on any suspicious profile or job posting.</p>
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleAnswer(this)">
+                    <span>How long is my data retained?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>We retain your data while your account is active. If you delete your account, data is removed within 30 days, except where required for legal compliance.</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Billing & Subscription -->
+        <div class="faq-category">
+            <h2><i class="fas fa-credit-card"></i> Billing & Subscription </h2>
+            
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleAnswer(this)">
+                    <span>Is HireSmart free to use?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>Yes! Job seekers can create profiles and apply to jobs completely free. Recruiters can post up to 10 jobs for free. Premium plans are available for unlimited access and advanced features.</p>
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleAnswer(this)">
+                    <span>What payment methods do you accept?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>We accept all major credit cards (Visa, Mastercard, American Express), PayPal, and bank transfers for annual plans. All payments are processed securely through Stripe.</p>
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleAnswer(this)">
+                    <span>Can I cancel my subscription?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>Yes, you can cancel anytime from your billing settings. No cancellation fees. Your account will remain active until the end of your billing period.</p>
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleAnswer(this)">
+                    <span>Do you offer refunds?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>We offer a 14-day money-back guarantee for first-time subscribers. After that, subscriptions are non-refundable but can be cancelled anytime.</p>
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleAnswer(this)">
+                    <span>What's included in premium plans?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>Premium plans include unlimited job postings, featured listings, advanced analytics, priority support, candidate insights, and API access.</p>
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleAnswer(this)">
+                    <span>Do you offer enterprise plans?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>Yes! Contact our sales team for custom enterprise plans with dedicated support, custom integrations, and volume discounts.</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Technical Support -->
+        <div class="faq-category">
+            <h2><i class="fas fa-headset"></i> Technical Support </h2>
+            
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleAnswer(this)">
+                    <span>What browsers are supported?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>We support the latest versions of Chrome, Firefox, Safari, and Edge. For the best experience, we recommend using Chrome.</p>
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleAnswer(this)">
+                    <span>Is there a mobile app?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>Currently, we offer a mobile-responsive website that works great on all devices. A dedicated mobile app is coming soon!</p>
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleAnswer(this)">
+                    <span>How do I report a bug?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>Contact our support team at support@hiresmart.com with details about the issue, including screenshots if possible. We typically respond within 24 hours.</p>
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleAnswer(this)">
+                    <span>Why is my resume not uploading?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>Check that your file is in PDF, DOCX, or TXT format and under 10MB. If the issue persists, try clearing your browser cache or using a different browser.</p>
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleAnswer(this)">
+                    <span>How do I contact support?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>Email us at support@hiresmart.com or use the contact form on our website. Our support team is available Monday-Friday, 9am-6pm EST.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="contact-support">
+        <h3>Still have questions?</h3>
+        <p>We're here to help! Contact our support team and we'll get back to you within 24 hours.</p>
+        <p class="support-email"><i class="fas fa-envelope"></i> support@hiresmart.com</p>
+    </div>
+</div>
+
+<style>
+.page-wrapper {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 3rem 2rem;
+}
+
+.page-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.page-header h1 {
+    font-size: 2.5rem;
+    color: #1E2A4A;
+    margin-bottom: 0.5rem;
+}
+
+.page-header p {
+    font-size: 1.1rem;
+    color: #4A5782;
+}
+
+.faq-search {
+    position: relative;
+    margin-bottom: 2rem;
+}
+
+.faq-search i {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #4A5782;
+}
+
+.faq-search input {
+    width: 100%;
+    padding: 12px 15px 12px 45px;
+    border: 2px solid #E0E6F2;
+    border-radius: 12px;
+    font-size: 1rem;
+    background: white;
+    color: #1E2A4A;
+}
+
+.faq-search input:focus {
+    outline: none;
+    border-color: #2C8C4C;
+}
+
+.faq-category {
+    background: white;
+    border-radius: 20px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    border: 1px solid #E0E6F2;
+}
+
+.faq-category h2 {
+    font-size: 1.2rem;
+    color: #2C8C4C;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #E0E6F2;
+}
+
+.faq-item {
+    border-bottom: 1px solid #E0E6F2;
+}
+
+.faq-item:last-child {
+    border-bottom: none;
+}
+
+.faq-question {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 0;
+    cursor: pointer;
+    font-weight: 500;
+    color: #1E2A4A;
+}
+
+.faq-question:hover {
+    color: #2C8C4C;
+}
+
+.faq-question i {
+    transition: transform 0.3s;
+}
+
+.faq-question.active i {
+    transform: rotate(180deg);
+}
+
+.faq-answer {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+    padding: 0;
+    color: #2F3B64;
+    line-height: 1.6;
+}
+
+.faq-answer.show {
+    max-height: 300px;
+    padding: 0 0 1rem 0;
+}
+
+.contact-support {
+    text-align: center;
+    background: #F5F8FF;
+    padding: 2rem;
+    border-radius: 20px;
+    margin-top: 2rem;
+}
+
+.contact-support h3 {
+    font-size: 1.3rem;
+    color: #1E2A4A;
+    margin-bottom: 0.5rem;
+}
+
+.contact-support p {
+    color: #2F3B64;
+    margin-bottom: 0.5rem;
+}
+
+.support-email {
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: #2C8C4C;
+    margin-top: 0.5rem;
+}
+
+.support-email i {
+    margin-right: 0.5rem;
+}
+
+@media (max-width: 768px) {
+    .page-wrapper {
+        padding: 1.5rem;
+    }
+    
+    .page-header h1 {
+        font-size: 2rem;
+    }
+    
+    .faq-category h2 {
+        font-size: 1rem;
+    }
+}
+</style>
+
+<script>
+function toggleAnswer(element) {
+    element.classList.toggle('active');
+    const answer = element.nextElementSibling;
+    answer.classList.toggle('show');
+}
+
+function searchFaq() {
+    const searchTerm = document.getElementById('faqSearch').value.toLowerCase();
+    const faqItems = document.querySelectorAll('.faq-item');
+    
+    faqItems.forEach(item => {
+        const question = item.querySelector('.faq-question span').textContent.toLowerCase();
+        const answer = item.querySelector('.faq-answer p').textContent.toLowerCase();
+        
+        if (question.includes(searchTerm) || answer.includes(searchTerm)) {
+            item.style.display = 'block';
+        } else {
+            item.style.display = 'none';
+        }
+    });
+}
+</script>
+{% endblock %}

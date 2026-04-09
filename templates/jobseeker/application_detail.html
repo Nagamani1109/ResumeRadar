@@ -1,0 +1,751 @@
+{% extends "base.html" %}
+
+{% block title %}Application Details - AI Resume Screener{% endblock %}
+
+{% block content %}
+<div class="detail-container">
+    <!-- Header -->
+    <div class="detail-header">
+        <div>
+            <h1>{{ job.title if job else 'Application Details' }}</h1>
+            <p class="text-muted">
+                <i class="fas fa-building"></i> {{ job.company if job else 'N/A' }}
+                <i class="fas fa-map-marker-alt ms-3"></i> {{ job.location if job else 'N/A' }}
+            </p>
+        </div>
+        <div class="header-actions">
+            <span class="status-badge status-{{ application.status }}">
+                {{ application.status|title }}
+            </span>
+            <a href="{{ url_for('my_applications') }}" class="btn btn-secondary btn-sm">
+                <i class="fas fa-arrow-left"></i> Back
+            </a>
+        </div>
+    </div>
+
+    <div class="detail-grid">
+        <!-- Left Column - Application Details -->
+        <div class="detail-card">
+            <h2><i class="fas fa-info-circle"></i> Application Details</h2>
+            
+            <div class="detail-item">
+                <span class="detail-label">Applied Date:</span>
+                <span class="detail-value">{{ application.applied_date.strftime('%B %d, %Y at %H:%M') if application.applied_date else 'N/A' }}</span>
+            </div>
+            
+            <div class="detail-item">
+                <span class="detail-label">Current Status:</span>
+                <span class="detail-value">
+                    <span class="status-badge status-{{ application.status }}">
+                        {{ application.status|title }}
+                    </span>
+                </span>
+            </div>
+
+            {% if application.updated_at %}
+            <div class="detail-item">
+                <span class="detail-label">Last Updated:</span>
+                <span class="detail-value">{{ application.updated_at.strftime('%B %d, %Y at %H:%M') }}</span>
+            </div>
+            {% endif %}
+
+            <!-- Timeline -->
+            <div class="timeline mt-4">
+                <h3>Application Timeline</h3>
+                <div class="timeline-steps">
+                    <div class="timeline-step {% if application.status != 'rejected' %}completed{% endif %}">
+                        <div class="step-icon completed">
+                            <i class="fas fa-check"></i>
+                        </div>
+                        <div class="step-content">
+                            <h4>Application Submitted</h4>
+                            <p>{{ application.applied_date.strftime('%B %d, %Y') if application.applied_date else 'N/A' }}</p>
+                        </div>
+                    </div>
+
+                    <div class="timeline-step {% if application.status in ['shortlisted', 'hired'] %}completed{% elif application.status == 'rejected' %}failed{% endif %}">
+                        <div class="step-icon {% if application.status in ['shortlisted', 'hired'] %}completed{% elif application.status == 'rejected' %}failed{% else %}pending{% endif %}">
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <div class="step-content">
+                            <h4>Review & Shortlist</h4>
+                            <p>{% if application.status == 'shortlisted' %}You have been shortlisted!{% elif application.status == 'hired' %}Shortlisted and selected{% elif application.status == 'rejected' %}Not shortlisted{% else %}Pending review{% endif %}</p>
+                        </div>
+                    </div>
+
+                    <div class="timeline-step {% if application.status == 'hired' %}completed{% endif %}">
+                        <div class="step-icon {% if application.status == 'hired' %}completed{% else %}pending{% endif %}">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="step-content">
+                            <h4>Interview & Hiring</h4>
+                            <p>{% if application.status == 'hired' %}Congratulations! You are hired!{% else %}Awaiting decision{% endif %}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column - AI Analysis -->
+        {% if application.analysis %}
+        <div class="analysis-card">
+            <h2><i class="fas fa-robot"></i> AI Match Analysis</h2>
+            
+           <!-- Overall Score -->
+<div class="overall-score">
+    <div class="score-circle">
+        <svg viewBox="0 0 100 100" class="score-svg">
+            <circle cx="50" cy="50" r="45" class="score-bg"></circle>
+            <circle cx="50" cy="50" r="45" class="score-fill" 
+                    data-score="{{ application.analysis.overall }}"></circle>
+        </svg>
+        <div class="score-value">{{ application.analysis.overall }}%</div>
+    </div>
+    <p>Overall Match</p>
+</div>
+
+            <!-- Detailed Scores -->
+            <div class="detailed-scores">
+                <div class="score-item">
+                    <span>Technical Skills</span>
+                    <span class="score-percent">{{ application.analysis.technical }}%</span>
+                    <div class="progress">
+                        <div class="progress-bar technical-bar" style="width: {{ application.analysis.technical }}%"></div>
+                    </div>
+                </div>
+                
+                <div class="score-item">
+                    <span>Soft Skills</span>
+                    <span class="score-percent">{{ application.analysis.soft_skills }}%</span>
+                    <div class="progress">
+                        <div class="progress-bar soft-bar" style="width: {{ application.analysis.soft_skills }}%"></div>
+                    </div>
+                </div>
+                
+                <div class="score-item">
+                    <span>Experience</span>
+                    <span class="score-percent">{{ application.analysis.experience }}%</span>
+                    <div class="progress">
+                        <div class="progress-bar exp-bar" style="width: {{ application.analysis.experience }}%"></div>
+                    </div>
+                </div>
+                
+                <div class="score-item">
+                    <span>Education</span>
+                    <span class="score-percent">{{ application.analysis.education }}%</span>
+                    <div class="progress">
+                        <div class="progress-bar edu-bar" style="width: {{ application.analysis.education }}%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Matched Skills -->
+            {% if application.analysis.matched_technical %}
+            <div class="skills-section">
+                <h3>✅ Your Matching Skills</h3>
+                <div class="skill-grid">
+                    {% for skill in application.analysis.matched_technical %}
+                    <div class="skill-item success">
+                        <span class="skill-name">{{ skill.skill if skill.skill else skill }}</span>
+                        {% if skill.score %}
+                            <span class="skill-score">{{ skill.score }}%</span>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Missing Skills -->
+            {% if application.analysis.missing_technical %}
+            <div class="skills-section">
+                <h3>⚠️ Skills to Improve</h3>
+                <div class="skill-grid">
+                    {% for skill in application.analysis.missing_technical %}
+                    <div class="skill-item warning">{{ skill }}</div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Experience Info -->
+            {% if application.analysis.experience_years %}
+            <div class="experience-info">
+                <i class="fas fa-briefcase"></i>
+                Your Experience: {{ application.analysis.experience_years }} years
+            </div>
+            {% endif %}
+
+            <!-- Feedback -->
+            {% if application.analysis.feedback %}
+            <div class="feedback">
+                <h3>AI Feedback</h3>
+                <p>{{ application.analysis.feedback }}</p>
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Job Details Section -->
+    {% if job %}
+    <div class="job-details-card">
+        <h2><i class="fas fa-briefcase"></i> Job Details</h2>
+        
+        <div class="job-description">
+            <h3>Description</h3>
+            <p>{{ job.description }}</p>
+        </div>
+        
+        <div class="job-requirements">
+            <h3>Requirements</h3>
+            <p>{{ job.requirements }}</p>
+        </div>
+        
+        <div class="job-meta">
+            <span><i class="fas fa-clock"></i> {{ job.job_type|title if job.job_type else 'Not specified' }}</span>
+            <span><i class="fas fa-level-up-alt"></i> {{ job.experience_level|title if job.experience_level else 'Not specified' }}</span>
+            {% if job.salary_min and job.salary_max %}
+            <span><i class="fas fa-dollar-sign"></i> ${{ job.salary_min }} - ${{ job.salary_max }}</span>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Recruiter Info -->
+    {% if recruiter %}
+    <div class="recruiter-card">
+        <h2><i class="fas fa-building"></i> About the Company</h2>
+        
+        <div class="recruiter-info">
+            <div class="recruiter-avatar">
+                {{ recruiter.full_name[:1] if recruiter.full_name else 'C' }}
+            </div>
+            <div>
+                <h3>{{ recruiter.company if recruiter.company else recruiter.full_name }}</h3>
+                {% if recruiter.location %}
+                    <p><i class="fas fa-map-marker-alt"></i> {{ recruiter.location }}</p>
+                {% endif %}
+                {% if recruiter.company_website %}
+                    <p><i class="fas fa-globe"></i> <a href="{{ recruiter.company_website }}" target="_blank">{{ recruiter.company_website }}</a></p>
+                {% endif %}
+            </div>
+        </div>
+        
+        {% if recruiter.bio %}
+        <div class="company-bio">
+            <h3>About</h3>
+            <p>{{ recruiter.bio }}</p>
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+
+<style>
+    .detail-container {
+        max-width: 1200px;
+        margin: 0 auto;
+margin-top:3rem;
+margin-bottom:3rem;
+    }
+
+    .detail-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        padding: 1.5rem;
+        background: var(--bg-card);
+        border-radius: 12px;
+        border: 1px solid #2C8C4C;
+        box-shadow: 0 2px 8px rgba(44, 140, 76, 0.1);
+    }
+
+    .detail-header h1 {
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
+        color: var(--text-primary);
+    }
+
+    .text-muted {
+        color: var(--text-secondary);
+    }
+
+    .text-muted i {
+        margin-right: 0.25rem;
+        color: #2C8C4C;
+    }
+
+    .ms-3 {
+        margin-left: 1rem;
+    }
+
+    .header-actions {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .status-badge {
+        padding: 0.25rem 1rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 500;
+    }
+
+    .status-pending {
+        background: #F9FAFB;
+        color: #4B5563;
+        border: 1px solid #E5E7EB;
+    }
+
+    .status-shortlisted {
+        background: #ECFDF5;
+        color: #10B981;
+        border: 1px solid #A7F3D0;
+    }
+
+    .status-hired {
+        background: #EFF6FF;
+        color: #3B82F6;
+        border: 1px solid #BFDBFE;
+    }
+
+    .status-rejected {
+        background: #FEF2F2;
+        color: #EF4444;
+        border: 1px solid #FECACA;
+    }
+
+    .detail-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .detail-card, .analysis-card, .job-details-card, .recruiter-card {
+        background: var(--bg-card);
+        border-radius: 16px;
+        padding: 2rem;
+        border: 1px solid #2C8C4C;
+        box-shadow: 0 2px 8px rgba(44, 140, 76, 0.05);
+margin-top:2rem;
+    }
+
+    .detail-card h2, .analysis-card h2, .job-details-card h2, .recruiter-card h2 {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 1.5rem;
+        font-size: 1.3rem;
+        color: var(--text-primary);
+    }
+
+    .detail-card h2 i, .analysis-card h2 i {
+        color: #2C8C4C;
+    }
+
+    .detail-item {
+        display: flex;
+        margin-bottom: 1rem;
+        padding: 0.75rem;
+        background: var(--bg-primary);
+        border-radius: 8px;
+    }
+
+    .detail-label {
+        width: 120px;
+        color: var(--text-secondary);
+    }
+
+    .detail-value {
+        flex: 1;
+        font-weight: 500;
+    }
+
+    .mt-4 {
+        margin-top: 2rem;
+    }
+
+    .timeline h3 {
+        font-size: 1rem;
+        margin-bottom: 1rem;
+        color: var(--text-secondary);
+    }
+
+    .timeline-steps {
+        position: relative;
+    }
+
+    .timeline-step {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+        position: relative;
+    }
+
+    .step-icon {
+        width: 40px;
+        height: 40px;
+        background: #F3F4F6;
+        border: 2px solid #E5E7EB;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #9CA3AF;
+        font-size: 1rem;
+    }
+
+    .step-icon.completed {
+        background: #2C8C4C;
+        border-color: #2C8C4C;
+        color: white;
+    }
+
+    .step-icon.failed {
+        background: #EF4444;
+        border-color: #EF4444;
+        color: white;
+    }
+
+    .step-icon.pending {
+        background: #F3F4F6;
+        border-color: #E5E7EB;
+        color: #9CA3AF;
+    }
+
+    .step-content h4 {
+        font-size: 1rem;
+        margin-bottom: 0.25rem;
+        color: var(--text-primary);
+    }
+
+    .step-content p {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+    }
+
+    /* Analysis Styles */
+    .overall-score {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+   .score-circle {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+    position: relative;
+}
+
+.score-svg {
+    width: 120px;
+    height: 120px;
+    transform: rotate(-90deg);
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.score-bg {
+    fill: none;
+    stroke: #E5E7EB;
+    stroke-width: 8;
+}
+
+.score-fill {
+    fill: none;
+    stroke: #2C8C4C;
+    stroke-width: 8;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 0.5s ease;
+}
+
+.score-value {
+    position: relative;
+    z-index: 1;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #2C8C4C;
+}
+    .detailed-scores {
+        margin-bottom: 2rem;
+    }
+
+    .score-item {
+        margin-bottom: 1rem;
+    }
+
+    .score-item span {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.25rem;
+        font-size: 0.9rem;
+    }
+
+    .score-percent {
+        font-weight: bold;
+        color: #2C8C4C;
+    }
+
+    .progress {
+        height: 8px;
+        background: #E5E7EB;
+        border-radius: 4px;
+        overflow: hidden;
+    }
+
+    .technical-bar {
+        background: linear-gradient(90deg, #3B82F6, #2563EB);
+        height: 100%;
+        border-radius: 4px;
+        transition: width 0.5s ease;
+    }
+
+    .soft-bar {
+        background: linear-gradient(90deg, #8B5CF6, #7C3AED);
+        height: 100%;
+        border-radius: 4px;
+        transition: width 0.5s ease;
+    }
+
+    .exp-bar {
+        background: linear-gradient(90deg, #F59E0B, #D97706);
+        height: 100%;
+        border-radius: 4px;
+        transition: width 0.5s ease;
+    }
+
+    .edu-bar {
+        background: linear-gradient(90deg, #10B981, #059669);
+        height: 100%;
+        border-radius: 4px;
+        transition: width 0.5s ease;
+    }
+
+    .skills-section {
+        margin-bottom: 1.5rem;
+    }
+
+    .skills-section h3 {
+        font-size: 1rem;
+        margin-bottom: 0.75rem;
+        color: var(--text-secondary);
+    }
+
+    .skill-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        gap: 0.5rem;
+    }
+
+    .skill-item {
+        padding: 0.5rem 0.75rem;
+        border-radius: 8px;
+        font-size: 0.85rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .skill-item.success {
+        background: #ECFDF5;
+        color: #10B981;
+        border: 1px solid #A7F3D0;
+    }
+
+    .skill-item.warning {
+        background: #FEF3C7;
+        color: #D97706;
+        border: 1px solid #FDE68A;
+    }
+
+    .skill-score {
+        font-weight: bold;
+        font-size: 0.75rem;
+    }
+
+    .experience-info {
+        padding: 1rem;
+        background: #F0FDF4;
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+        color: #065F46;
+        border-left: 3px solid #2C8C4C;
+    }
+
+    .experience-info i {
+        margin-right: 0.5rem;
+        color: #2C8C4C;
+    }
+
+    .feedback {
+        padding: 1rem;
+        background: #F0FDF4;
+        border-radius: 8px;
+        border-left: 3px solid #2C8C4C;
+    }
+
+    .feedback h3 {
+        font-size: 1rem;
+        margin-bottom: 0.5rem;
+        color: #2C8C4C;
+    }
+
+    .feedback p {
+        color: var(--text-secondary);
+        font-style: italic;
+    }
+
+    .job-description, .job-requirements {
+        margin-bottom:3rem;
+    }
+
+    .job-description h3, .job-requirements h3, .job-salary h3 {
+        font-size: 1rem;
+        margin-bottom: 0.5rem;
+        color: var(--text-secondary);
+    }
+
+    .job-description p, .job-requirements p {
+        color: var(--text-primary);
+        line-height: 1.6;
+    }
+
+    .job-meta {
+        display: flex;
+        gap: 2rem;
+        padding: 1rem;
+        background: var(--bg-primary);
+        border-radius: 8px;
+        color: var(--text-secondary);
+        flex-wrap: wrap;
+    }
+
+    .job-meta i {
+        margin-right: 0.25rem;
+        color: #2C8C4C;
+    }
+
+    .recruiter-info {
+        display: flex;
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+margin-top:2rem;
+    }
+
+    .recruiter-avatar {
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, #2C8C4C, #1E6B3A);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: white;
+    }
+
+    .recruiter-info h3 {
+        font-size: 1.2rem;
+        margin-bottom: 0.25rem;
+        color: var(--text-primary);
+    }
+
+    .recruiter-info p {
+        color: var(--text-secondary);
+        margin-bottom: 0.25rem;
+    }
+
+    .recruiter-info a {
+        color: #2C8C4C;
+        text-decoration: none;
+    }
+
+    .recruiter-info a:hover {
+        text-decoration: underline;
+    }
+
+    .company-bio h3 {
+        font-size: 1rem;
+        margin-bottom: 0.5rem;
+        color: var(--text-secondary);
+    }
+
+    .company-bio p {
+        color: var(--text-primary);
+        line-height: 1.6;
+    }
+
+    .btn-sm {
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .btn-secondary {
+        background: white;
+        color: #1E2A4A;
+        border: 1px solid #1E2A4A;
+        text-decoration: none;
+    }
+
+    .btn-secondary:hover {
+        background: #F3F4F6;
+    }
+
+    @media (max-width: 768px) {
+        .detail-header {
+            flex-direction: column;
+            gap: 1rem;
+            text-align: center;
+        }
+
+        .detail-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .job-meta {
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .recruiter-info {
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .skill-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+<script>
+    // Update score circle on page load
+    function updateScoreCircle() {
+        const fillCircle = document.querySelector('.score-fill');
+        if (fillCircle) {
+            const score = parseInt(fillCircle.getAttribute('data-score')) || 0;
+            const radius = 45;
+            const circumference = 2 * Math.PI * radius;
+            const offset = circumference - (score / 100) * circumference;
+            fillCircle.style.strokeDasharray = circumference;
+            fillCircle.style.strokeDashoffset = offset;
+        }
+    }
+    
+    // Run when page loads
+    document.addEventListener('DOMContentLoaded', updateScoreCircle);
+</script>
+{% endblock %}

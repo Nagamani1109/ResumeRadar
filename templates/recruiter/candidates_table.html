@@ -1,0 +1,1008 @@
+{% extends "base.html" %}
+
+{% block title %}Candidates for {{ job.title }} - AI Resume Screener{% endblock %}
+
+{% block content %}
+<div class="candidates-container">
+    <!-- Header -->
+    <div class="candidates-header">
+        <div>
+            <h1>{{ job.title }}</h1>
+            <p class="text-muted">
+                <i class="fas fa-building"></i> {{ job.company }}
+                <i class="fas fa-map-marker-alt ms-3"></i> {{ job.location }}
+                <span class="badge ms-3">{{ candidates|length }} Candidates</span>
+            </p>
+        </div>
+        <div class="header-actions">
+            <button class="btn btn-print" onclick="printCandidates()">
+                <i class="fas fa-print"></i> Print List
+            </button>
+            <button class="btn btn-primary" onclick="exportToCSV()">
+                <i class="fas fa-download"></i> Export CSV
+            </button>
+            <a href="{{ url_for('recruiter_dashboard') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back
+            </a>
+        </div>
+    </div>
+
+    <!-- Search and Filter Bar -->
+    <div class="filter-bar">
+        <div class="search-box">
+            <i class="fas fa-search"></i>
+            <input type="text" id="searchInput" placeholder="Search by name, email, or phone..." class="search-input">
+        </div>
+        
+        <select id="statusFilter" class="filter-select">
+            <option value="">All Status</option>
+            <option value="pending">Pending</option>
+            <option value="shortlisted">Shortlisted</option>
+            <option value="hired">Hired</option>
+            <option value="rejected">Rejected</option>
+        </select>
+        
+        <select id="scoreFilter" class="filter-select">
+            <option value="0">All Scores</option>
+            <option value="80">80%+</option>
+            <option value="70">70%+</option>
+            <option value="60">60%+</option>
+            <option value="50">50%+</option>
+        </select>
+        
+        <div class="bulk-actions">
+            <button class="btn btn-success" onclick="bulkShortlist()">
+                <i class="fas fa-star"></i> Shortlist Selected
+            </button>
+            <button class="btn btn-danger" onclick="bulkReject()">
+                <i class="fas fa-times"></i> Reject Selected
+            </button>
+        </div>
+    </div>
+
+    <!-- Candidates Table -->
+    <div class="table-container">
+        <table class="candidates-table" id="candidatesTable">
+            <thead>
+                <tr>
+                    <th width="40">
+                        <input type="checkbox" id="selectAll" onclick="toggleAll()">
+                    </th>
+                    <th>Name</th>
+                    <th>Age</th>
+                    <th>Languages known</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Location</th>
+                   
+                    <th>Applied Date</th>
+                    <th>Status</th>
+                    <th>Scores</th>
+                    <th>Resume</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for candidate in candidates %}
+                <tr data-id="{{ candidate.id }}" data-user-id="{{ candidate.user_id }}" data-status="{{ candidate.status }}" 
+                    data-score="{{ candidate.overall_score }}" 
+                    data-search="{{ candidate.name|lower }} {{ candidate.email|lower }} {{ candidate.phone|lower }}">
+                    <td>
+                        <input type="checkbox" class="candidate-check" value="{{ candidate.id }}">
+                    </td>
+                    <td>
+                        <div class="candidate-name">
+                            {% if candidate.profile_picture %}
+                            <img src="{{ url_for('get_image', filename=candidate.profile_picture) }}" class="name-avatar-img">
+                            {% else %}
+                            <div class="name-avatar">{{ candidate.name[:1] }}</div>
+                            {% endif %}
+                            {{ candidate.name }}
+                        </div>
+                    </td>
+                    <td>{{ candidate.age or 'N/A' }}</td>
+                    <td>{{ candidate.languages or 'N/A' }}</td>
+                    <td>{{ candidate.email }}</td>
+                    <td>{{ candidate.phone }}</td>
+                    <td>{{ candidate.location }}</td>
+                    
+                    <td>{{ candidate.applied_date.strftime('%Y-%m-%d') if candidate.applied_date else 'N/A' }}</td>
+                    <td>
+                        <span class="status-badge status-{{ candidate.status }}">
+                            {{ candidate.status|title }}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="scores">
+                            <div class="score-circle" style="background: conic-gradient(var(--accent-primary) {{ candidate.overall_score }}%, #e2e8f0 0);">
+                                <span>{{ candidate.overall_score }}%</span>
+                            </div>
+                            <div class="score-details">
+                                <span title="Technical">T:{{ candidate.technical_score }}%</span>
+                                <span title="Soft Skills">S:{{ candidate.soft_score }}%</span>
+                                <span title="Experience">E:{{ candidate.experience_score }}%</span>
+                                <span title="Education">Ed:{{ candidate.education_score }}%</span>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        {% if candidate.resume_file %}
+                        <a href="{{ url_for('download_file', filename=candidate.resume_file) }}" class="btn btn-sm btn-info" title="Download Resume">
+                            <i class="fas fa-file-pdf"></i>
+                        </a>
+                        {% else %}
+                        <span class="text-muted">No</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn btn-sm btn-profile" onclick="viewCandidateProfile('{{ candidate.user_id }}')" title="View Full Profile">
+                                <i class="fas fa-user-circle"></i> Profile
+                            </button>
+
+              
+                            <form method="POST" action="{{ url_for('update_application_status', application_id=candidate.id) }}" style="display: inline;">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <input type="hidden" name="job_id" value="{{ job._id }}">
+                                <input type="hidden" name="status" value="shortlisted">
+                                <button type="submit" class="btn btn-sm btn-success" title="Shortlist"
+                                        {% if candidate.status in ['shortlisted', 'hired'] %}disabled{% endif %}>
+                                    <i class="fas fa-star"></i>
+                                </button>
+                            </form>
+                            
+
+                            <form method="POST" action="{{ url_for('update_application_status', application_id=candidate.id) }}" style="display: inline;">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <input type="hidden" name="job_id" value="{{ job._id }}">
+                                <input type="hidden" name="status" value="rejected">
+                                <button type="submit" class="btn btn-sm btn-danger" title="Reject"
+                                        onclick="return confirm('Reject this candidate?')"
+                                        {% if candidate.status in ['rejected', 'hired'] %}disabled{% endif %}>
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        
+        {% if not candidates %}
+        <div class="empty-state">
+            <i class="fas fa-users"></i>
+            <h3>No Candidates Found</h3>
+            <p>There are no applications for this position yet</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Candidate Profile Modal -->
+<div id="candidateModal" class="modal" style="display: none;">
+    <div class="modal-content modal-large">
+        <div class="modal-header">
+            <h2 id="modalCandidateName"></h2>
+            <button class="modal-close" onclick="closeCandidateModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="modal-loading" id="modalLoading">
+                <i class="fas fa-spinner fa-spin"></i> Loading profile...
+            </div>
+            <div id="modalContent" style="display: none;">
+                <div class="profile-grid">
+                    <div class="profile-left">
+                        <div class="profile-avatar-large" id="modalAvatar"></div>
+                        <div class="contact-info">
+                            <h3>Contact Information</h3>
+                            <p><i class="fas fa-envelope"></i> <span id="modalEmail"></span></p>
+                            <p><i class="fas fa-phone"></i> <span id="modalPhone"></span></p>
+                            <p><i class="fas fa-map-marker-alt"></i> <span id="modalLocation"></span></p>
+                            <p><i class="fas fa-birthday-cake"></i> Age: <span id="modalAge"></span></p>
+                            <p><i class="fas fa-language"></i> Languages: <span id="modalLanguages"></span></p>
+                        </div>
+                        <div class="social-links" id="modalSocialLinks"></div>
+                        <div class="resume-link" id="modalResumeLink"></div>
+                    </div>
+                    <div class="profile-right">
+                        <div class="skills-section">
+                            <h3>Skills</h3>
+                            <div id="modalSkills" class="skill-tags"></div>
+                        </div>
+                        <div class="experience-section">
+                            <h3>Experience</h3>
+                            <div id="modalExperience" class="experience-text"></div>
+                        </div>
+                        <div class="education-section">
+                            <h3>Education</h3>
+                            <div id="modalEducation" class="education-text"></div>
+                        </div>
+                        <div class="applications-section">
+                            <h3>Recent Applications</h3>
+                            <div id="modalApplications" class="applications-list"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.btn-print
+{
+background:var(--accent-primary);
+color:white;
+}
+ .btn-print:hover {
+        background: var(--accent-primary);
+ color: white;
+transform: translateY(-3px);
+    }
+
+    .candidates-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 1rem;
+margin-top:3rem;
+margin-bottom:3rem;
+    }
+
+    .candidates-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .candidates-header h1 {
+        font-size: 2rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .text-muted {
+        color: var(--text-secondary);
+    }
+
+    .badge {
+        padding: 0.25rem 0.75rem;
+        background: var(--bg-card);
+        border-radius: 20px;
+        font-size: 0.85rem;
+    }
+
+    .ms-3 {
+        margin-left: 1rem;
+    }
+
+    .header-actions {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .filter-bar {
+        background: var(--bg-card);
+        border-radius: 10px;
+        padding: 1rem;
+        margin-bottom: 2rem;
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+        align-items: center;
+        border: 1px solid #2C8C4C;
+        box-shadow: var(--shadow);
+    }
+
+    .search-box {
+        flex: 2;
+        min-width: 250px;
+        display: flex;
+        align-items: center;
+        background: var(--bg-primary);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        overflow: hidden;
+    }
+
+    .search-box i {
+        padding: 0 0.75rem;
+        color: var(--text-secondary);
+    }
+
+    .search-input {
+        flex: 1;
+        padding: 0.6rem 0.75rem 0.6rem 0;
+        background: none;
+        border: none;
+        color: var(--text-primary);
+        font-size: 0.95rem;
+    }
+
+    .search-input:focus {
+        outline: none;
+    }
+
+    .filter-select {
+        flex: 1;
+        min-width: 150px;
+        padding: 0.6rem 2rem 0.6rem 1rem;
+        background: var(--bg-primary);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        color: var(--text-primary);
+        cursor: pointer;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 0.75rem center;
+    }
+
+    .bulk-actions {
+        display: flex;
+        gap: 0.5rem;
+        margin-left: auto;
+    }
+
+    .table-container {
+        background: var(--bg-card);
+        border-radius: 10px;
+        border: 1px solid #2C8C4C;
+        overflow-x: auto;
+        box-shadow: var(--shadow);
+    }
+
+    .candidates-table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 1200px;
+    }
+
+    .candidates-table th {
+        text-align: left;
+        padding: 1rem;
+        background: var(--bg-secondary);
+        border-bottom: 1px solid var(--border);
+        font-weight: 600;
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+    }
+
+    .candidates-table td {
+        padding: 0.75rem 1rem;
+        border-bottom: 1px solid var(--border);
+        vertical-align: middle;
+    }
+
+    .candidates-table tr:hover td {
+        background: var(--bg-primary);
+    }
+
+    .candidate-name {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .name-avatar {
+        width: 30px;
+        height: 30px;
+        background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: white;
+    }
+
+    .name-avatar-img {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+
+    .status-badge {
+        display: inline-block;
+        padding: 0.2rem 0.6rem;
+        border-radius: 12px;
+        font-size: 0.8rem;
+        font-weight: 500;
+    }
+
+    .status-pending { background: #fffbeb; color: #92400e; }
+    .status-shortlisted { background: #ecfdf5; color: #065f46; }
+    .status-hired { background: #eff6ff; color: #1e40af; }
+    .status-rejected { background: #fef2f2; color: #991b1b; }
+
+    .scores {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .score-circle {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.8rem;
+        font-weight: 600;
+        position: relative;
+    }
+
+    .score-circle span {
+        position: relative;
+        z-index: 2;
+        background: var(--bg-card);
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .score-details {
+        display: flex;
+        gap: 0.25rem;
+        font-size: 0.7rem;
+        color: var(--text-secondary);
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .btn-sm {
+        padding: 0.3rem 0.6rem;
+        font-size: 0.8rem;
+        border-radius: 4px;
+        border: none;
+        cursor: pointer;
+    }
+
+    .btn-success { background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; }
+    .btn-success:hover { background: #d1fae5; }
+    .btn-danger { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+    .btn-danger:hover { background: #fee2e2; }
+    .btn-info { background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe; }
+    .btn-info:hover { background: #dbeafe; }
+    .btn-profile { background: rgba(59, 130, 246, 0.1); color: var(--accent-primary); border: 1px solid var(--accent-primary); }
+    .btn-profile:hover { background: var(--accent-primary); color: white; }
+
+    .empty-state {
+        text-align: center;
+        padding: 3rem;
+    }
+    .empty-state i { font-size: 3rem; color: var(--text-secondary); margin-bottom: 1rem; }
+
+    /* Modal Styles */
+    .modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        z-index: 2000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .modal-content {
+        background: var(--bg-card);
+        border-radius: 20px;
+        max-width: 90%;
+        max-height: 90%;
+        overflow: auto;
+        box-shadow: var(--shadow-lg);
+    }
+    .modal-large { width: 900px; }
+    .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1.5rem 2rem;
+        border-bottom: 1px solid var(--border);
+        background: var(--bg-secondary);
+        border-radius: 20px 20px 0 0;
+    }
+    .modal-header h2 { font-size: 1.5rem; margin: 0; color: var(--accent-primary); }
+    .modal-close {
+        background: none;
+        border: none;
+        font-size: 2rem;
+        cursor: pointer;
+        color: var(--text-secondary);
+    }
+    .modal-close:hover { color: var(--error); }
+    .modal-body { padding: 2rem; max-height: 70vh; overflow-y: auto; }
+    .modal-loading { text-align: center; padding: 3rem; color: var(--text-secondary); }
+    .modal-loading i { font-size: 2rem; margin-bottom: 1rem; }
+
+    .profile-grid {
+        display: grid;
+        grid-template-columns: 300px 1fr;
+        gap: 2rem;
+    }
+    .profile-left { text-align: center; }
+    .profile-avatar-large { margin-bottom: 1.5rem; }
+    .avatar-placeholder-large {
+        width: 150px;
+        height: 150px;
+        background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3rem;
+        font-weight: bold;
+        color: white;
+        margin: 0 auto;
+    }
+    .avatar-img-large {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 4px solid var(--accent-primary);
+    }
+    .contact-info {
+        text-align: left;
+        margin-top: 1rem;
+        padding: 1rem;
+        background: var(--bg-primary);
+        border-radius: 10px;
+    }
+    .contact-info h3, .skills-section h3, .experience-section h3, .education-section h3, .applications-section h3 {
+        font-size: 1rem;
+        margin-bottom: 1rem;
+        color: var(--accent-primary);
+        border-left: 3px solid var(--accent-primary);
+        padding-left: 0.75rem;
+    }
+    .contact-info p { margin: 0.75rem 0; font-size: 0.9rem; color: var(--text-secondary); word-break: break-all; }
+    .contact-info i { width: 25px; color: var(--accent-primary); }
+    .social-links { margin: 1rem 0; display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap; }
+    .social-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        background: var(--bg-primary);
+        border-radius: 8px;
+        text-decoration: none;
+        color: var(--text-primary);
+        font-size: 0.85rem;
+        transition: all 0.2s;
+    }
+    .social-link:hover { background: var(--accent-primary); color: white; }
+    .resume-link { margin-top: 1rem; text-align: center; }
+    .skill-tags { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem; }
+    .skill-tag {
+        padding: 0.3rem 0.8rem;
+        background: rgba(59, 130, 246, 0.1);
+        border: 1px solid var(--accent-primary);
+        border-radius: 20px;
+        font-size: 0.85rem;
+        color: var(--accent-primary);
+    }
+    .experience-text, .education-text {
+        background: var(--bg-primary);
+        padding: 1rem;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        line-height: 1.6;
+        color: var(--text-secondary);
+        margin-bottom: 1rem;
+    }
+    .applications-list { max-height: 300px; overflow-y: auto; }
+    .application-item {
+        padding: 0.75rem;
+        background: var(--bg-primary);
+        border-radius: 8px;
+        margin-bottom: 0.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .application-item .job-title { font-weight: 500; color: var(--text-primary); }
+    .application-item .company { font-size: 0.8rem; color: var(--text-secondary); }
+    .application-item .score {
+        background: var(--accent-primary);
+        color: white;
+        padding: 0.2rem 0.5rem;
+        border-radius: 12px;
+        font-size: 0.8rem;
+    }
+
+    @media print {
+        .navbar, .footer, .filter-bar, .header-actions, .bulk-actions, 
+        .action-buttons, .btn, .modal, .modal-close, .btn-profile,
+        .btn-success, .btn-danger, .candidates-table th:last-child,
+        .candidates-table td:last-child {
+            display: none !important;
+        }
+        .candidates-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .candidates-table th, .candidates-table td {
+            border: 1px solid #000;
+            padding: 8px;
+        }
+        .candidates-table th {
+            background: #f0f0f0;
+            font-weight: bold;
+        }
+        .status-badge {
+            border: 1px solid #000;
+            background: none !important;
+            color: #000 !important;
+        }
+        .score-circle {
+            border: 1px solid #000;
+            background: none !important;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .profile-grid { grid-template-columns: 1fr; }
+        .modal-large { width: 95%; }
+        .filter-bar { flex-direction: column; }
+        .search-box, .filter-select { width: 100%; }
+        .bulk-actions { margin-left: 0; width: 100%; }
+        .bulk-actions button { flex: 1; }
+    }
+
+.btn-warning {
+    background: rgba(245, 158, 11, 0.1);
+    color: #f59e0b;
+    border: 1px solid #f59e0b;
+}
+
+.btn-warning:hover {
+    background: #f59e0b;
+    color: white;
+}
+</style>
+
+<script>
+    // Search and filter functionality
+    document.getElementById('searchInput').addEventListener('input', filterTable);
+    document.getElementById('statusFilter').addEventListener('change', filterTable);
+    document.getElementById('scoreFilter').addEventListener('change', filterTable);
+
+    function filterTable() {
+        const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+        const statusFilter = document.getElementById('statusFilter').value;
+        const scoreFilter = parseInt(document.getElementById('scoreFilter').value) || 0;
+        
+        const rows = document.querySelectorAll('#candidatesTable tbody tr');
+        
+        rows.forEach(row => {
+            const searchData = row.dataset.search;
+            const status = row.dataset.status;
+            const score = parseInt(row.dataset.score);
+            
+            let matchesSearch = true;
+            let matchesStatus = true;
+            let matchesScore = true;
+            
+            if (searchTerm) matchesSearch = searchData.includes(searchTerm);
+            if (statusFilter) matchesStatus = status === statusFilter;
+            if (scoreFilter > 0) matchesScore = score >= scoreFilter;
+            
+            if (matchesSearch && matchesStatus && matchesScore) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    }
+
+    function toggleAll() {
+        const selectAll = document.getElementById('selectAll');
+        const checkboxes = document.querySelectorAll('.candidate-check');
+        checkboxes.forEach(checkbox => checkbox.checked = selectAll.checked);
+    }
+
+    function getSelectedIds() {
+        const checkboxes = document.querySelectorAll('.candidate-check:checked');
+        return Array.from(checkboxes).map(cb => cb.value);
+    }
+
+    function bulkShortlist() {
+        const ids = getSelectedIds();
+        if (ids.length === 0) { alert('Please select at least one candidate'); return; }
+        if (confirm(`Shortlist ${ids.length} selected candidate(s)?`)) {
+            ids.forEach(id => {
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = `/recruiter/update-status/${id}`;
+                form.style.display = 'none';
+                const csrf = document.createElement('input');
+                csrf.type = 'hidden';
+                csrf.name = 'csrf_token';
+                csrf.value = '{{ csrf_token() }}';
+                const jobId = document.createElement('input');
+                jobId.type = 'hidden';
+                jobId.name = 'job_id';
+                jobId.value = '{{ job._id }}';
+                const status = document.createElement('input');
+                status.type = 'hidden';
+                status.name = 'status';
+                status.value = 'shortlisted';
+                form.appendChild(csrf);
+                form.appendChild(jobId);
+                form.appendChild(status);
+                document.body.appendChild(form);
+                form.submit();
+            });
+        }
+    }
+
+    function bulkReject() {
+        const ids = getSelectedIds();
+        if (ids.length === 0) { alert('Please select at least one candidate'); return; }
+        if (confirm(`Reject ${ids.length} selected candidate(s)?`)) {
+            ids.forEach(id => {
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = `/recruiter/update-status/${id}`;
+                form.style.display = 'none';
+                const csrf = document.createElement('input');
+                csrf.type = 'hidden';
+                csrf.name = 'csrf_token';
+                csrf.value = '{{ csrf_token() }}';
+                const jobId = document.createElement('input');
+                jobId.type = 'hidden';
+                jobId.name = 'job_id';
+                jobId.value = '{{ job._id }}';
+                const status = document.createElement('input');
+                status.type = 'hidden';
+                status.name = 'status';
+                status.value = 'rejected';
+                form.appendChild(csrf);
+                form.appendChild(jobId);
+                form.appendChild(status);
+                document.body.appendChild(form);
+                form.submit();
+            });
+        }
+    }
+
+    function exportToCSV() {
+        const visibleRows = document.querySelectorAll('#candidatesTable tbody tr:not([style*="display: none"])');
+        const headers = ['Name', 'Email', 'Phone', 'Location', 'Age', 'Languages', 'Applied Date', 'Status', 'Overall Score'];
+        let csvData = [headers.join(',')];
+        
+        visibleRows.forEach(row => {
+            const cells = row.cells;
+            const rowData = [];
+            for (let i = 1; i <= 9; i++) {
+                let text = cells[i]?.innerText?.trim() || '';
+                text = text.replace(/,/g, ';').replace(/\n/g, ' ');
+                if (i === 9) text = text.split('%')[0] || text;
+                rowData.push(`"${text}"`);
+            }
+            csvData.push(rowData.join(','));
+        });
+        
+        const csvContent = csvData.join('\n');
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+        link.setAttribute('href', url);
+        link.setAttribute('download', `candidates_{{ job.title.replace(' ', '_') }}.csv`);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+    }
+
+    function printCandidates() {
+        const visibleRows = document.querySelectorAll('#candidatesTable tbody tr:not([style*="display: none"])');
+        const printWindow = window.open('', '_blank');
+        
+        let printContent = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>Candidates List - {{ job.title }}</title>
+                <style>
+                    body { font-family: Arial, sans-serif; margin: 20px; padding: 20px; }
+                    h1 { font-size: 24px; margin-bottom: 5px; }
+                    .company-info { color: #666; margin-bottom: 20px; font-size: 14px; }
+                    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+                    th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+                    th { background-color: #f2f2f2; font-weight: bold; }
+                    tr:nth-child(even) { background-color: #f9f9f9; }
+                    .status-pending { color: #f59e0b; }
+                    .status-shortlisted { color: #10b981; }
+                    .status-hired { color: #3b82f6; }
+                    .status-rejected { color: #ef4444; }
+                    .footer { margin-top: 30px; font-size: 12px; color: #666; text-align: center; }
+                </style>
+            </head>
+            <body>
+                <h1>Candidates List - {{ job.title }}</h1>
+                <div class="company-info">
+                    <strong>Company:</strong> {{ job.company }}<br>
+                    <strong>Location:</strong> {{ job.location }}<br>
+                    <strong>Total Candidates:</strong> ${visibleRows.length}
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Name</th><th>Email</th><th>Phone</th><th>Location</th>
+                            <th>Age</th><th>Languages</th><th>Applied Date</th><th>Status</th><th>Score</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+        `;
+        
+        visibleRows.forEach(row => {
+            const cells = row.cells;
+            printContent += `
+                <tr>
+                    <td>${cells[1]?.innerText.trim() || ''}</td>
+                    <td>${cells[2]?.innerText.trim() || ''}</td>
+                    <td>${cells[3]?.innerText.trim() || ''}</td>
+                    <td>${cells[4]?.innerText.trim() || ''}</td>
+                    <td>${cells[5]?.innerText.trim() || ''}</td>
+                    <td>${cells[6]?.innerText.trim() || ''}</td>
+                    <td>${cells[7]?.innerText.trim() || ''}</td>
+                    <td class="status-${cells[8]?.innerText.trim().toLowerCase() || ''}">${cells[8]?.innerText.trim() || ''}</td>
+                    <td>${cells[9]?.innerText.trim().split('%')[0] || ''}%</td>
+                </tr>
+            `;
+        });
+        
+        printContent += `
+                    </tbody>
+                </table>
+                <div class="footer">Printed on: ${new Date().toLocaleString()}</div>
+            </body>
+            </html>
+        `;
+        
+        printWindow.document.write(printContent);
+        printWindow.document.close();
+        printWindow.print();
+    }
+
+    function viewCandidateProfile(userId) {
+        const modal = document.getElementById('candidateModal');
+        const loading = document.getElementById('modalLoading');
+        const content = document.getElementById('modalContent');
+        
+        modal.style.display = 'flex';
+        loading.style.display = 'block';
+        content.style.display = 'none';
+        
+        fetch(`/candidate/profile/${userId}`)
+            .then(response => response.json())
+            .then(data => {
+                loading.style.display = 'none';
+                content.style.display = 'block';
+                
+                document.getElementById('modalCandidateName').textContent = data.name;
+                document.getElementById('modalEmail').textContent = data.email;
+                document.getElementById('modalPhone').textContent = data.phone || 'Not provided';
+                document.getElementById('modalLocation').textContent = data.location || 'Not provided';
+                document.getElementById('modalAge').textContent = data.age || 'Not provided';
+                document.getElementById('modalLanguages').textContent = data.languages || 'Not provided';
+                
+                const avatarContainer = document.getElementById('modalAvatar');
+                if (data.profile_picture) {
+                    avatarContainer.innerHTML = `<img src="/image/${data.profile_picture}" alt="${data.name}" class="avatar-img-large">`;
+                } else {
+                    avatarContainer.innerHTML = `<div class="avatar-placeholder-large">${data.name.charAt(0)}</div>`;
+                }
+                
+                const skillsContainer = document.getElementById('modalSkills');
+                if (data.skills && data.skills !== 'Not provided') {
+                    const skills = data.skills.split(',').map(s => s.trim());
+                    skillsContainer.innerHTML = skills.map(skill => `<span class="skill-tag">${skill}</span>`).join('');
+                } else {
+                    skillsContainer.innerHTML = '<p class="text-muted">No skills listed</p>';
+                }
+                
+                document.getElementById('modalExperience').innerHTML = data.experience || '<p class="text-muted">No experience details provided</p>';
+                document.getElementById('modalEducation').innerHTML = data.education || '<p class="text-muted">No education details provided</p>';
+                
+                const socialContainer = document.getElementById('modalSocialLinks');
+                let socialHtml = '';
+                if (data.linkedin) socialHtml += `<a href="${data.linkedin}" target="_blank" class="social-link"><i class="fab fa-linkedin"></i> LinkedIn</a>`;
+                if (data.github) socialHtml += `<a href="${data.github}" target="_blank" class="social-link"><i class="fab fa-github"></i> GitHub</a>`;
+                if (data.portfolio) socialHtml += `<a href="${data.portfolio}" target="_blank" class="social-link"><i class="fas fa-globe"></i> Portfolio</a>`;
+                socialContainer.innerHTML = socialHtml || '<p class="text-muted">No social links provided</p>';
+                
+                const resumeContainer = document.getElementById('modalResumeLink');
+                if (data.resume_file) {
+                    resumeContainer.innerHTML = `<a href="/download/${data.resume_file}" class="btn btn-primary"><i class="fas fa-file-pdf"></i> Download Resume</a>`;
+                } else {
+                    resumeContainer.innerHTML = '<p class="text-muted">No resume uploaded</p>';
+                }
+                
+                const appsContainer = document.getElementById('modalApplications');
+                if (data.applications && data.applications.length > 0) {
+                    appsContainer.innerHTML = data.applications.map(app => `
+                        <div class="application-item">
+                            <div>
+                                <div class="job-title">${app.job_title}</div>
+                                <div class="company">${app.company}</div>
+                                <div class="applied-date">Applied: ${app.applied_date}</div>
+                            </div>
+                            <div>
+                                <span class="score">${app.score}%</span>
+                                <span class="status-badge status-${app.status}">${app.status}</span>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    appsContainer.innerHTML = '<p class="text-muted">No applications yet</p>';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                loading.style.display = 'none';
+                alert('Error loading candidate profile');
+            });
+    }
+
+    function closeCandidateModal() {
+        document.getElementById('candidateModal').style.display = 'none';
+    }
+
+    window.onclick = function(event) {
+        const modal = document.getElementById('candidateModal');
+        if (event.target == modal) closeCandidateModal();
+    }
+
+
+
+
+
+
+
+function reportUser(userId) {
+    const reason = prompt('Please enter the reason for reporting this user:');
+    if (reason) {
+        const description = prompt('Please provide more details (optional):');
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = `/report-user/${userId}`;
+        const csrf = document.createElement('input');
+        csrf.type = 'hidden';
+        csrf.name = 'csrf_token';
+        csrf.value = '{{ csrf_token() }}';
+        const reasonInput = document.createElement('input');
+        reasonInput.type = 'hidden';
+        reasonInput.name = 'reason';
+        reasonInput.value = reason;
+        const descInput = document.createElement('input');
+        descInput.type = 'hidden';
+        descInput.name = 'description';
+        descInput.value = description || '';
+        form.appendChild(csrf);
+        form.appendChild(reasonInput);
+        form.appendChild(descInput);
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+</script>
+{% endblock %}

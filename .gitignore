@@ -1,0 +1,19 @@
+# Environment and Secrets
+.env
+google.txt
+*.txt
+
+# MongoDB local data
+mongodb_data/
+
+# Python
+venv/
+__pycache__/
+*.pyc
+
+# Application uploads
+uploads/
+
+# System files
+.DS_Store
+Thumbs.db

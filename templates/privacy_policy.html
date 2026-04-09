@@ -1,0 +1,168 @@
+{% extends "base.html" %}
+
+{% block title %}Privacy Policy - HireSmart{% endblock %}
+
+{% block content %}
+<div class="page-wrapper">
+    <div class="page-header">
+        <h1>Privacy Policy</h1>
+        <p>Last Updated: March 2024</p>
+    </div>
+    
+    <div class="legal-content">
+        <div class="legal-section">
+            <h2>1. Information We Collect</h2>
+            <p>We collect information you provide directly to us, including:</p>
+            <ul>
+                <li><strong>Account Information:</strong> Name, email address, password, and account preferences</li>
+                <li><strong>Profile Information:</strong> Resume, work experience, education, skills, and professional details</li>
+                <li><strong>Job Application Data:</strong> Jobs you apply for, application status, and related communications</li>
+                <li><strong>Usage Information:</strong> How you interact with our platform, including pages viewed and features used</li>
+            </ul>
+        </div>
+        
+        <div class="legal-section">
+            <h2>2. How We Use Your Information</h2>
+            <p>We use your information to provide, improve, and personalize our services:</p>
+            <ul>
+                <li>Match candidates with relevant job opportunities</li>
+                <li>Help recruiters find qualified candidates</li>
+                <li>Send job alerts, application updates, and important notifications</li>
+                <li>Improve our AI matching algorithms and platform features</li>
+                <li>Provide customer support and respond to inquiries</li>
+                <li>Ensure platform security and prevent fraud</li>
+            </ul>
+        </div>
+        
+        <div class="legal-section">
+            <h2>3. Information Sharing</h2>
+            <p>We share your information only in the following circumstances:</p>
+            <ul>
+                <li><strong>With Employers:</strong> When you apply to a job, your profile and resume are shared with the employer</li>
+                <li><strong>With Service Providers:</strong> Trusted partners who assist in operating our platform (hosting, analytics, email delivery)</li>
+                <li><strong>Legal Requirements:</strong> When required by law or to protect our rights and safety</li>
+            </ul>
+            <p>We do not sell your personal information to third parties.</p>
+        </div>
+        
+        <div class="legal-section">
+            <h2>4. Data Security</h2>
+            <p>We implement industry-standard security measures to protect your information:</p>
+            <ul>
+                <li>All data is encrypted in transit using TLS/SSL</li>
+                <li>Passwords are hashed using bcrypt</li>
+                <li>Regular security audits and vulnerability assessments</li>
+                <li>Access controls and authentication protocols</li>
+                <li>Secure data centers with 24/7 monitoring</li>
+            </ul>
+        </div>
+        
+        <div class="legal-section">
+            <h2>5. Your Rights</h2>
+            <p>Depending on your location, you may have the following rights:</p>
+            <ul>
+                <li><strong>Access:</strong> Request a copy of your personal information</li>
+                <li><strong>Correction:</strong> Update or correct inaccurate information</li>
+                <li><strong>Deletion:</strong> Request deletion of your account and data</li>
+                <li><strong>Opt-out:</strong> Unsubscribe from marketing communications</li>
+                <li><strong>Data Portability:</strong> Receive your data in a structured format</li>
+            </ul>
+            <p>To exercise these rights, contact us at privacy@hiresmart.com</p>
+        </div>
+        
+        <div class="legal-section">
+            <h2>6. Cookies and Tracking</h2>
+            <p>We use cookies and similar technologies to enhance your experience. You can control cookies through your browser settings. Types of cookies we use:</p>
+            <ul>
+                <li><strong>Essential Cookies:</strong> Required for platform functionality</li>
+                <li><strong>Analytics Cookies:</strong> Help us understand how users interact with our platform</li>
+                <li><strong>Preference Cookies:</strong> Remember your settings and preferences</li>
+            </ul>
+        </div>
+        
+        <div class="legal-section">
+            <h2>7. Contact Us</h2>
+            <p>If you have questions about this Privacy Policy, please contact us:</p>
+            <ul>
+                <li><strong>Email:</strong> privacy@hiresmart.com</li>
+                <li><strong>Address:</strong> 123 Tech Street, San Francisco, CA 94105</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<style>
+.page-wrapper {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 3rem 2rem;
+}
+
+.page-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.page-header h1 {
+    font-size: 2.5rem;
+    color: #1E2A4A;
+    margin-bottom: 0.5rem;
+}
+
+.page-header p {
+    color: #4A5782;
+}
+
+.legal-content {
+    background: white;
+    border-radius: 20px;
+    padding: 2rem;
+    border: 1px solid #E0E6F2;
+}
+
+.legal-section {
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid #E0E6F2;
+}
+
+.legal-section:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.legal-section h2 {
+    font-size: 1.3rem;
+    color: #2C8C4C;
+    margin-bottom: 1rem;
+}
+
+.legal-section p {
+    color: #2F3B64;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+}
+
+.legal-section ul {
+    padding-left: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.legal-section ul li {
+    color: #2F3B64;
+    margin: 0.5rem 0;
+    line-height: 1.5;
+}
+
+@media (max-width: 768px) {
+    .page-wrapper {
+        padding: 1.5rem;
+    }
+    
+    .page-header h1 {
+        font-size: 2rem;
+    }
+}
+</style>
+{% endblock %}

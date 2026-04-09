@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}AI Resume Screener{% endblock %}</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <style>
+
+/* ===== FORCE FOOTER TO TOUCH EDGES ===== */
+html, body {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    overflow-x: hidden !important;
+}
+
+body {
+    min-height: 100vh !important;
+    display: flex !important;
+    flex-direction: column !important;
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+}
+
+.main-content {
+    flex: 1 !important;
+    width: 100% !important;
+    padding: 80px 0 0 0 !important;
+    margin: 0 !important;
+}
+
+/* Container for content - keeps content centered */
+.content-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Footer - Full Width */
+.footer {
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #1E2A4A;
+    position: relative;
+    left: 0 !important;
+    right: 0 !important;
+}
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+      :root {
+    --bg-primary: #E6F0FF;
+    --bg-secondary: #FFFFFF;
+    --bg-card: #FFFFFF;
+    --text-primary: #1E2A4A;
+    --text-secondary: #2F3B64;
+    --text-muted: #4A5782;
+    --accent-primary: #2A3F8E;
+    --accent-secondary: #1C2D6E;
+    --blue-light: #E9EEFA;
+    --border: #E0E6F2;
+    --input-bg: #F5F8FF;
+}
+      
+
+        .navbar {
+            background: #1E2A4A;
+            padding: 1rem 2rem;
+            border-bottom: 1px solid var(--border);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, white, #9b8aff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            transition: color 0.3s;
+            font-size: 0.95rem;
+        }
+
+        .nav-links a:hover {
+            color:lightgray;
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.4rem 1rem;
+            background: var(--bg-card);
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            cursor: pointer;
+        }
+
+        .user-menu:hover {
+            background: lightgray;
+        }
+
+        .avatar {
+    width: 35px;
+    height: 35px;
+    background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    color: white;
+    font-size: 1rem;
+    overflow: hidden;
+}
+
+.avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+        .notification-badge {
+            position: relative;
+            text-decoration: none;
+            color: var(--text-secondary);
+        }
+
+        .badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: var(--error);
+            color:white;
+            font-size: 0.7rem;
+            padding: 2px 5px;
+            border-radius: 10px;
+            min-width: 18px;
+            text-align: center;
+        }
+
+        .alert {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            animation: slideIn 0.3s;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .alert-success { background: rgba(46, 204, 113, 0.1); color: var(--success); border-left: 4px solid var(--success); }
+        .alert-error { background: rgba(231, 76, 60, 0.1); color: var(--error); border-left: 4px solid var(--error); }
+        .alert-warning { background: rgba(243, 156, 18, 0.1); color: var(--warning); border-left: 4px solid var(--warning); }
+        .alert-info { background: rgba(52, 152, 219, 0.1); color: var(--info); border-left: 4px solid var(--info); }
+
+        .close-alert {
+            background: none;
+            border: none;
+            color: currentColor;
+            font-size: 1.2rem;
+            cursor: pointer;
+            opacity: 0.5;
+        }
+
+        .close-alert:hover {
+            opacity: 1;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            border: none;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.95rem;
+        }
+
+        .btn-primary {
+            background: #2C8C4C;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(109, 93, 252, 0.3);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: black;
+            border: 1px solid #1E2A4A;  
+        }
+
+ .btn-secondarylogout {
+            background:green;
+            color: red;
+            border: 1px solid #1E2A4A;  
+        }
+
+        .btn-secondary:hover {
+            background: white;
+transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(109, 93, 252, 0.3);
+        }
+
+        .btn-sm {
+            padding: 0.4rem 1rem;
+            font-size: 0.85rem;
+        }
+
+        @media (max-width: 768px) {
+            .nav-container {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .nav-links {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .main-content {
+                padding: 80px 0 0 0 !important;
+            }
+
+            .content-container {
+                padding: 0 1rem;
+            }
+        }
+    </style>
+<link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+   <nav class="navbar">
+        <div class="nav-container">
+            <a href="{{ url_for('index') }}" class="logo">HireSmart</a>
+  <div class="nav-links">
+                <a href="{{ url_for('index') }}">Home</a>
+
+                {% if session.get('user_id') %}
+                    {% if session.get('user_role') == 'recruiter' %}
+                        <a href="{{ url_for('recruiter_dashboard') }}">Dashboard</a>
+                        <a href="{{ url_for('recruiter_jobs') }}">My Jobs</a>
+                        <a href="{{ url_for('post_job') }}">Post Job</a>
+                    {% elif session.get('user_role') == 'admin' %}
+                        <a href="{{ url_for('admin_dashboard') }}">Dashboard</a>
+                        <a href="{{ url_for('admin_users') }}">Users</a>
+                        <a href="{{ url_for('admin_jobs') }}">Jobs</a>
+                        <a href="{{ url_for('admin_stats') }}">Statistics</a>
+                    {% else %}
+                        <a href="{{ url_for('jobseeker_dashboard') }}">Dashboard</a>
+                        <a href="{{ url_for('my_applications') }}">Applications</a>
+                        <a href="{{ url_for('saved_jobs') }}">Saved Jobs</a>
+                    {% endif %}
+                    
+                    <!-- Notification badge - ONLY for Recruiter and Job Seeker, NOT for Admin -->
+                    {% if session.get('user_role') != 'admin' %}
+                        <a href="{{ url_for('notifications') }}" class="notification-badge">
+                            <i class="fas fa-bell"></i>
+                            {% if unread_notifications is defined and unread_notifications > 0 %}
+                                <span class="badge">{{ unread_notifications }}</span>
+                            {% endif %}
+                        </a>
+                    {% endif %}
+                    
+                    <div class="user-menu" onclick="window.location.href='{% if session.get('user_role') == 'recruiter' %}{{ url_for('recruiter_profile') }}{% elif session.get('user_role') == 'admin' %}{{ url_for('admin_dashboard') }}{% else %}{{ url_for('jobseeker_profile') }}{% endif %}'">
+                        <div class="avatar">
+                            {% if session.get('profile_picture') %}
+                                <img src="{{ url_for('get_image', filename=session.get('profile_picture')) }}" alt="Profile" class="avatar-img">
+                            {% else %}
+                                {{ session.get('user_name', 'U')[:1] }}
+                            {% endif %}
+                        </div>
+                        <span>{{ session.get('user_name', 'User') }}</span>
+                    </div>       
+                    <a href="{{ url_for('logout') }}" class="btn btn-secondarylogout btn-sm">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </a>
+                {% else %}
+                    <a href="{{ url_for('login') }}">Login</a>
+                    <a href="{{ url_for('register') }}" class="btn btn-primary">Register</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+                
+
+    <main class="main-content">
+        <!-- Content Wrapper for centering content only -->
+        <div class="content-container">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">
+                            <span><i class="fas fa-{% if category == 'success' %}check-circle{% elif category == 'error' %}exclamation-circle{% elif category == 'warning' %}exclamation-triangle{% else %}info-circle{% endif %}"></i> {{ message }}</span>
+                            <button class="close-alert" onclick="this.parentElement.remove()">&times;</button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+
+    {% block footer %}{% endblock %}
+
+    <script>
+        setTimeout(() => {
+            document.querySelectorAll('.alert').forEach(alert => {
+                alert.style.opacity = '0';
+                setTimeout(() => alert.remove(), 500);
+            });
+        }, 5000);
+
+        setInterval(() => {
+            fetch('/notifications/count')
+                .then(res => res.json())
+                .then(data => {
+                    const badge = document.querySelector('.badge');
+                    if (badge) {
+                        if (data.count > 0) {
+                            badge.textContent = data.count;
+                            badge.style.display = 'block';
+                        } else {
+                            badge.style.display = 'none';
+                        }
+                    }
+                });
+        }, 30000);
+    </script>
+</body>
+</html>

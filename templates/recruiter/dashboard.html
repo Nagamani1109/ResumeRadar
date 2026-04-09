@@ -1,0 +1,577 @@
+{% extends "base.html" %}
+
+{% block title %}Recruiter Dashboard - AI Resume Screener{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <!-- Header -->
+    <div class="dashboard-header">
+        <div>
+            <h1>Welcome, {{ user_name }}!</h1>
+            <p class="text-muted">Manage your job postings and candidates</p>
+        </div>
+        <a href="{{ url_for('post_job') }}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Post New Job
+        </a>
+    </div>
+
+    <!-- Stats Overview -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-briefcase"></i>
+            </div>
+            <div>
+                <h3>{{ jobs|length }}</h3>
+                <p>Active Jobs</p>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-users"></i>
+            </div>
+            <div>
+                <h3>{{ total_applications }}</h3>
+                <p>Total Applications</p>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-star"></i>
+            </div>
+            <div>
+                <h3>{{ total_shortlisted }}</h3>
+                <p>Shortlisted</p>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <div>
+                <h3>{{ total_hired }}</h3>
+                <p>Hired</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search Section -->
+    <div class="search-section">
+        <h2><i class="fas fa-search"></i> Search Jobs</h2>
+        <div class="search-container">
+            <input type="text" id="jobSearch" class="search-input" placeholder="Search by job title, company, or location...">
+            <select id="jobTypeFilter" class="filter-select">
+                <option value="">All Job Types</option>
+                <option value="full-time">Full Time</option>
+                <option value="part-time">Part Time</option>
+                <option value="contract">Contract</option>
+                <option value="internship">Internship</option>
+                <option value="remote">Remote</option>
+            </select>
+            <select id="statusFilter" class="filter-select">
+                <option value="">All Status</option>
+                <option value="active">Active</option>
+                <option value="closed">Closed</option>
+            </select>
+            <button class="btn btn-primary" onclick="searchJobs()">
+                <i class="fas fa-search"></i> Search
+            </button>
+            <button class="btn btn-secondary" onclick="resetFilters()">
+                <i class="fas fa-redo"></i> Reset
+            </button>
+        </div>
+    </div>
+
+    <!-- Jobs Grid -->
+    <h2 class="section-title">Your Job Postings</h2>
+    
+    {% if jobs %}
+    <div class="jobs-grid" id="jobsGrid">
+        {% for job in jobs %}
+        <div class="job-card" data-title="{{ job.title|lower }}" data-company="{{ job.company|lower }}" 
+             data-location="{{ job.location|lower }}" data-type="{{ job.job_type }}" data-status="{% if job.is_active %}active{% else %}closed{% endif %}">
+            <div class="job-card-header">
+                <div>
+                    <h3>{{ job.title }}</h3>
+                    <p class="company">
+                        <i class="fas fa-building"></i> {{ job.company }}
+                        <i class="fas fa-map-marker-alt ms-2"></i> {{ job.location }}
+                    </p>
+                </div>
+                <span class="job-status {% if job.is_active %}active{% else %}closed{% endif %}">
+                    {{ 'Active' if job.is_active else 'Closed' }}
+                </span>
+            </div>
+
+            <div class="job-meta">
+                <span><i class="fas fa-clock"></i> {{ job.job_type|replace('_', ' ')|title }}</span>
+                <span><i class="fas fa-level-up-alt"></i> {{ job.experience_level|replace('_', ' ')|title }}</span>
+                <span><i class="fas fa-calendar"></i> Posted: {{ job.posted_date.strftime('%b %d, %Y') }}</span>
+            </div>
+
+            <div class="job-stats">
+                <div class="stat">
+                    <span class="stat-value">{{ job.applications }}</span>
+                    <span class="stat-label">Applications</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-value">{{ job.shortlisted }}</span>
+                    <span class="stat-label">Shortlisted</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-value">{{ job.hired }}/{{ job.total_seats }}</span>
+                    <span class="stat-label">Hired</span>
+                </div>
+            </div>
+
+            <div class="job-actions">
+                <a href="{{ url_for('view_candidates_table', job_id=job._id) }}" class="btn btn-primary">
+                    <i class="fas fa-users"></i> View Candidates
+                </a>
+                <a href="{{ url_for('recruiter_job_detail', job_id=job._id) }}" class="btn btn-secondary">
+                    <i class="fas fa-eye"></i> Details
+                </a>
+                {% if job.is_active %}
+                <form method="POST" action="{{ url_for('delete_job', job_id=job._id) }}" class="d-inline">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="btn btn-danger btn-sm" 
+                            onclick="return confirm('Close this job posting?')">
+                        <i class="fas fa-times"></i> Close
+                    </button>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <i class="fas fa-briefcase"></i>
+        <h3>No Jobs Posted Yet</h3>
+        <p>Start by posting your first job opening</p>
+        <a href="{{ url_for('post_job') }}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Post a Job
+        </a>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+    .dashboard-container {
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+    .dashboard-header {
+ margin-top: 3rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+
+    }
+
+    .dashboard-header h1 {
+        font-size: 2rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .text-muted {
+        color: var(--text-secondary);
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-card {
+        background: var(--bg-card);
+        padding: 1.5rem;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        border: 1px solid /*var(--border);*/#2C8C4C;
+        box-shadow: var(--shadow);
+    }
+
+    .stat-icon {
+        width: 50px;
+        height: 50px;
+        background: /*linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));*/#2C8C4C;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: white;
+    }
+
+    .stat-card h3 {
+        font-size: 1.5rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .stat-card p {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+    }
+
+    .search-section {
+        background: var(--bg-card);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        border: 1px solid #2C8C4C;
+        box-shadow: var(--shadow);
+    }
+
+    .search-section h2 {
+        font-size: 1.2rem;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .search-section h2 i {
+        color: var(--accent-primary);
+    }
+
+    .search-container {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .search-input {
+        flex: 2;
+        min-width: 250px;
+        padding: 0.75rem 1rem;
+        background: var(--bg-primary);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        color: var(--text-primary);
+        font-size: 0.95rem;
+    }
+
+    .search-input:focus {
+        outline: none;
+        border-color: var(--accent-primary);
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    .filter-select {
+        flex: 1;
+        min-width: 150px;
+        padding: 0.75rem 1rem;
+        background: var(--bg-primary);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        color: var(--text-primary);
+        cursor: pointer;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 1rem center;
+    }
+
+    .section-title {
+        font-size: 1.5rem;
+ margin-top: 4rem;
+        margin-bottom: 1.5rem;
+
+    }
+
+    .jobs-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .job-card {
+        background: var(--bg-card);
+        border-radius: 12px;
+        padding: 1.5rem;
+        border: 1px solid #2C8C4C;
+        box-shadow: var(--shadow);
+        transition: all 0.2s;
+margin-bottom:5rem;
+    }
+
+    .job-card:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-lg);
+        border-color: var(--accent-primary);
+    }
+
+    .job-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 1rem;
+    }
+
+    .job-card-header h3 {
+        font-size: 1.2rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .company {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+    }
+
+    .company i {
+        color: var(--accent-primary);
+        margin-right: 0.25rem;
+    }
+
+    .ms-2 {
+        margin-left: 0.5rem;
+    }
+
+    .job-status {
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 500;
+    }
+
+    .job-status.active {
+        background: #ecfdf5;
+        color: #065f46;
+    }
+
+    .job-status.closed {
+        background: #fef2f2;
+        color: #991b1b;
+    }
+
+    .job-meta {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1rem;
+        color: var(--text-secondary);
+        font-size: 0.85rem;
+        flex-wrap: wrap;
+    }
+
+    .job-meta i {
+        margin-right: 0.25rem;
+        color: var(--accent-primary);
+    }
+
+    .job-stats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+        margin-bottom: 1rem;
+        padding: 1rem;
+        background: var(--bg-primary);
+        border-radius: 8px;
+    }
+
+    .stat {
+        text-align: center;
+    }
+
+    .stat-value {
+        display: block;
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: var(--accent-primary);
+    }
+
+    .stat-label {
+        font-size: 0.75rem;
+        color: var(--text-secondary);
+    }
+
+    .job-actions {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .btn {
+        padding: 0.6rem 1rem;
+        font-size: 0.9rem;
+        text-decoration: none;
+        border-radius: 6px;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .btn-primary {
+        background: /*linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));*/#2C8C4C;
+        color: white;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-1px);
+        box-shadow: var(--shadow-lg);
+    }
+
+    .btn-secondary {
+        background: /*var(--bg-primary);*/linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+        color: white;
+        border: 1px solid var(--border);
+    }
+
+    .btn-secondary:hover {
+       /* background: var(--border);*/
+background:linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+ transform: translateY(-1px);
+        box-shadow: var(--shadow-lg);
+        
+    }
+
+    .btn-danger {
+        background: /*red;*/#FF0000;
+        color: white;
+        border: 1px solid #fecaca;
+    }
+
+    .btn-danger:hover {
+transform: translateY(-1px);
+        background:#FF0000;
+    }
+
+    .btn-sm {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.9rem;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 4rem;
+        background: var(--bg-card);
+        border-radius: 12px;
+        border: 2px dashed var(--border);
+    }
+
+    .empty-state i {
+        font-size: 4rem;
+        color: var(--text-secondary);
+        margin-bottom: 1rem;
+    }
+
+    .empty-state h3 {
+        margin-bottom: 0.5rem;
+    }
+
+    .empty-state p {
+        color: var(--text-secondary);
+        margin-bottom: 1.5rem;
+    }
+
+    @media (max-width: 1024px) {
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 768px) {
+        .dashboard-header {
+            flex-direction: column;
+            gap: 1rem;
+            text-align: center;
+        }
+
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .search-container {
+            flex-direction: column;
+        }
+
+        .jobs-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .job-actions {
+            flex-direction: column;
+        }
+
+        .job-actions a,
+        .job-actions form {
+            width: 100%;
+        }
+
+        .job-actions .btn {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+
+<script>
+    function searchJobs() {
+        const searchTerm = document.getElementById('jobSearch').value.toLowerCase();
+        const jobType = document.getElementById('jobTypeFilter').value;
+        const status = document.getElementById('statusFilter').value;
+        
+        const jobs = document.querySelectorAll('.job-card');
+        
+        jobs.forEach(job => {
+            const title = job.dataset.title;
+            const company = job.dataset.company;
+            const location = job.dataset.location;
+            const type = job.dataset.type;
+            const jobStatus = job.dataset.status;
+            
+            let matchesSearch = true;
+            let matchesType = true;
+            let matchesStatus = true;
+            
+            if (searchTerm) {
+                matchesSearch = title.includes(searchTerm) || 
+                               company.includes(searchTerm) || 
+                               location.includes(searchTerm);
+            }
+            
+            if (jobType) {
+                matchesType = type === jobType;
+            }
+            
+            if (status) {
+                matchesStatus = jobStatus === status;
+            }
+            
+            if (matchesSearch && matchesType && matchesStatus) {
+                job.style.display = 'block';
+            } else {
+                job.style.display = 'none';
+            }
+        });
+    }
+
+    function resetFilters() {
+        document.getElementById('jobSearch').value = '';
+        document.getElementById('jobTypeFilter').value = '';
+        document.getElementById('statusFilter').value = '';
+        
+        const jobs = document.querySelectorAll('.job-card');
+        jobs.forEach(job => {
+            job.style.display = 'block';
+        });
+    }
+
+    // Live search as user types
+    document.getElementById('jobSearch').addEventListener('input', searchJobs);
+    document.getElementById('jobTypeFilter').addEventListener('change', searchJobs);
+    document.getElementById('statusFilter').addEventListener('change', searchJobs);
+</script>
+{% endblock %}

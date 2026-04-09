@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block title %}Interview Guide - TalentAI{% endblock %}
+
+{% block content %}
+<div class="page-container">
+    <h1 class="page-title">Interview Guide</h1>
+    
+    <div class="guide-content">
+        <div class="guide-section">
+            <h2>Before the Interview</h2>
+            <ul>
+                <li>Research the company thoroughly</li>
+                <li>Review the job description carefully</li>
+                <li>Prepare your "tell me about yourself" answer</li>
+                <li>Practice common interview questions</li>
+                <li>Prepare questions to ask the interviewer</li>
+            </ul>
+        </div>
+        
+        <div class="guide-section">
+            <h2>During the Interview</h2>
+            <ul>
+                <li>Dress professionally</li>
+                <li>Arrive 10-15 minutes early</li>
+                <li>Maintain good eye contact</li>
+                <li>Use the STAR method for behavioral questions</li>
+                <li>Be honest and authentic</li>
+            </ul>
+        </div>
+        
+        <div class="guide-section">
+            <h2>Common Questions</h2>
+            <ul>
+                <li>Why do you want to work here?</li>
+                <li>What are your greatest strengths/weaknesses?</li>
+                <li>Where do you see yourself in 5 years?</li>
+                <li>Tell me about a time you faced a challenge</li>
+                <li>Why should we hire you?</li>
+            </ul>
+        </div>
+        
+        <div class="guide-section">
+            <h2>After the Interview</h2>
+            <ul>
+                <li>Send a thank-you email within 24 hours</li>
+                <li>Follow up if you haven't heard back in a week</li>
+                <li>Reflect on what went well and what to improve</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<style>
+    .page-container {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 3rem 2rem;
+    }
+    .page-title {
+        font-size: 2.5rem;
+        color: var(--text-primary);
+        margin-bottom: 2rem;
+        text-align: center;
+    }
+    .guide-content {
+        background: var(--bg-card);
+        border-radius: 16px;
+        padding: 2rem;
+        box-shadow: var(--shadow);
+    }
+    .guide-section {
+        margin-bottom: 2rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid var(--border);
+    }
+    .guide-section:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+        padding-bottom: 0;
+    }
+    .guide-section h2 {
+        color: var(--accent-primary);
+        margin-bottom: 1rem;
+        font-size: 1.3rem;
+    }
+    .guide-section ul {
+        list-style: none;
+        padding-left: 0;
+    }
+    .guide-section ul li {
+        padding: 0.5rem 0;
+        padding-left: 1.5rem;
+        position: relative;
+        color: var(--text-secondary);
+    }
+    .guide-section ul li::before {
+        content: "✓";
+        color: var(--accent-primary);
+        position: absolute;
+        left: 0;
+        font-weight: bold;
+    }
+</style>
+{% endblock %}

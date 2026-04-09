@@ -1,0 +1,557 @@
+{% extends "base.html" %}
+
+{% block title %}My Profile - AI Resume Screener{% endblock %}
+
+{% block content %}
+<div class="profile-container">
+    <div class="profile-header">
+        <div class="profile-avatar">
+    {% if user and user.profile_picture %}
+        <img src="{{ url_for('download_file', filename=user.profile_picture) }}" alt="Profile">
+    {% else %}
+        {{ (user.name or user.full_name or 'U')[:1] }}
+    {% endif %}
+</div>
+<div class="profile-info">
+    <h1>{{ user.name or user.full_name or 'Job Seeker' }}</h1>
+    <p class="text-muted">{{ user.email }}</p>
+    {% if user and user.location %}
+        <p><i class="fas fa-map-marker-alt"></i> {{ user.location }}</p>
+    {% endif %}
+</div>
+
+<div class="info-grid">
+    <!-- Add after location -->
+    {% if user.age %}
+    <div class="info-item">
+        <span class="info-label">Age</span>
+        <span class="info-value">{{ user.age }} years</span>
+    </div>
+    {% endif %}
+    
+    {% if user.languages %}
+    <div class="info-item">
+        <span class="info-label">Languages</span>
+        <span class="info-value">{{ user.languages }}</span>
+    </div>
+    {% endif %}
+</div>
+
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-paper-plane"></i>
+            </div>
+            <div>
+                <h3>{{ total_applications }}</h3>
+                <p>Applications</p>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-star"></i>
+            </div>
+            <div>
+                <h3>{{ shortlisted }}</h3>
+                <p>Shortlisted</p>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <div>
+                <h3>{{ hired }}</h3>
+                <p>Hired</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile Tabs -->
+    <div class="profile-tabs">
+        <button class="tab-btn active" onclick="showTab('profile')">Profile Info</button>
+        <button class="tab-btn" onclick="showTab('password')">Change Password</button>
+        <button class="tab-btn" onclick="showTab('resume')">Resume</button>
+    </div>
+
+    <!-- Profile Info Tab -->
+    <div id="profile-tab" class="tab-content active">
+        <div class="profile-card">
+            <h2><i class="fas fa-user-edit"></i> Edit Profile</h2>
+            
+            <form method="POST" action="{{ url_for('jobseeker_profile') }}" enctype="multipart/form-data" class="profile-form">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                
+                <div class="form-group">
+                    <label class="form-label">Full Name *</label>
+                    <input type="text" name="full_name" class="form-control" 
+                           value="{{ user.full_name if user else '' }}" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Profile Picture</label>
+                    <input type="file" name="profile_picture" class="form-control" accept="image/*">
+                    <small class="text-muted">Upload JPG or PNG (max 5MB)</small>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Phone Number</label>
+                    <input type="tel" name="phone" class="form-control" 
+                           value="{{ user.phone if user and user.phone else '' }}"
+                           placeholder="+1 234 567 8900">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Location</label>
+                    <input type="text" name="location" class="form-control" 
+                           value="{{ user.location if user and user.location else '' }}"
+                           placeholder="New York, Remote">
+                </div>
+
+
+
+
+
+
+
+
+<div class="form-row">
+    <div class="form-group half">
+        <label class="form-label">Age</label>
+        <input type="number" name="age" class="form-control" 
+               value="{{ user.age if user and user.age else '' }}"
+               placeholder="Your age" min="18" max="100">
+    </div>
+
+    <div class="form-group half">
+        <label class="form-label">Languages Known</label>
+        <input type="text" name="languages" class="form-control" 
+               value="{{ user.languages if user and user.languages else '' }}"
+               placeholder="e.g., English, Spanish, French">
+        <small class="text-muted">Separate multiple languages with commas</small>
+    </div>
+</div>
+
+
+
+
+
+
+                <div class="form-group">
+                    <label class="form-label">Skills (comma separated)</label>
+                    <input type="text" name="skills" class="form-control" 
+                           value="{{ user.skills if user and user.skills else '' }}"
+                           placeholder="Python, JavaScript, React">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Experience</label>
+                    <textarea name="experience" class="form-control" rows="4" 
+                              placeholder="Your work experience...">{{ user.experience if user and user.experience else '' }}</textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Education</label>
+                    <textarea name="education" class="form-control" rows="3" 
+                              placeholder="Your education...">{{ user.education if user and user.education else '' }}</textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">LinkedIn</label>
+                    <input type="url" name="linkedin" class="form-control" 
+                           value="{{ user.linkedin if user and user.linkedin else '' }}"
+                           placeholder="https://linkedin.com/in/username">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">GitHub</label>
+                    <input type="url" name="github" class="form-control" 
+                           value="{{ user.github if user and user.github else '' }}"
+                           placeholder="https://github.com/username">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Portfolio</label>
+                    <input type="url" name="portfolio" class="form-control" 
+                           value="{{ user.portfolio if user and user.portfolio else '' }}"
+                           placeholder="https://yourportfolio.com">
+                </div>
+
+
+
+                <button type="submit" class="btn btn-primary btn-block">
+                    <i class="fas fa-save"></i> Save Changes
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Change Password Tab -->
+    <div id="password-tab" class="tab-content">
+        <div class="profile-card">
+            <h2><i class="fas fa-key"></i> Change Password</h2>
+            
+            <form method="POST" action="{{ url_for('jobseeker_profile') }}" class="profile-form">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                
+                <div class="form-group">
+                    <label class="form-label">Current Password</label>
+                    <input type="password" name="current_password" class="form-control" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">New Password</label>
+                    <input type="password" name="new_password" class="form-control" required>
+                    <small class="text-muted">Minimum 8 characters</small>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Confirm New Password</label>
+                    <input type="password" name="confirm_password" class="form-control" required>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-block">
+                    <i class="fas fa-key"></i> Update Password
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Resume Tab -->
+    <div id="resume-tab" class="tab-content">
+        <div class="profile-card">
+            <h2><i class="fas fa-file-alt"></i> Resume Management</h2>
+            
+            <div class="resume-section">
+                <h3>Current Resume</h3>
+                {% if user and user.resume_file %}
+                    <div class="resume-info">
+                        <i class="fas fa-file-pdf"></i>
+                        <span>{{ user.resume_file }}</span>
+                        <a href="{{ url_for('download_file', filename=user.resume_file) }}" class="btn btn-info btn-sm">
+                            <i class="fas fa-download"></i> Download
+                        </a>
+                    </div>
+                    <p class="text-muted small">Uploaded: {{ user.resume_uploaded_at.strftime('%B %d, %Y') if user.resume_uploaded_at else 'Recently' }}</p>
+                {% else %}
+                    <p class="text-warning"><i class="fas fa-exclamation-triangle"></i> No resume uploaded yet</p>
+                {% endif %}
+                
+                <form method="POST" action="{{ url_for('upload_resume') }}" enctype="multipart/form-data" class="resume-upload-form">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <div class="form-group">
+                        <label class="form-label">Upload New Resume</label>
+                        <input type="file" name="resume" class="form-control" accept=".pdf,.docx,.txt" required>
+                        <small class="text-muted">Supported: PDF, DOCX, TXT (Max 16MB)</small>
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-upload"></i> Upload Resume
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<style>
+    .profile-container {
+        max-width: 800px;
+        margin: 0 auto;
+margin-top:3rem;
+margin-bottom:3rem;
+    }
+
+    .profile-header {
+        display: flex;
+        align-items: center;
+        gap: 2rem;
+        margin-bottom: 2rem;
+        padding: 2rem;
+        background: var(--bg-card);
+        border-radius: 16px;
+        border: 1px solid #2c8c4c;
+    }
+
+    .profile-avatar {
+        width: 100px;
+        height: 100px;
+        background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3rem;
+        font-weight: bold;
+        color: white;
+        overflow: hidden;
+    }
+
+    .profile-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .profile-info h1 {
+        font-size: 1.8rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .text-muted {
+        color: var(--text-secondary);
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-card {
+        background: var(--bg-card);
+        padding: 1.5rem;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        border: 1px solid #2c8c4c;
+    }
+
+    .stat-icon {
+        width: 50px;
+        height: 50px;
+        background: #2c8c4c;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: white;
+    }
+
+    .stat-card h3 {
+        font-size: 1.5rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .stat-card p {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+    }
+
+    .profile-tabs {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        border-bottom: 1px solid var(--accent-primary);
+        padding-bottom: 1rem;
+    }
+
+    .tab-btn {
+        background: none;
+        border: none;
+        color: var(--text-secondary);
+        padding: 0.5rem 1.5rem;
+        cursor: pointer;
+        font-size: 1rem;
+        border-radius: 20px;
+        transition: all 0.3s;
+    }
+
+    .tab-btn:hover {
+        color: var(--text-primary);
+        background: var(--bg-card);
+    }
+
+    .tab-btn.active {
+        background: var(--accent-primary);
+        color: white;
+    }
+
+    .tab-content {
+        display: none;
+    }
+
+    .tab-content.active {
+        display: block;
+    }
+
+    .profile-card {
+        background: var(--bg-card);
+        border-radius: 16px;
+        padding: 2rem;
+        border: 1px solid #2c8c4c;
+    }
+
+    .profile-card h2 {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 1.5rem;
+        font-size: 1.3rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+        display: block;
+        margin-bottom: 0.5rem;
+        color: var(--text-secondary);
+        font-weight: 500;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        background: var(--input-bg);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        color: var(--text-primary);
+        font-size: 1rem;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: var(--accent-primary);
+    }
+
+    .text-muted {
+        color: var(--text-secondary);
+        font-size: 0.85rem;
+        display: block;
+        margin-top: 0.25rem;
+    }
+
+    .btn-block {
+        width: 100%;
+        padding: 1rem;
+        font-size: 1rem;
+    }
+
+    .resume-section {
+        padding: 1rem;
+        background: var(--bg-primary);
+        border-radius: 8px;
+    }
+
+    .resume-info {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 0.75rem;
+        background: var(--bg-card);
+        border-radius: 6px;
+        margin-bottom: 1rem;
+    }
+
+    .resume-info i {
+        color: var(--accent-primary);
+        font-size: 1.2rem;
+    }
+
+    .btn-info {
+        background: rgba(52, 152, 219, 0.1);
+        color: var(--info);
+        border: 1px solid var(--info);
+    }
+
+    .btn-info:hover {
+        background: rgba(52, 152, 219, 0.1);
+        color: black;
+    }
+
+    .btn-sm {
+        padding: 0.3rem 0.8rem;
+        font-size: 0.8rem;
+    }
+
+    .text-warning {
+        color: var(--warning);
+    }
+
+    .resume-upload-form {
+        margin-top: 1rem;
+    }
+
+    @media (max-width: 768px) {
+        .profile-header {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .profile-tabs {
+            flex-direction: column;
+        }
+
+        .resume-info {
+            flex-direction: column;
+            text-align: center;
+        }
+    }
+</style>
+
+<script>
+    function showTab(tabName) {
+        document.querySelectorAll('.tab-content').forEach(tab => {
+            tab.classList.remove('active');
+        });
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        
+        if (tabName === 'profile') {
+            document.getElementById('profile-tab').classList.add('active');
+        } else if (tabName === 'password') {
+            document.getElementById('password-tab').classList.add('active');
+        } else if (tabName === 'resume') {
+            document.getElementById('resume-tab').classList.add('active');
+        }
+        
+        event.target.classList.add('active');
+    }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{% endblock %}

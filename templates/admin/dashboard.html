@@ -1,0 +1,569 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - AI Resume Screener{% endblock %}
+
+{% block content %}
+<div class="dashboard-header">
+    <h1>Admin Dashboard</h1>
+    <p class="text-muted">Welcome back, {{ user_name }}! Here's your system overview.</p>
+</div>
+
+<!-- Stats Cards -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon">
+            <i class="fas fa-users"></i>
+        </div>
+        <div class="stat-details">
+            <h3>{{ total_users }}</h3>
+            <p>Total Users</p>
+            <small>{{ total_jobseekers }} Job Seekers · {{ total_recruiters }} Recruiters</small>
+        </div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-icon">
+            <i class="fas fa-briefcase"></i>
+        </div>
+        <div class="stat-details">
+            <h3>{{ total_jobs }}</h3>
+            <p>Total Jobs</p>
+            <small>{{ active_jobs }} Active</small>
+        </div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-icon">
+            <i class="fas fa-file-alt"></i>
+        </div>
+        <div class="stat-details">
+            <h3>{{ total_applications }}</h3>
+            <p>Applications</p>
+            <small>Across all jobs</small>
+        </div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-icon">
+            <i class="fas fa-chart-line"></i>
+        </div>
+        <div class="stat-details">
+            <h3>{{ "%.1f"|format(total_applications / total_jobs if total_jobs > 0 else 0) }}</h3>
+            <p>Avg Apps/Job</p>
+            <small>Application rate</small>
+        </div>
+    </div>
+</div>
+
+<div class="dashboard-grid">
+    <!-- Recent Users -->
+    <div class="dashboard-card">
+        <div class="card-header">
+            <h2><i class="fas fa-user-plus"></i> Recent Users</h2>
+            <a href="{{ url_for('admin_users') }}" class="btn btn-secondary btn-sm">View All</a>
+        </div>
+        <div class="card-body">
+            {% if recent_users %}
+                <div class="user-list">
+                    {% for user in recent_users %}
+                        <div class="user-item">
+                            <div class="user-avatar">
+                                {{ (user.name or user.full_name or 'U')[:1] }}
+                            </div>
+                            <div class="user-info">
+                                <h4>{{ user.name or user.full_name }}</h4>
+                                <p>{{ user.email }} · {{ user.role|title }}</p>
+                                <small>Joined {{ user.created_at_str }}</small>
+                            </div>
+                            <span class="user-status {% if user.is_active %}active{% else %}inactive{% endif %}">
+                                {{ 'Active' if user.is_active else 'Inactive' }}
+                            </span>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="text-muted">No users yet</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Recent Jobs -->
+    <div class="dashboard-card">
+        <div class="card-header">
+            <h2><i class="fas fa-briefcase"></i> Recent Jobs</h2>
+            <a href="{{ url_for('admin_jobs') }}" class="btn btn-secondary btn-sm">View All</a>
+        </div>
+        <div class="card-body">
+            {% if recent_jobs %}
+                <div class="job-list">
+                    {% for job in recent_jobs %}
+                        <div class="job-item">
+                            <div class="job-icon">
+                                <i class="fas fa-building"></i>
+                            </div>
+                            <div class="job-info">
+                                <h4>{{ job.title }}</h4>
+                                <p>{{ job.company }} · {{ job.location }}</p>
+                                <small>Posted {{ job.posted_date_str }}</small>
+                            </div>
+                            <span class="job-status {% if job.is_active %}active{% else %}inactive{% endif %}">
+                                {{ 'Active' if job.is_active else 'Closed' }}
+                            </span>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="text-muted">No jobs posted yet</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Recent Applications -->
+    <div class="dashboard-card">
+        <div class="card-header">
+            <h2><i class="fas fa-file-alt"></i> Recent Applications</h2>
+            <a href="{{ url_for('admin_stats') }}" class="btn btn-secondary btn-sm">View Stats</a>
+        </div>
+        <div class="card-body">
+            {% if recent_apps %}
+                <div class="app-list">
+                    {% for app in recent_apps %}
+                        <div class="app-item">
+                            <div class="app-icon">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div class="app-info">
+                                <h4>{{ app.job_title }}</h4>
+                                <p>{{ app.company }} · {{ app.user_name }}</p>
+                                <small>Applied {{ app.applied_date_str }}</small>
+                            </div>
+                            <span class="app-status status-{{ app.status }}">
+                                {{ app.status|title }}
+                            </span>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="text-muted">No applications yet</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="quick-actions">
+    <h2>Quick Actions</h2>
+    <div class="actions-grid">
+        <a href="{{ url_for('admin_users') }}" class="action-card">
+            <i class="fas fa-users"></i>
+            <h3>Manage Users</h3>
+            <p>View, edit, or deactivate users</p>
+        </a>
+        
+        <a href="{{ url_for('admin_jobs') }}" class="action-card">
+            <i class="fas fa-briefcase"></i>
+            <h3>Manage Jobs</h3>
+            <p>Review and moderate job postings</p>
+        </a>
+        
+        <a href="{{ url_for('admin_stats') }}" class="action-card">
+            <i class="fas fa-chart-bar"></i>
+            <h3>View Statistics</h3>
+            <p>Detailed analytics and reports</p>
+        </a>
+        
+        <a href="{{ url_for('admin_create_user') }}" class="action-card">
+            <i class="fas fa-user-plus"></i>
+            <h3>Create User</h3>
+            <p>Add new user manually</p>
+        </a>
+    </div>
+</div>
+
+<style>
+    :root {
+        --navy-primary: #1E2A4A;
+        --navy-light: #2A3F8E;
+        --navy-dark: #0F1A30;
+    }
+
+    .dashboard-header {
+        margin-bottom: 3rem;
+        margin-top: 3rem;
+    }
+
+    .dashboard-header h1 {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+        color: var(--text-primary);
+        position: relative;
+        display: inline-block;
+    }
+
+    .dashboard-header h1::after {
+        content: '';
+        position: absolute;
+        bottom: -8px;
+        left: 0;
+        width: 50px;
+        height: 3px;
+        background: #1E2A4A;
+        border-radius: 2px;
+    }
+
+    .text-muted {
+        color: var(--text-secondary);
+        margin-top: 0.5rem;
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1.5rem;
+        margin-bottom: 4rem;
+    }
+
+    .stat-card {
+        background: var(--bg-card);
+        border-radius: 16px;
+        padding: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        border: 1px solid #1E2A4A;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        transition: all 0.3s ease;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 20px rgba(30, 42, 74, 0.1);
+        border-color: #2A3F8E;
+    }
+
+    .stat-icon {
+        width: 55px;
+        height: 55px;
+        background: linear-gradient(135deg, #1E2A4A, #2A3F8E);
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: white;
+        transition: all 0.3s ease;
+    }
+
+    .stat-card:hover .stat-icon {
+        transform: scale(1.05);
+    }
+
+    .stat-details h3 {
+        font-size: 1.6rem;
+        margin-bottom: 0.25rem;
+        color: #1E2A4A;
+        font-weight: 700;
+    }
+
+    .stat-details p {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+        margin-bottom: 0.25rem;
+        font-weight: 500;
+    }
+
+    .stat-details small {
+        color: var(--text-secondary);
+        font-size: 0.75rem;
+    }
+
+    /* Dashboard Grid */
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+margin-top:3rem;
+    }
+
+    .dashboard-card {
+        background: var(--bg-card);
+        border-radius: 16px;
+        border: 1px solid #1E2A4A;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+
+    .dashboard-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 20px rgba(30, 42, 74, 0.08);
+        border-color: #2A3F8E;
+    }
+
+    .card-header {
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid #1E2A4A;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: #f8fafc;
+    }
+
+    .card-header h2 {
+        font-size: 1.1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--text-primary);
+    }
+
+    .card-header h2 i {
+        color: #1E2A4A;
+    }
+
+    .btn-secondary {
+        background: transparent;
+        color: #1E2A4A;
+        border: 1px solid #1E2A4A;
+        padding: 0.3rem 0.8rem;
+        border-radius: 8px;
+        font-size: 0.8rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+        font-weight: 500;
+    }
+
+    .btn-secondary:hover {
+        background: #1E2A4A;
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    .btn-sm {
+        font-size: 0.75rem;
+        padding: 0.25rem 0.7rem;
+    }
+
+    .card-body {
+        padding: 1rem;
+        max-height: 400px;
+        overflow-y: auto;
+    }
+
+    /* User/Job/App Items */
+    .user-item, .job-item, .app-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 0.75rem;
+        border-bottom: 1px solid #e2e8f0;
+        transition: all 0.3s ease;
+        border-radius: 10px;
+    }
+
+    .user-item:hover, .job-item:hover, .app-item:hover {
+        background: #f8fafc;
+        transform: translateX(4px);
+    }
+
+    .user-item:last-child, .job-item:last-child, .app-item:last-child {
+        border-bottom: none;
+    }
+
+    .user-avatar {
+        width: 42px;
+        height: 42px;
+        background: linear-gradient(135deg, #1E2A4A, #2A3F8E);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        color: white;
+        font-size: 1.1rem;
+        transition: all 0.3s ease;
+    }
+
+    .job-icon, .app-icon {
+        width: 42px;
+        height: 42px;
+        background: rgba(30, 42, 74, 0.1);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #1E2A4A;
+        font-size: 1.2rem;
+        transition: all 0.3s ease;
+        border: 1px solid rgba(30, 42, 74, 0.2);
+    }
+
+    .user-item:hover .user-avatar,
+    .user-item:hover .job-icon,
+    .user-item:hover .app-icon {
+        transform: scale(1.05);
+    }
+
+    .user-info, .job-info, .app-info {
+        flex: 1;
+    }
+
+    .user-info h4, .job-info h4, .app-info h4 {
+        font-size: 0.95rem;
+        margin-bottom: 0.25rem;
+        color: var(--text-primary);
+        font-weight: 600;
+    }
+
+    .user-info p, .job-info p, .app-info p {
+        font-size: 0.8rem;
+        color: var(--text-secondary);
+        margin-bottom: 0.25rem;
+    }
+
+    .user-info small, .job-info small, .app-info small {
+        font-size: 0.7rem;
+        color: var(--text-secondary);
+    }
+
+    /* Status Badges */
+    .user-status, .job-status {
+        padding: 0.25rem 0.7rem;
+        border-radius: 20px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        border: 1px solid;
+    }
+
+    .user-status.active, .job-status.active {
+        background: #E8F0FE;
+        color: #1E2A4A;
+        border-color: #1E2A4A;
+    }
+
+    .user-status.inactive, .job-status.inactive {
+        background: #FEE2E2;
+        color: #EF4444;
+        border-color: #EF4444;
+    }
+
+    .app-status {
+        padding: 0.25rem 0.7rem;
+        border-radius: 20px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        border: 1px solid;
+    }
+
+    .status-pending {
+        background: #FEF3C7;
+        color: #D97706;
+        border-color: #D97706;
+    }
+
+    .status-shortlisted {
+        background: #E8F0FE;
+        color: #1E2A4A;
+        border-color: #1E2A4A;
+    }
+
+    .status-hired {
+        background: #DBEAFE;
+        color: #2563EB;
+        border-color: #2563EB;
+    }
+
+    .status-rejected {
+        background: #FEE2E2;
+        color: #EF4444;
+        border-color: #EF4444;
+    }
+
+    /* Quick Actions */
+    .quick-actions {
+        margin-top: 4rem;
+margin-bottom:4rem;
+    }
+
+    .quick-actions h2 {
+        font-size: 1.3rem;
+        margin-bottom: 1rem;
+        color: var(--text-primary);
+    }
+
+    .actions-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1.5rem;
+    }
+
+    .action-card {
+        background: var(--bg-card);
+        border-radius: 16px;
+        padding: 1.5rem;
+        text-align: center;
+        text-decoration: none;
+        color: var(--text-primary);
+        border: 1px solid #1E2A4A;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        transition: all 0.3s ease;
+    }
+
+    .action-card:hover {
+        transform: translateY(-6px);
+        border-color: #2A3F8E;
+        box-shadow: 0 8px 20px rgba(30, 42, 74, 0.1);
+    }
+
+    .action-card i {
+        font-size: 2.2rem;
+        color: #1E2A4A;
+        margin-bottom: 0.75rem;
+        transition: all 0.3s ease;
+    }
+
+    .action-card:hover i {
+        transform: scale(1.1);
+    }
+
+    .action-card h3 {
+        font-size: 1rem;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+    }
+
+    .action-card p {
+        font-size: 0.8rem;
+        color: var(--text-secondary);
+        line-height: 1.4;
+    }
+
+    @media (max-width: 1024px) {
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        .dashboard-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        .actions-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 768px) {
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+        .dashboard-grid {
+            grid-template-columns: 1fr;
+        }
+        .actions-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}

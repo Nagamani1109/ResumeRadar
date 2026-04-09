@@ -1,0 +1,628 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Users - Admin{% endblock %}
+
+{% block content %}
+<div class="users-container">
+    <!-- Header -->
+    <div class="users-header">
+        <div>
+            <h1>User Management</h1>
+            <p class="text-muted">Manage all users across the platform</p>
+        </div>
+        <div class="header-stats">
+            <div class="stat-badge">
+                <span class="stat-value">{{ total_users }}</span>
+                <span class="stat-label">Total Users</span>
+            </div>
+            <div class="stat-badge">
+                <span class="stat-value">{{ total_jobseekers }}</span>
+                <span class="stat-label">Job Seekers</span>
+            </div>
+            <div class="stat-badge">
+                <span class="stat-value">{{ total_recruiters }}</span>
+                <span class="stat-label">Recruiters</span>
+            </div>
+            <div class="stat-badge">
+                <span class="stat-value">{{ total_admins }}</span>
+                <span class="stat-label">Admins</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="filters-bar">
+        <form method="GET" action="{{ url_for('admin_users') }}" class="filters-form">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" name="search" placeholder="Search by name or email..." 
+                       value="{{ search_query }}" class="search-input">
+            </div>
+            
+            <select name="role" class="filter-select" onchange="this.form.submit()">
+                <option value="">All Roles</option>
+                <option value="jobseeker" {% if selected_role == 'jobseeker' %}selected{% endif %}>Job Seekers</option>
+                <option value="recruiter" {% if selected_role == 'recruiter' %}selected{% endif %}>Recruiters</option>
+                <option value="admin" {% if selected_role == 'admin' %}selected{% endif %}>Admins</option>
+            </select>
+            
+            <button type="submit" class="btn btn-primary">Search</button>
+            <a href="{{ url_for('admin_users') }}" class="btn btn-secondary">Clear</a>
+        </form>
+    </div>
+
+    <!-- Users Table -->
+    <div class="users-table-container">
+        <table class="users-table">
+            <thead>
+                <tr>
+                    <th>User</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Company</th>
+                    <th>Joined</th>
+                    <th>Status</th>
+                    <th>Activity</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr>
+                    <td>
+                        <div class="user-cell">
+                            <div class="user-avatar">
+                                {{ user.name[:1] }}
+                            </div>
+                            <div>
+                                <strong>{{ user.name }}</strong>
+                            </div>
+                        </div>
+                    </td>
+                    <td>{{ user.email }}</td>
+                    <td>
+                        <span class="role-badge role-{{ user.role }}">
+                            {{ user.role|title }}
+                        </span>
+                    </td>
+                    <td>{{ user.company or '-' }}</td>
+                    <td>{{ user.created_at_str }}</td>
+                    <td>
+                        <span class="status-badge {% if user.is_active %}active{% else %}inactive{% endif %}">
+                            {{ 'Active' if user.is_active else 'Inactive' }}
+                        </span>
+                    </td>
+                    <td>
+                        {% if user.role == 'jobseeker' %}
+                            <div class="activity-stats">
+                                <span title="Applications">{{ user.applications_count }} apps</span>
+                                <span title="Shortlisted">{{ user.shortlisted_count }} short</span>
+                                <span title="Hired">{{ user.hired_count }} hired</span>
+                            </div>
+                        {% elif user.role == 'recruiter' %}
+                            <div class="activity-stats">
+                                <span title="Jobs Posted">{{ user.jobs_count }} jobs</span>
+                            </div>
+                        {% else %}
+                            <span>-</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="action-buttons">
+                            <a href="{{ url_for('admin_user_detail', user_id=user._id) }}" 
+                               class="btn btn-sm btn-info" title="View Details">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            
+                            <form method="POST" action="{{ url_for('admin_toggle_user_status', user_id=user._id) }}" 
+                                  style="display: inline;">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button type="submit" class="btn btn-sm btn-{% if user.is_active %}warning{% else %}success{% endif %}"
+                                        title="{{ 'Deactivate' if user.is_active else 'Activate' }}">
+                                    <i class="fas fa-{% if user.is_active %}ban{% else %}check{% endif %}"></i>
+                                </button>
+                            </form>
+                            
+                            <button type="button" class="btn btn-sm btn-danger" 
+                                    onclick="confirmDelete('{{ user._id }}', '{{ user.name }}')"
+                                    title="Delete User">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        
+        {% if not users %}
+        <div class="empty-state">
+            <i class="fas fa-users"></i>
+            <h3>No Users Found</h3>
+            <p>Try adjusting your filters</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div id="deleteModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <h3><i class="fas fa-exclamation-triangle" style="color: #EF4444;"></i> Confirm Delete</h3>
+        <p>Are you sure you want to delete user <strong id="deleteUserName"></strong>?</p>
+        <p class="warning-text">This action cannot be undone. All user data including applications, jobs, and notifications will be permanently deleted.</p>
+        <form method="POST" action="" id="deleteForm">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="modal-actions">
+                <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                <button type="submit" class="btn btn-danger">Delete Permanently</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    .users-container {
+        max-width: 1400px;
+        margin: 0 auto;
+
+    }
+
+    .users-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 3rem;
+margin-top:3rem;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .users-header h1 {
+        font-size: 2rem;
+        margin-bottom: 0.25rem;
+        color: var(--text-primary);
+        position: relative;
+        display: inline-block;
+    }
+
+    .users-header h1::after {
+        content: '';
+        position: absolute;
+        bottom: -8px;
+        left: 0;
+        width: 50px;
+        height: 3px;
+        background: #1E2A4A;
+        border-radius: 2px;
+    }
+
+    .text-muted {
+        color: var(--text-secondary);
+        margin-top: 0.5rem;
+    }
+
+    .header-stats {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .stat-badge {
+        background: var(--bg-card);
+        padding: 0.5rem 1rem;
+        border-radius: 12px;
+        border: 1px solid #1E2A4A;
+        text-align: center;
+        min-width: 100px;
+        box-shadow: 0 2px 4px rgba(30, 42, 74, 0.05);
+        transition: all 0.3s ease;
+    }
+
+    .stat-badge:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(30, 42, 74, 0.1);
+    }
+
+    .stat-value {
+        display: block;
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: #1E2A4A;
+    }
+
+    .stat-label {
+        font-size: 0.75rem;
+        color: var(--text-secondary);
+    }
+
+    .filters-bar {
+        background: var(--bg-card);
+        border-radius: 12px;
+        padding: 1rem;
+        margin-bottom: 2rem;
+        border: 1px solid #1E2A4A;
+        box-shadow: 0 2px 4px rgba(30, 42, 74, 0.05);
+    }
+
+    .filters-form {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    .search-box {
+        flex: 1;
+        min-width: 250px;
+        display: flex;
+        align-items: center;
+        background: var(--bg-primary);
+        
+        border-radius: 8px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+
+    .search-box:focus-within {
+        border-color: #2A3F8E;
+        box-shadow: 0 0 0 2px rgba(30, 42, 74, 0.1);
+    }
+
+    .search-box i {
+        padding: 0 0.75rem;
+        color: #1E2A4A;
+    }
+
+    .search-input {
+        flex: 1;
+        padding: 0.6rem 0.75rem 0.6rem 0;
+        background: none;
+        border: none;
+        color: var(--text-primary);
+        font-size: 0.95rem;
+    }
+
+    .search-input:focus {
+        outline: none;
+    }
+
+    .filter-select {
+        padding: 0.6rem 2rem 0.6rem 1rem;
+        background: var(--bg-primary);
+        border: 1px solid #1E2A4A;
+        border-radius: 8px;
+        color: var(--text-primary);
+        cursor: pointer;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%231E2A4A' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 0.5rem center;
+        transition: all 0.3s ease;
+    }
+
+    .filter-select:focus {
+        outline: none;
+        border-color: #2A3F8E;
+    }
+
+    .btn {
+        padding: 0.6rem 1.2rem;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+        border: none;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #1E2A4A, #2A3F8E);
+        color: white;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(30, 42, 74, 0.3);
+    }
+
+    .btn-secondary {
+        background: /*transparent*/lightblue;
+        color: black;
+        border: 1px solid #1E2A4A;
+    }
+
+    .btn-secondary:hover {
+       background: /*transparent*/lightblue;
+        color: black;
+        transform: translateY(-2px);
+    }
+
+    .btn-sm {
+        padding: 0.3rem 0.6rem;
+        font-size: 0.75rem;
+        border-radius: 6px;
+    }
+
+    .btn-info {
+        background: rgba(30, 42, 74, 0.1);
+        color: #1E2A4A;
+        border: 1px solid #1E2A4A;
+    }
+
+    .btn-info:hover {
+        background: #1E2A4A;
+        color: white;
+    }
+
+    .btn-warning {
+        background: #FEF3C7;
+        color: #D97706;
+        border: 1px solid #FDE68A;
+    }
+
+    .btn-warning:hover {
+        background: #FDE68A;
+        transform: translateY(-2px);
+    }
+
+    .btn-success {
+        background: #E8F0FE;
+        color: #1E2A4A;
+        border: 1px solid #1E2A4A;
+    }
+
+    .btn-success:hover {
+        background: #D1E0FE;
+        transform: translateY(-2px);
+    }
+
+    .btn-danger {
+        background: #FEE2E2;
+        color: #EF4444;
+        border: 1px solid #FECACA;
+    }
+
+    .btn-danger:hover {
+        background: #FECACA;
+        transform: translateY(-2px);
+    }
+
+    .users-table-container {
+        background: var(--bg-card);
+        border-radius: 12px;
+        border: 1px solid #1E2A4A;
+        overflow-x: auto;
+        box-shadow: 0 2px 8px rgba(30, 42, 74, 0.05);
+margin-top:4rem;
+margin-bottom:4rem;
+    }
+
+    .users-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .users-table th {
+        text-align: left;
+        padding: 1rem;
+        background: #F8FAFC;
+        border-bottom: 2px solid #1E2A4A;
+        font-weight: 600;
+        font-size: 0.85rem;
+        color: var(--text-primary);
+    }
+
+    .users-table td {
+        padding: 1rem;
+        border-bottom: 1px solid #E2E8F0;
+    }
+
+    .users-table tr:last-child td {
+        border-bottom: none;
+    }
+
+    .users-table tr:hover td {
+        background: rgba(30, 42, 74, 0.03);
+    }
+
+    .user-cell {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .user-avatar {
+        width: 35px;
+        height: 35px;
+        background: linear-gradient(135deg, #1E2A4A, #2A3F8E);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        color: white;
+        font-size: 0.9rem;
+    }
+
+    .role-badge {
+        padding: 0.2rem 0.6rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    .role-jobseeker {
+        background: #E8F0FE;
+        color: #1E2A4A;
+    }
+
+    .role-recruiter {
+        background: #DBEAFE;
+        color: #2563EB;
+    }
+
+    .role-admin {
+        background: #FEE2E2;
+        color: #EF4444;
+    }
+
+    .status-badge {
+        padding: 0.2rem 0.6rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        border: 1px solid;
+    }
+
+    .status-badge.active {
+        background: #E8F0FE;
+        color: #1E2A4A;
+        border-color: #1E2A4A;
+    }
+
+    .status-badge.inactive {
+        background: #FEE2E2;
+        color: #EF4444;
+        border-color: #EF4444;
+    }
+
+    .activity-stats {
+        display: flex;
+        gap: 0.5rem;
+        font-size: 0.75rem;
+        color: var(--text-secondary);
+    }
+
+    .activity-stats span {
+        background: #F1F5F9;
+        padding: 0.2rem 0.5rem;
+        border-radius: 6px;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 3rem;
+        color: var(--text-secondary);
+    }
+
+    .empty-state i {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        color: #1E2A4A;
+        opacity: 0.5;
+    }
+
+    /* Modal Styles */
+    .modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1100;
+    }
+
+    .modal-content {
+        background: var(--bg-card);
+        border-radius: 16px;
+        padding: 2rem;
+        max-width: 500px;
+        width: 90%;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        border: 1px solid #1E2A4A;
+    }
+
+    .modal-content h3 {
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--text-primary);
+    }
+
+    .modal-content p {
+        margin-bottom: 1rem;
+        color: var(--text-secondary);
+    }
+
+    .warning-text {
+        color: #EF4444 !important;
+        font-size: 0.85rem;
+        padding: 0.75rem;
+        background: #FEF2F2;
+        border-radius: 8px;
+        border-left: 3px solid #EF4444;
+    }
+
+    .modal-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: flex-end;
+        margin-top: 1.5rem;
+    }
+
+    @media (max-width: 1024px) {
+        .users-table {
+            font-size: 0.85rem;
+        }
+        
+        .action-buttons {
+            flex-direction: column;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .users-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .filters-form {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .search-box {
+            width: 100%;
+        }
+
+        .users-table th:nth-child(4),
+        .users-table td:nth-child(4),
+        .users-table th:nth-child(5),
+        .users-table td:nth-child(5) {
+            display: none;
+        }
+    }
+</style>
+
+<script>
+    function confirmDelete(userId, userName) {
+        document.getElementById('deleteUserName').textContent = userName;
+        document.getElementById('deleteForm').action = `/admin/user/${userId}/delete`;
+        document.getElementById('deleteModal').style.display = 'flex';
+    }
+
+    function closeModal() {
+        document.getElementById('deleteModal').style.display = 'none';
+    }
+
+    window.onclick = function(event) {
+        const modal = document.getElementById('deleteModal');
+        if (event.target == modal) {
+            closeModal();
+        }
+    }
+</script>
+{% endblock %}

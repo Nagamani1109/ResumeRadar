@@ -1,0 +1,1031 @@
+{% extends "base.html" %}
+
+{% block title %}User Details - {{ user.full_name }} - Admin{% endblock %}
+
+{% block content %}
+<div class="user-detail-container">
+    <!-- Header -->
+    <div class="detail-header">
+        <a href="{{ url_for('admin_users') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Back to Users
+        </a>
+        <div class="header-actions">
+            <span class="status-badge {% if user.is_active %}active{% else %}inactive{% endif %}">
+                {{ 'Active' if user.is_active else 'Inactive' }}
+            </span>
+            <span class="role-badge role-{{ user.role }}">
+                {{ user.role|title }}
+            </span>
+        </div>
+    </div>
+
+    <!-- User Profile Card -->
+    <div class="profile-card">
+        <div class="profile-avatar">
+            {% if user.profile_picture %}
+                <img src="{{ url_for('get_image', filename=user.profile_picture) }}" alt="{{ user.full_name }}" class="avatar-img-large">
+            {% elif user.company_logo %}
+                <img src="{{ url_for('get_image', filename=user.company_logo) }}" alt="{{ user.company }}" class="avatar-img-large">
+            {% else %}
+                <div class="avatar-placeholder">{{ (user.full_name or user.name or 'U')[:1] }}</div>
+            {% endif %}
+        </div>
+        <div class="profile-info">
+            <h1>{{ user.full_name or user.name }}</h1>
+            <p class="text-muted">{{ user.email }}</p>
+            
+            {% if user.role == 'recruiter' and user.company %}
+                <p class="company"><i class="fas fa-building"></i> {{ user.company }}</p>
+            {% endif %}
+            
+            {% if user.location %}
+                <p class="location"><i class="fas fa-map-marker-alt"></i> {{ user.location }}</p>
+            {% endif %}
+            
+            {% if user.age %}
+                <p class="age"><i class="fas fa-birthday-cake"></i> Age: {{ user.age }}</p>
+            {% endif %}
+            
+            {% if user.languages %}
+                <p class="languages"><i class="fas fa-language"></i> Languages: {{ user.languages }}</p>
+            {% endif %}
+            
+            <div class="profile-meta">
+                <span><i class="fas fa-calendar"></i> Joined: {{ user.created_at.strftime('%B %d, %Y at %H:%M') if user.created_at else 'N/A' }}</span>
+                {% if user.phone %}
+                    <span><i class="fas fa-phone"></i> {{ user.phone }}</span>
+                {% endif %}
+                {% if user.resume_uploaded_at %}
+                    <span><i class="fas fa-file-alt"></i> Resume uploaded: {{ user.resume_uploaded_at.strftime('%B %d, %Y') }}</span>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="profile-actions">
+            <form method="POST" action="{{ url_for('admin_toggle_user_status', user_id=user._id) }}" style="display: inline;">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="btn btn-{% if user.is_active %}warning{% else %}success{% endif %}">
+                    <i class="fas fa-{% if user.is_active %}ban{% else %}check{% endif %}"></i>
+                    {{ 'Deactivate' if user.is_active else 'Activate' }} Account
+                </button>
+            </form>
+            
+            <button type="button" class="btn btn-danger" onclick="confirmDelete()">
+                <i class="fas fa-trash"></i> Delete User
+            </button>
+        </div>
+    </div>
+
+    <!-- User Statistics -->
+    <div class="stats-grid">
+        {% if user.role == 'jobseeker' %}
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-file-alt"></i></div>
+                <div><h3>{{ applications_count }}</h3><p>Total Applications</p></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-star"></i></div>
+                <div><h3>{{ shortlisted_count }}</h3><p>Shortlisted</p></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
+                <div><h3>{{ hired_count }}</h3><p>Hired</p></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-bookmark"></i></div>
+                <div><h3>{{ saved_jobs|length }}</h3><p>Saved Jobs</p></div>
+            </div>
+            
+        {% elif user.role == 'recruiter' %}
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-briefcase"></i></div>
+                <div><h3>{{ jobs_count }}</h3><p>Jobs Posted</p></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-users"></i></div>
+                <div><h3>{{ total_applications_received }}</h3><p>Total Applications</p></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-star"></i></div>
+                <div><h3>{{ total_shortlisted }}</h3><p>Shortlisted</p></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
+                <div><h3>{{ total_hired }}</h3><p>Hired</p></div>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Tab Navigation -->
+    <div class="tab-navigation">
+        {% if user.role == 'jobseeker' %}
+            <button class="tab-btn active" onclick="showTab('applications')">📋 Applications ({{ applications|length }})</button>
+            
+            <button class="tab-btn" onclick="showTab('profile-data')">📄 Profile Data</button>
+            {% if user.resume_file %}
+                <button class="tab-btn" onclick="showTab('resume')">📎 Resume</button>
+            {% endif %}
+        {% elif user.role == 'recruiter' %}
+            <button class="tab-btn active" onclick="showTab('jobs')">💼 Jobs Posted ({{ posted_jobs|length }})</button>
+            <button class="tab-btn" onclick="showTab('profile-data')">📄 Profile Data</button>
+        {% else %}
+            <button class="tab-btn active" onclick="showTab('profile-data')">📄 Profile Data</button>
+        {% endif %}
+        <button class="tab-btn" onclick="showTab('activity')">📊 Activity Log</button>
+    </div>
+
+    <!-- Applications Tab (Job Seeker) -->
+    {% if user.role == 'jobseeker' %}
+    <div id="applications-tab" class="tab-content active">
+        <h2>Job Applications</h2>
+        {% if applications %}
+            <div class="applications-list">
+                {% for app in applications %}
+                <div class="application-card">
+                    <div class="application-header">
+                        <h3>{{ app.job_title }}</h3>
+                        <span class="status-badge status-{{ app.status }}">
+                            {% if app.status == 'shortlisted' %}⭐ Shortlisted
+                            {% elif app.status == 'pending' %}⏳ Pending
+                            {% elif app.status == 'hired' %}🎉 Hired
+                            {% elif app.status == 'rejected' %}❌ Rejected
+                            {% else %}{{ app.status|title }}{% endif %}
+                        </span>
+                    </div>
+                    <p class="company"><i class="fas fa-building"></i> {{ app.company }}</p>
+                    <p class="date"><i class="fas fa-calendar"></i> Applied: {{ app.applied_date_str }}</p>
+                    
+                    {% if app.analysis %}
+                    <div class="scores">
+                        <span class="score" title="Overall">🎯 Overall: {{ app.analysis.overall }}%</span>
+                        <span class="score" title="Technical">💻 Technical: {{ app.analysis.technical }}%</span>
+                        <span class="score" title="Soft Skills">🤝 Soft: {{ app.analysis.soft_skills }}%</span>
+                        <span class="score" title="Experience">📊 Exp: {{ app.analysis.experience }}%</span>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="text-muted">No applications yet</p>
+        {% endif %}
+    </div>
+
+    
+    <!-- Resume Tab (Job Seeker) -->
+    {% if user.resume_file %}
+    <div id="resume-tab" class="tab-content">
+        <h2>Resume</h2>
+        <div class="resume-card">
+            <i class="fas fa-file-pdf fa-3x"></i>
+            <p><strong>File:</strong> {{ user.resume_file }}</p>
+            <p><strong>Uploaded:</strong> {{ user.resume_uploaded_at.strftime('%B %d, %Y at %H:%M') if user.resume_uploaded_at else 'N/A' }}</p>
+            <a href="{{ url_for('download_file', filename=user.resume_file) }}" class="btn btn-primary">
+                <i class="fas fa-download"></i> Download Resume
+            </a>
+            
+        </div>
+    </div>
+    {% endif %}
+    {% endif %}
+
+    <!-- Posted Jobs Tab (Recruiter) -->
+    {% if user.role == 'recruiter' %}
+    <div id="jobs-tab" class="tab-content active">
+        <h2>Posted Jobs</h2>
+        {% if posted_jobs %}
+            <div class="jobs-list">
+                {% for job in posted_jobs %}
+                <div class="job-card-full">
+                    <div class="job-header">
+                        <h3>{{ job.title }}</h3>
+                        <span class="job-status {% if job.is_active %}active{% else %}inactive{% endif %}">
+                            {{ 'Active' if job.is_active else 'Closed' }}
+                        </span>
+                    </div>
+                    <p class="company"><i class="fas fa-building"></i> {{ job.company }}</p>
+                    <p class="location"><i class="fas fa-map-marker-alt"></i> {{ job.location }}</p>
+                    <p class="date"><i class="fas fa-calendar"></i> Posted: {{ job.posted_date_str }}</p>
+                    <p class="salary">💰 ${{ job.salary_min }} - ${{ job.salary_max }}</p>
+                    
+                    <div class="job-stats">
+                        <span>📊 {{ job.applications_count }} Applications</span>
+                        <span>⭐ {{ job.shortlisted_count }} Shortlisted</span>
+                        <span>✅ {{ job.hired_count }} Hired</span>
+                        <span>📝 {{ job.pending_count }} Pending</span>
+                    </div>
+                    
+                    {% if job.applications %}
+                    <div class="recent-applications">
+                        <h4>Recent Applicants</h4>
+                        {% for applicant in job.applications[:3] %}
+                        <div class="applicant-item">
+                            <strong>{{ applicant.name }}</strong>
+                            <span>Score: {{ applicant.score }}%</span>
+                            <span class="status-badge status-{{ applicant.status }}">
+                                {{ applicant.status|title }}
+                            </span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="text-muted">No jobs posted yet</p>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- Profile Data Tab -->
+    <div id="profile-data-tab" class="tab-content">
+        <h2>Complete Profile Information</h2>
+        <div class="profile-data-grid">
+            <div class="data-card">
+                <h3><i class="fas fa-user-circle"></i> Personal Information</h3>
+                <table class="data-table">
+                    <tr><th>User ID</th><td><code>{{ user._id }}</code></td></tr>
+                    <tr><th>Full Name</th><td>{{ user.full_name or user.name or 'N/A' }}</td></tr>
+                    <tr><th>Email</th><td>{{ user.email }}</td></tr>
+                    <tr><th>Role</th><td><span class="role-badge role-{{ user.role }}">{{ user.role|title }}</span></td></tr>
+                    <tr><th>Phone</th><td>{{ user.phone or 'Not provided' }}</td></tr>
+                    <tr><th>Location</th><td>{{ user.location or 'Not provided' }}</td></tr>
+                    <tr><th>Age</th><td>{{ user.age or 'Not provided' }}</td></tr>
+                    <tr><th>Languages</th><td>{{ user.languages or 'Not provided' }}</td></tr>
+                    <tr><th>Skills</th><td>{{ user.skills or 'Not provided' }}</td></tr>
+                </table>
+            </div>
+            
+            <div class="data-card">
+                <h3><i class="fas fa-briefcase"></i> Professional Information</h3>
+                <table class="data-table">
+                    <tr><th>Experience</th><td>{{ user.experience or 'Not provided' }}</td></tr>
+                    <tr><th>Education</th><td>{{ user.education or 'Not provided' }}</td></tr>
+                    {% if user.role == 'recruiter' %}
+                    <tr><th>Company</th><td>{{ user.company or 'Not provided' }}</td></tr>
+                    <tr><th>Company Website</th><td>{% if user.company_website %}<a href="{{ user.company_website }}" target="_blank">{{ user.company_website }}</a>{% else %}Not provided{% endif %}</td></tr>
+                    <tr><th>Company Bio</th><td>{{ user.bio or 'Not provided' }}</td></tr>
+                    {% endif %}
+                    {% if user.role == 'jobseeker' %}
+                    <tr><th>LinkedIn</th><td>{% if user.linkedin %}<a href="{{ user.linkedin }}" target="_blank">{{ user.linkedin }}</a>{% else %}Not provided{% endif %}</td></tr>
+                    <tr><th>GitHub</th><td>{% if user.github %}<a href="{{ user.github }}" target="_blank">{{ user.github }}</a>{% else %}Not provided{% endif %}</td></tr>
+                    <tr><th>Portfolio</th><td>{% if user.portfolio %}<a href="{{ user.portfolio }}" target="_blank">{{ user.portfolio }}</a>{% else %}Not provided{% endif %}</td></tr>
+                    {% endif %}
+                </table>
+            </div>
+            
+            <div class="data-card">
+                <h3><i class="fas fa-clock"></i> Account Information</h3>
+                <table class="data-table">
+                    <tr><th>Account Status</th><td><span class="status-badge {% if user.is_active %}active{% else %}inactive{% endif %}">{{ 'Active' if user.is_active else 'Inactive' }}</span></td></tr>
+                    <tr><th>Created At</th><td>{{ user.created_at.strftime('%B %d, %Y at %H:%M') if user.created_at else 'N/A' }}</td></tr>
+                    <tr><th>Last Updated</th><td>{{ user.updated_at.strftime('%B %d, %Y at %H:%M') if user.updated_at else 'N/A' }}</td></tr>
+                    {% if user.role == 'jobseeker' %}
+                    <tr><th>Resume Uploaded</th><td>{{ 'Yes' if user.resume_file else 'No' }}</td></tr>
+                    <tr><th>Resume Date</th><td>{{ user.resume_uploaded_at.strftime('%B %d, %Y') if user.resume_uploaded_at else 'N/A' }}</td></tr>
+                    {% endif %}
+                </table>
+            </div>
+            
+            {% if user.role == 'jobseeker' and user.tech_skills %}
+            <div class="data-card">
+                <h3><i class="fas fa-microchip"></i> AI-Extracted Skills</h3>
+                <div class="skills-section">
+                    <h4>Technical Skills</h4>
+                    <div class="skill-tags">
+                        {% for skill in user.tech_skills %}
+                        <span class="skill-tag">{{ skill }}</span>
+                        {% endfor %}
+                    </div>
+                    <h4 class="mt-3">Soft Skills</h4>
+                    <div class="skill-tags">
+                        {% for skill in user.soft_skills %}
+                        <span class="skill-tag soft">{{ skill }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Activity Log Tab -->
+    <div id="activity-tab" class="tab-content">
+        <h2>Recent Activity</h2>
+        <div class="activity-feed">
+            {% if recent_activities %}
+                {% for activity in recent_activities %}
+                <div class="activity-item">
+                    <div class="activity-icon">
+                        {% if activity.type == 'application' %}
+                            <i class="fas fa-file-alt"></i>
+                        {% elif activity.type == 'job_post' %}
+                            <i class="fas fa-briefcase"></i>
+                        {% elif activity.type == 'login' %}
+                            <i class="fas fa-sign-in-alt"></i>
+                        {% else %}
+                            <i class="fas fa-info-circle"></i>
+                        {% endif %}
+                    </div>
+                    <div class="activity-content">
+                        <div class="activity-title">{{ activity.title }}</div>
+                        <div class="activity-desc">{{ activity.description }}</div>
+                        <div class="activity-time">{{ activity.timestamp }}</div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <p class="text-muted">No recent activity</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div id="deleteModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <h3><i class="fas fa-exclamation-triangle" style="color: #EF4444;"></i> Confirm Delete</h3>
+        <p>Are you sure you want to delete user <strong>{{ user.full_name or user.name }}</strong>?</p>
+        <p class="warning-text">⚠️ This action cannot be undone. All user data will be permanently deleted.</p>
+        <form method="POST" action="{{ url_for('admin_delete_user', user_id=user._id) }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="modal-actions">
+                <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                <button type="submit" class="btn btn-danger">Delete Permanently</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    .user-detail-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 1rem;
+margin-bottom:4rem;    }
+
+    .detail-header {
+margin-top:3rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 4rem;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .header-actions {
+        display: flex;
+        gap: 1rem;
+    }
+
+    /* ===== STATUS BADGES - EASY IDENTIFICATION ===== */
+    
+    /* Active / Shortlisted - Green */
+    .status-badge.active,
+    .status-badge.status-shortlisted,
+    .job-status.active {
+        background: #10B981;
+        color: white;
+        border: none;
+        padding: 0.3rem 1rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+    
+    /* Pending - Orange */
+    .status-badge.status-pending {
+        background: #F59E0B;
+        color: white;
+        border: none;
+        padding: 0.3rem 1rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+    
+    /* Hired - Blue */
+    .status-badge.status-hired {
+        background: #3B82F6;
+        color: white;
+        border: none;
+        padding: 0.3rem 1rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+    
+    /* Rejected - Red */
+    .status-badge.status-rejected {
+        background: #EF4444;
+        color: white;
+        border: none;
+        padding: 0.3rem 1rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+    
+    /* Inactive - Gray */
+    .status-badge.inactive,
+    .job-status.inactive {
+        background: #6B7280;
+        color: white;
+        border: none;
+        padding: 0.3rem 1rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+    
+    /* User Status Badges */
+    .user-status.active {
+        background: #10B981;
+        color: white;
+        padding: 0.2rem 0.6rem;
+        border-radius: 20px;
+        font-size: 0.7rem;
+        font-weight: 600;
+    }
+    
+    .user-status.inactive {
+        background: #6B7280;
+        color: white;
+        padding: 0.2rem 0.6rem;
+        border-radius: 20px;
+        font-size: 0.7rem;
+        font-weight: 600;
+    }
+
+    .role-badge {
+        padding: 0.3rem 1rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 500;
+    }
+
+    .role-jobseeker { background: #E8F0FE; color: #1E2A4A; }
+    .role-recruiter { background: #DBEAFE; color: #2563EB; }
+    .role-admin { background: #FEE2E2; color: #EF4444; }
+
+    /* Profile Card */
+    .profile-card {
+        background: var(--bg-card);
+        border-radius: 16px;
+        padding: 2rem;
+margin-top:3rem;
+        margin-bottom: 4rem;
+        display: flex;
+        align-items: center;
+        gap: 2rem;
+        border: 1px solid #1E2A4A;
+        box-shadow: 0 2px 8px rgba(30, 42, 74, 0.05);
+        flex-wrap: wrap;
+    }
+
+    .profile-avatar {
+        width: 120px;
+        height: 120px;
+        flex-shrink: 0;
+    }
+
+    .avatar-img-large {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 3px solid #1E2A4A;
+    }
+
+    .avatar-placeholder {
+        width: 120px;
+        height: 120px;
+        background: linear-gradient(135deg, #1E2A4A, #2A3F8E);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3rem;
+        font-weight: bold;
+        color: white;
+    }
+
+    .profile-info {
+        flex: 1;
+    }
+
+    .profile-info h1 {
+        font-size: 1.8rem;
+        margin-bottom: 0.5rem;
+        color: var(--text-primary);
+    }
+
+    .text-muted {
+        color: var(--text-secondary);
+    }
+
+    .company, .location, .age, .languages {
+        margin-top: 0.25rem;
+        color: var(--text-secondary);
+    }
+
+    .company i, .location i, .age i, .languages i {
+        margin-right: 0.5rem;
+        color: #1E2A4A;
+    }
+
+    .profile-meta {
+        display: flex;
+        gap: 2rem;
+        margin-top: 1rem;
+        color: var(--text-secondary);
+        font-size: 0.85rem;
+        flex-wrap: wrap;
+    }
+
+    .profile-meta i {
+        margin-right: 0.25rem;
+        color: #1E2A4A;
+    }
+
+    .profile-actions {
+        display: flex;
+        gap: 1rem;
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1.5rem;
+        margin-bottom: 4rem;
+    }
+
+    .stat-card {
+        background: var(--bg-card);
+        padding: 1.5rem;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        border: 1px solid #1E2A4A;
+        transition: all 0.3s ease;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 20px rgba(30, 42, 74, 0.1);
+    }
+
+    .stat-icon {
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(135deg, #1E2A4A, #2A3F8E);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: white;
+    }
+
+    .stat-card h3 {
+        font-size: 1.5rem;
+        margin-bottom: 0.25rem;
+        color: #1E2A4A;
+    }
+
+    .stat-card p {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+    }
+
+    /* Tab Navigation */
+    .tab-navigation {
+        display: flex;
+        gap: 0.5rem;
+        margin-bottom: 2rem;
+        border-bottom: 1px solid #E2E8F0;
+        padding-bottom: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .tab-btn {
+        background: #1E2A4A;
+        
+        border: none;
+        color: white;
+        padding: 0.5rem 1.2rem;
+        cursor: pointer;
+        font-size: 0.9rem;
+        border-radius: 20px;
+        transition: all 0.2s;
+    }
+
+    .tab-btn:hover {
+        color: white;
+        background: #1E2A4A;
+        transform: translateY(-2px);
+    }
+
+    .tab-btn.active {
+        background: #1E2A4A;
+        color: white;
+    }
+
+    .tab-content {
+        display: none;
+    }
+
+    .tab-content.active {
+        display: block;
+    }
+
+    /* Cards */
+    .application-card, .job-card-full {
+margin-top:3rem;
+        background: var(--bg-card);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        border: 1px solid #1E2A4A;
+        transition: all 0.3s ease;
+    }
+
+    .application-card:hover, .job-card-full:hover {
+        transform: translateX(4px);
+        box-shadow: 0 4px 12px rgba(30, 42, 74, 0.1);
+    }
+
+    .application-header, .job-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.5rem;
+    }
+
+    .application-header h3, .job-header h3 {
+        font-size: 1.1rem;
+        color: var(--text-primary);
+    }
+
+    .scores {
+        display: flex;
+        gap: 1rem;
+        margin-top: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .score {
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+    }
+
+    .job-stats {
+        display: flex;
+        gap: 1rem;
+        margin-top: 0.5rem;
+        flex-wrap: wrap;
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+    }
+
+    /* Profile Data Grid */
+    .profile-data-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(450px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .data-card {
+        background: var(--bg-card);
+        border-radius: 12px;
+        padding: 1.5rem;
+        border: 1px solid #1E2A4A;
+        transition: all 0.3s ease;
+margin-top:3rem;
+    }
+
+    .data-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(30, 42, 74, 0.08);
+    }
+
+    .data-card h3 {
+        font-size: 1rem;
+        margin-bottom: 1rem;
+        color: #1E2A4A;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .data-table {
+        width: 100%;
+    }
+
+    .data-table tr {
+        border-bottom: 1px solid #E2E8F0;
+    }
+
+    .data-table th {
+        text-align: left;
+        padding: 0.5rem 0;
+        color: var(--text-secondary);
+        font-weight: 500;
+        width: 40%;
+    }
+
+    .data-table td {
+        padding: 0.5rem 0;
+        color: var(--text-primary);
+    }
+
+    /* Skill Tags */
+    .skill-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .skill-tag {
+        padding: 0.25rem 0.75rem;
+        background: rgba(30, 42, 74, 0.1);
+        border: 1px solid #1E2A4A;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        color: #1E2A4A;
+        transition: all 0.3s ease;
+    }
+
+    .skill-tag:hover {
+        background: #1E2A4A;
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    .skill-tag.soft {
+        background: rgba(16, 185, 129, 0.1);
+        border-color: #10B981;
+        color: #10B981;
+    }
+
+    .skill-tag.soft:hover {
+        background: #10B981;
+        color: white;
+    }
+
+    .mt-3 {
+        margin-top: 1rem;
+    }
+
+    /* Resume Card */
+    .resume-card {
+        background: var(--bg-card);
+        border-radius: 12px;
+        padding: 1.5rem;
+        text-align: center;
+        border: 1px solid #1E2A4A;
+margin-top:3rem;
+    }
+
+    .resume-preview {
+        margin-top: 1.5rem;
+        text-align: left;
+    }
+
+    .resume-text {
+        background: var(--bg-primary);
+        padding: 1rem;
+        border-radius: 8px;
+        font-size: 0.85rem;
+        line-height: 1.5;
+        white-space: pre-wrap;
+        font-family: monospace;
+        max-height: 400px;
+        overflow-y: auto;
+margin-top:3rem;
+    }
+
+    /* Activity Feed */
+    .activity-feed {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .activity-item {
+        display: flex;
+        gap: 1rem;
+        padding: 1rem;
+        background: var(--bg-primary);
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+
+    .activity-item:hover {
+        background: rgba(30, 42, 74, 0.05);
+        transform: translateX(4px);
+    }
+
+    .activity-icon {
+        width: 40px;
+        height: 40px;
+        background: rgba(30, 42, 74, 0.1);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #1E2A4A;
+    }
+
+    .activity-content {
+        flex: 1;
+    }
+
+    .activity-title {
+        font-weight: 500;
+        margin-bottom: 0.25rem;
+        color: var(--text-primary);
+    }
+
+    .activity-desc {
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+        margin-bottom: 0.25rem;
+    }
+
+    .activity-time {
+        font-size: 0.75rem;
+        color: var(--text-secondary);
+    }
+
+    /* Buttons */
+    .btn {
+        padding: 0.6rem 1.2rem;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+        border: none;
+    }
+
+    .btn-secondary {
+        background: #1E2A4A;
+        color: white;
+        border: 1px solid #1E2A4A;
+    }
+
+    .btn-secondary:hover {
+        background: #1E2A4A;
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    .btn-warning {
+        background: #FEF3C7;
+        color: #D97706;
+        border: 1px solid #FDE68A;
+    }
+
+    .btn-warning:hover {
+        background: #FDE68A;
+        transform: translateY(-2px);
+    }
+
+    .btn-success {
+        background: #E8F0FE;
+        color: #1E2A4A;
+        border: 1px solid #1E2A4A;
+    }
+
+    .btn-success:hover {
+        background: #1E2A4A;
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    .btn-danger {
+        background: #FEE2E2;
+        color: #EF4444;
+        border: 1px solid #FECACA;
+    }
+
+    .btn-danger:hover {
+        background: #EF4444;
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #1E2A4A, #2A3F8E);
+        color: white;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(30, 42, 74, 0.3);
+    }
+
+    /* Modal */
+    .modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+    }
+
+    .modal-content {
+        background: var(--bg-card);
+        border-radius: 12px;
+        padding: 2rem;
+        max-width: 500px;
+        width: 90%;
+        border: 1px solid #1E2A4A;
+    }
+
+    .warning-text {
+        background: #FEF2F2;
+        padding: 0.75rem;
+        border-radius: 8px;
+        color: #EF4444;
+        margin: 1rem 0;
+        border-left: 3px solid #EF4444;
+    }
+
+    .modal-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: flex-end;
+        margin-top: 1.5rem;
+    }
+
+    @media (max-width: 768px) {
+        .profile-card {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .profile-data-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .profile-actions {
+            flex-direction: column;
+            width: 100%;
+        }
+
+        .profile-actions .btn {
+            width: 100%;
+        }
+
+        .tab-navigation {
+            flex-direction: column;
+        }
+    }
+</style>
+
+<script>
+    function showTab(tabName) {
+        document.querySelectorAll('.tab-content').forEach(tab => {
+            tab.classList.remove('active');
+        });
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        
+        document.getElementById(tabName + '-tab').classList.add('active');
+        event.target.classList.add('active');
+    }
+
+    function confirmDelete() {
+        document.getElementById('deleteModal').style.display = 'flex';
+    }
+
+    function closeModal() {
+        document.getElementById('deleteModal').style.display = 'none';
+    }
+
+    window.onclick = function(event) {
+        const modal = document.getElementById('deleteModal');
+        if (event.target == modal) {
+            closeModal();
+        }
+    }
+</script>
+{% endblock %}

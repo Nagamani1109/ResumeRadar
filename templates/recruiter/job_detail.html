@@ -1,0 +1,450 @@
+{% extends "base.html" %}
+
+{% block title %}{{ job.title }} - Job Details{% endblock %}
+
+{% block content %}
+<div class="job-detail-header">
+    <div>
+        <h1>{{ job.title }}</h1>
+        <p class="text-muted">
+            <i class="fas fa-building"></i> {{ job.company }}
+            <i class="fas fa-map-marker-alt ms-3"></i> {{ job.location }}
+            <span class="badge ms-3">{{ stats.total }} Applicants</span>
+        </p>
+    </div>
+    <div class="header-actions">
+        <a href="{{ url_for('recruiter_jobs') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Back
+        </a>
+        <a href="{{ url_for('view_candidates', job_id=job._id) }}" class="btn btn-primary">
+            <i class="fas fa-users"></i> View All Candidates
+        </a>
+    </div>
+</div>
+
+<!-- Stats Cards -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon">
+            <i class="fas fa-users"></i>
+        </div>
+        <div>
+            <h3>{{ stats.total }}</h3>
+            <p>Total</p>
+        </div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-icon">
+            <i class="fas fa-star"></i>
+        </div>
+        <div>
+            <h3>{{ stats.shortlisted }}</h3>
+            <p>Shortlisted</p>
+        </div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-icon">
+            <i class="fas fa-check-circle"></i>
+        </div>
+        <div>
+            <h3>{{ stats.hired }}</h3>
+            <p>Hired</p>
+        </div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-icon">
+            <i class="fas fa-clock"></i>
+        </div>
+        <div>
+            <h3>{{ stats.pending }}</h3>
+            <p>Pending</p>
+        </div>
+    </div>
+</div>
+
+<!-- Job Details -->
+<div class="job-details-card">
+    <h2>Job Description</h2>
+    <p>{{ job.description }}</p>
+
+    <h2>Requirements</h2>
+    <p>{{ job.requirements }}</p>
+
+    {% if job.salary_min and job.salary_max %}
+    <div class="salary-info">
+        <h2>Salary Range</h2>
+        <p class="salary">${{ job.salary_min }} - ${{ job.salary_max }}</p>
+    </div>
+    {% endif %}
+
+    <div class="job-meta">
+        <span><i class="fas fa-clock"></i> {{ job.job_type|title }}</span>
+        <span><i class="fas fa-level-up-alt"></i> {{ job.experience_level|title }}</span>
+        <span><i class="fas fa-calendar"></i> Posted: {{ job.posted_date.strftime('%B %d, %Y') }}</span>
+        <span><i class="fas fa-users"></i> {{ job.seats_filled }}/{{ job.total_seats }} filled</span>
+    </div>
+</div>
+
+<!-- Top Candidates -->
+<h2 class="section-title">Top Candidates</h2>
+
+{% if candidates %}
+<div class="candidates-list">
+    {% for candidate in candidates[:5] %}
+    <div class="candidate-card">
+        <div class="candidate-header">
+            <div class="candidate-info">
+                <h3>{{ candidate.name }}</h3>
+                <p class="text-muted">{{ candidate.email }}</p>
+            </div>
+            <div class="candidate-status status-{{ candidate.status }}">
+                {{ candidate.status|title }}
+            </div>
+        </div>
+
+        <div class="score-overview">
+            <div class="score-circle" style="--score: {{ candidate.analysis.overall }}%">
+                <span class="score-value">{{ candidate.analysis.overall }}%</span>
+            </div>
+            
+            <div class="score-details">
+                <div class="score-item">
+                    <span>Technical</span>
+                    <span class="score-percent">{{ candidate.analysis.technical }}%</span>
+                </div>
+                <div class="score-item">
+                    <span>Soft Skills</span>
+                    <span class="score-percent">{{ candidate.analysis.soft_skills }}%</span>
+                </div>
+                <div class="score-item">
+                    <span>Experience</span>
+                    <span class="score-percent">{{ candidate.analysis.experience }}%</span>
+                </div>
+                <div class="score-item">
+                    <span>Education</span>
+                    <span class="score-percent">{{ candidate.analysis.education }}%</span>
+                </div>
+            </div>
+        </div>
+
+        
+    </div>
+    {% endfor %}
+</div>
+
+{% if candidates|length > 5 %}
+
+
+
+<div class="view-all">
+<a href="{{ url_for('view_candidates', job_id=job._id) }}" class="btn btn-secondary">
+        View All {{ candidates|length }} Candidates
+    </a>
+
+
+
+</div>
+{% endif %}
+
+{% else %}
+<div class="empty-state">
+    <i class="fas fa-users"></i>
+    <h3>No Applications Yet</h3>
+    <p>There are no candidates for this position yet</p>
+</div>
+{% endif %}
+
+<style>
+    .job-detail-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+margin-top:3rem;
+    }
+
+    .text-muted {
+        color: var(--text-secondary);
+    }
+
+    .badge {
+        padding: 0.25rem 0.75rem;
+        background: var(--bg-card);
+        border-radius: 20px;
+        font-size: 0.85rem;
+    }
+
+    .ms-3 {
+        margin-left: 1rem;
+    }
+
+    .header-actions {
+        display: flex;
+        gap: 1rem;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-card {
+        background: var(--bg-card);
+        padding: 1.5rem;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        border: 1px solid #2C8C4C;
+    }
+
+    .stat-icon {
+        width: 50px;
+        height: 50px;
+        background: /*linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));*/#2C8C4C;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: white;
+    }
+
+    .stat-card h3 {
+        font-size: 1.5rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .stat-card p {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+    }
+
+    .job-details-card {
+        background: var(--bg-card);
+        border-radius: 16px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        border: 1px solid #2C8C4C;
+    }
+
+    .job-details-card h2 {
+        font-size: 1.2rem;
+        margin: 1.5rem 0 0.5rem;
+    }
+
+    .job-details-card h2:first-child {
+        margin-top: 0;
+    }
+
+    .job-details-card p {
+        color: var(--text-secondary);
+        line-height: 1.6;
+margin-bottom:3rem;
+    }
+
+    .salary {
+        font-size: 1.2rem;
+        color: var(--success);
+        font-weight: 500;
+    }
+
+    .job-meta {
+        display: flex;
+        gap: 2rem;
+        margin-top: 2rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--border);
+        color: var(--text-secondary);
+    }
+
+    .job-meta i {
+        margin-right: 0.25rem;
+        color: var(--accent-primary);
+    }
+
+    .section-title {
+        font-size: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .candidates-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .candidate-card {
+        background: var(--bg-card);
+        border-radius: 16px;
+        padding: 1.5rem;
+        border: 1px solid #2C8C4C;
+    }
+
+    .candidate-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 1rem;
+    }
+
+    .candidate-info h3 {
+        margin-bottom: 0.25rem;
+    }
+
+    .candidate-status {
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 500;
+    }
+
+    .status-pending {
+        background: rgba(243, 156, 18, 0.15);
+        color: var(--warning);
+    }
+
+    .status-pending {
+    background: #F9FAFB;
+    color: #4B5563;
+    border: 1px solid #E5E7EB;
+}
+
+/* Shortlisted - Soft Green (Positive) */
+.status-shortlisted {
+    background: #ECFDF5;
+    color: #10B981;
+    border: 1px solid #A7F3D0;
+}
+
+/* Hired - Soft Blue (Success) */
+.status-hired {
+    background: #FFFBEB;
+    color: #F59E0B;
+    border: 1px solid #FDE68A;
+}
+
+/* Rejected - Soft Red (Negative) */
+.status-rejected {
+    background: #FEF2F2;
+    color: #EF4444;
+    border: 1px solid #FECACA;
+}
+
+    .score-overview {
+        display: flex;
+        gap: 1.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .score-circle {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: conic-gradient(var(--accent-primary) var(--score), var(--border) 0);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+    }
+
+    .score-circle::before {
+        content: '';
+        position: absolute;
+        width: 65px;
+        height: 65px;
+        background: var(--bg-card);
+        border-radius: 50%;
+    }
+
+    .score-value {
+        position: relative;
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: var(--accent-primary);
+    }
+
+    .score-details {
+        flex: 1;
+    }
+
+    .score-item {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.25rem;
+        font-size: 0.9rem;
+    }
+
+    .score-percent {
+        font-weight: 500;
+        color: var(--accent-primary);
+    }
+
+    .candidate-actions {
+        display: flex;
+        gap: 0.5rem;
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--border);
+    }
+
+    .view-all {
+        text-align: center;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 4rem;
+        background: var(--bg-card);
+        border-radius: 16px;
+        border: 2px dashed var(--border);
+    }
+
+    .empty-state i {
+        font-size: 4rem;
+        color: var(--text-secondary);
+        margin-bottom: 1rem;
+    }
+
+    @media (max-width: 768px) {
+        .job-detail-header {
+            flex-direction: column;
+            gap: 1rem;
+            text-align: center;
+        }
+
+        .header-actions {
+            flex-direction: column;
+            width: 100%;
+        }
+
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .job-meta {
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .candidates-list {
+            grid-template-columns: 1fr;
+        }
+
+        .score-overview {
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .candidate-actions {
+            flex-direction: column;
+        }
+    }
+</style>
+{% endblock %}

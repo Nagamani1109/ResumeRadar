@@ -1,0 +1,612 @@
+{% extends "base.html" %}
+
+{% block title %}System Statistics - Admin{% endblock %}
+
+{% block content %}
+<div class="stats-container">
+    <div class="stats-header">
+        <h1>System Statistics</h1>
+        <p class="text-muted">Analytics and insights for the platform</p>
+        
+        <div class="period-selector">
+            <a href="{{ url_for('admin_stats', period=7) }}" class="period-btn {% if period == 7 %}active{% endif %}">Last 7 Days</a>
+            <a href="{{ url_for('admin_stats', period=30) }}" class="period-btn {% if period == 30 %}active{% endif %}">Last 30 Days</a>
+            <a href="{{ url_for('admin_stats', period=90) }}" class="period-btn {% if period == 90 %}active{% endif %}">Last 90 Days</a>
+        </div>
+    </div>
+
+    
+ <!-- Users by Role - HIGHLIGHTED PIE CHART (Full Width) -->
+    <div class="stats-card pie-chart-card">
+        <h3><i class="fas fa-chart-pie"></i> Users by Role Distribution</h3>
+        <div class="pie-chart-wrapper">
+            <div class="pie-chart-container">
+                {% set total = users_by_role.jobseeker + users_by_role.recruiter + users_by_role.admin %}
+                {% if total > 0 %}
+                    {% set jobseeker_percent = (users_by_role.jobseeker / total * 100) %}
+                    {% set recruiter_percent = (users_by_role.recruiter / total * 100) %}
+                    {% set admin_percent = (users_by_role.admin / total * 100) %}
+                    
+                    <div class="pie-chart">
+                        <canvas id="userRolePieChart" width="300" height="300"></canvas>
+                    </div>
+                {% else %}
+                    <div class="no-data">No user data available</div>
+                {% endif %}
+            </div>
+            <div class="chart-legend">
+                <div class="legend-item">
+                    <span class="color-dot" style="background: #3b82f6;"></span>
+                    <span>Job Seekers ({{ users_by_role.jobseeker }}) - {{ "%.1f"|format(jobseeker_percent) }}%</span>
+                </div>
+                <div class="legend-item">
+                    <span class="color-dot" style="background: #10b981;"></span>
+                    <span>Recruiters ({{ users_by_role.recruiter }}) - {{ "%.1f"|format(recruiter_percent) }}%</span>
+                </div>
+                <div class="legend-item">
+                    <span class="color-dot" style="background: #f59e0b;"></span>
+                    <span>Admins ({{ users_by_role.admin }}) - {{ "%.1f"|format(admin_percent) }}%</span>
+                </div>
+            </div>
+        </div>
+        <div class="chart-caption">User distribution across different roles</div>
+    </div>
+    <!-- User Growth Chart - Daily -->
+    <div class="stats-card">
+        <h3><i class="fas fa-chart-line"></i> Daily User Registrations</h3>
+        <div class="growth-chart-container">
+            <div class="growth-chart">
+                {% for point in user_growth %}
+                <div class="growth-bar-container">
+                    <div class="growth-bar" style="height: {% if user_growth|map(attribute='count')|max > 0 %}{{ (point.count / user_growth|map(attribute='count')|max * 150) }}{% else %}0{% endif %}px;">
+                        <span class="growth-tooltip">{{ point.count }} users registered on {{ point.date }}</span>
+                    </div>
+                    <span class="growth-label">{{ point.date[5:] }}</span>
+                </div>
+                {% endfor %}
+            </div>
+            <div class="chart-caption">Daily registration count for the last {{ period }} days</div>
+        </div>
+    </div>
+
+    <!-- Monthly Growth -->
+    <div class="stats-card">
+        <h3><i class="fas fa-chart-bar"></i> Monthly User Growth</h3>
+        <div class="bar-chart">
+            {% for month in monthly_growth %}
+            <div class="bar-item">
+                <span class="bar-label">{{ month.month }}</span>
+                <div class="bar-container">
+                    <div class="bar" style="width: {% if monthly_growth|map(attribute='count')|max > 0 %}{{ (month.count / monthly_growth|map(attribute='count')|max * 100) }}{% else %}0{% endif %}%;">
+                        <span class="bar-value">{{ month.count }}</span>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="chart-caption">Monthly user registrations</div>
+    </div>
+
+   
+
+    <!-- Recent Activity Feed -->
+    <div class="stats-card">
+        <h3><i class="fas fa-history"></i> Recent Activity</h3>
+        <div class="activity-feed">
+            {% for activity in recent_activities %}
+            <div class="activity-item type-{{ activity.type }}">
+                <div class="activity-icon">
+                    {% if activity.type == 'user_register' %}
+                        <i class="fas fa-user-plus"></i>
+                    {% elif activity.type == 'job_post' %}
+                        <i class="fas fa-briefcase"></i>
+                    {% elif activity.type == 'application' %}
+                        <i class="fas fa-file-alt"></i>
+                    {% else %}
+                        <i class="fas fa-info-circle"></i>
+                    {% endif %}
+                </div>
+                <div class="activity-content">
+                    <div class="activity-title">
+                        {% if activity.type == 'user_register' %}
+                            New user <strong>{{ activity.user_name }}</strong> ({{ activity.role }}) registered on <strong>{{ activity.time_str }}</strong>
+                        {% elif activity.type == 'job_post' %}
+                            New job <strong>{{ activity.job_title }}</strong> posted by <strong>{{ activity.recruiter_name }}</strong> at {{ activity.company }} on <strong>{{ activity.time_str }}</strong>
+                        {% elif activity.type == 'application' %}
+                            <strong>{{ activity.job_seeker_name }}</strong> applied for <strong>{{ activity.job_title }}</strong> at {{ activity.company }} on <strong>{{ activity.time_str }}</strong>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="chart-caption">Latest platform activities</div>
+    </div>
+</div>
+
+<style>
+    .stats-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 1rem;
+    }
+
+    .stats-header {
+        margin-bottom: 4rem;
+margin-top:3rem;
+    }
+
+    .stats-header h1 {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+        color: var(--text-primary);
+        position: relative;
+        display: inline-block;
+    }
+
+    .stats-header h1::after {
+        content: '';
+        position: absolute;
+        bottom: -8px;
+        left: 0;
+        width: 50px;
+        height: 3px;
+        background: #1E2A4A;
+        border-radius: 2px;
+    }
+
+    .text-muted {
+        color: var(--text-secondary);
+    }
+
+    .period-selector {
+        display: flex;
+        gap: 0.5rem;
+        margin-top: 1rem;
+    }
+
+    .period-btn {
+        padding: 0.4rem 1rem;
+        background: var(--bg-card);
+        border: 1px solid #1E2A4A;
+        border-radius: 20px;
+        color: var(--text-secondary);
+        text-decoration: none;
+        font-size: 0.9rem;
+        transition: all 0.2s;
+    }
+
+    .period-btn:hover {
+        background: #E8F0FE;
+        border-color: #1E2A4A;
+        color: #1E2A4A;
+    }
+
+    .period-btn.active {
+        background: #1E2A4A;
+        color: white;
+        border-color: #1E2A4A;
+    }
+
+    .overview-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+
+    }
+
+    .overview-card {
+        background: var(--bg-card);
+        border-radius: 16px;
+        padding: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        border: 1px solid #1E2A4A;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        transition: all 0.3s ease;
+    }
+
+    .overview-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 20px rgba(30, 42, 74, 0.1);
+    }
+
+    .card-icon {
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(135deg, #1E2A4A, #2A3F8E);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: white;
+    }
+
+    .card-details h3 {
+        font-size: 1.5rem;
+        margin-bottom: 0.25rem;
+        color: #1E2A4A;
+    }
+
+    .stats-card {
+        background: var(--bg-card);
+        border-radius: 16px;
+        padding: 1.5rem;
+        border: 1px solid #1E2A4A;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        transition: all 0.3s ease;
+    }
+
+    .stats-card:hover {
+        box-shadow: 0 8px 20px rgba(30, 42, 74, 0.08);
+    }
+
+    .stats-card h3 {
+        margin-bottom: 1rem;
+        font-size: 1.1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--text-primary);
+    }
+
+    .stats-card h3 i {
+        color: #1E2A4A;
+    }
+
+    .chart-caption {
+        margin-top: 1rem;
+        font-size: 0.8rem;
+        color: var(--text-secondary);
+        text-align: center;
+    }
+
+    /* Growth Chart Styles */
+    .growth-chart-container {
+        overflow-x: auto;
+    }
+
+    .growth-chart {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-around;
+        height: 200px;
+        margin: 1rem 0;
+        gap: 2px;
+        min-width: 600px;
+
+    }
+
+    .growth-bar-container {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .growth-bar {
+        width: 100%;
+        max-width: 40px;
+        background: linear-gradient(135deg, #1E2A4A, #2A3F8E);
+        border-radius: 4px 4px 0 0;
+        position: relative;
+        transition: height 0.3s;
+        cursor: pointer;
+    }
+
+    .growth-bar:hover .growth-tooltip {
+        display: block;
+    }
+
+    .growth-tooltip {
+        display: none;
+        position: absolute;
+        top: -35px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: var(--bg-card);
+        padding: 0.3rem 0.6rem;
+        border-radius: 4px;
+        font-size: 0.7rem;
+        white-space: nowrap;
+        border: 1px solid #1E2A4A;
+        box-shadow: var(--shadow);
+        z-index: 10;
+    }
+
+    .growth-label {
+        font-size: 0.7rem;
+        color: var(--text-secondary);
+        white-space: nowrap;
+    }
+
+    /* Bar Chart Styles */
+    .bar-chart {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+
+    }
+
+    .bar-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .bar-label {
+        width: 100px;
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+    }
+
+    .bar-container {
+        flex: 1;
+        height: 28px;
+        background: var(--bg-primary);
+        border-radius: 4px;
+        overflow: hidden;
+    }
+
+    .bar {
+        height: 100%;
+        background: linear-gradient(90deg, #1E2A4A, #2A3F8E);
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        padding-right: 0.5rem;
+        transition: width 0.3s;
+    }
+
+    .bar-value {
+        color: white;
+        font-size: 0.75rem;
+        font-weight: 500;
+    }
+
+    /* Pie Chart Styles - HIGHLIGHTED */
+    .pie-chart-card {
+        background: linear-gradient(135deg, #ffffff, #f8fafc);
+        border: 2px solid #1E2A4A;
+
+    }
+
+    .pie-chart-wrapper {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: center;
+        gap: 3rem;
+        padding: 1.5rem;
+    }
+
+    .pie-chart-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex: 1;
+    }
+
+    .pie-chart {
+        width: 300px;
+        height: 300px;
+        position: relative;
+        filter: drop-shadow(0 10px 20px rgba(30, 42, 74, 0.2));
+        transition: transform 0.3s ease;
+    }
+
+    .pie-chart:hover {
+        transform: scale(1.02);
+    }
+
+    canvas {
+        max-width: 100%;
+        height: auto;
+        border-radius: 50%;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    .no-data {
+        text-align: center;
+        padding: 2rem;
+        color: var(--text-secondary);
+    }
+
+    .chart-legend {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        flex: 0 0 auto;
+    }
+
+    .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        font-size: 0.9rem;
+        color: var(--text-primary);
+        padding: 0.5rem 1rem;
+        background: rgba(30, 42, 74, 0.05);
+        border-radius: 30px;
+        transition: all 0.3s ease;
+    }
+
+    .legend-item:hover {
+        background: rgba(30, 42, 74, 0.1);
+        transform: translateX(5px);
+    }
+
+    .color-dot {
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        display: inline-block;
+        box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.8);
+    }
+
+    /* Activity Feed */
+    .activity-feed {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        max-height: 400px;
+        overflow-y: auto;
+
+margin-bottom:4rem;
+    }
+
+    .activity-item {
+        display: flex;
+        gap: 1rem;
+        padding: 0.75rem;
+        background: var(--bg-primary);
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        border-left: 3px solid #1E2A4A;
+    }
+
+    .activity-item:hover {
+        background: rgba(30, 42, 74, 0.05);
+        transform: translateX(4px);
+    }
+
+    .activity-icon {
+        width: 35px;
+        height: 35px;
+        background: rgba(30, 42, 74, 0.1);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #1E2A4A;
+    }
+
+    .activity-content {
+        flex: 1;
+    }
+
+    .activity-title {
+        font-size: 0.9rem;
+        color: var(--text-primary);
+        line-height: 1.4;
+    }
+
+    @media (max-width: 1024px) {
+        .overview-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 768px) {
+        .overview-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .bar-label {
+            width: 80px;
+            font-size: 0.75rem;
+        }
+        
+        .growth-label {
+            font-size: 0.6rem;
+            transform: rotate(-45deg);
+        }
+        
+        .period-selector {
+            flex-wrap: wrap;
+        }
+
+        .pie-chart-wrapper {
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .chart-legend {
+            flex-direction: row;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .pie-chart {
+            width: 250px;
+            height: 250px;
+        }
+    }
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const jobseekers = {{ users_by_role.jobseeker }};
+        const recruiters = {{ users_by_role.recruiter }};
+        const admins = {{ users_by_role.admin }};
+        
+        const ctx = document.getElementById('userRolePieChart').getContext('2d');
+        
+        new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: ['Job Seekers', 'Recruiters', 'Admins'],
+                datasets: [{
+                    data: [jobseekers, recruiters, admins],
+                    backgroundColor: ['#3b82f6', '#10b981', '#f59e0b'],
+                    borderColor: ['#ffffff', '#ffffff', '#ffffff'],
+                    borderWidth: 3,
+                    hoverOffset: 15,
+                    borderRadius: 8,
+                    spacing: 5
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        display: false,
+                        position: 'bottom',
+                        labels: {
+                            font: {
+                                size: 12,
+                                weight: 'bold'
+                            },
+                            padding: 15,
+                            usePointStyle: true,
+                            pointStyle: 'circle'
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: '#1E2A4A',
+                        titleColor: '#ffffff',
+                        bodyColor: '#e2e8f0',
+                        borderColor: '#2A3F8E',
+                        borderWidth: 1,
+                        callbacks: {
+                            label: function(context) {
+                                const label = context.label || '';
+                                const value = context.raw || 0;
+                                const total = jobseekers + recruiters + admins;
+                                const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+                                return `${label}: ${value} (${percentage}%)`;
+                            }
+                        }
+                    }
+                },
+                animation: {
+                    animateRotate: true,
+                    animateScale: true,
+                    duration: 1000,
+                    easing: 'easeInOutQuart'
+                },
+                cutout: '0%',
+                radius: '90%'
+            }
+        });
+    });
+</script>
+{% endblock %}

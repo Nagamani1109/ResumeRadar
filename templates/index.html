@@ -1,0 +1,1178 @@
+{% extends "base.html" %}
+
+{% block title %}AI Resume Screener - Smart Recruitment Platform{% endblock %}
+
+{% block content %}
+<!-- Running Messages / News Ticker -->
+<div class="news-ticker">
+    <div class="ticker-container">
+        <div class="ticker-label">
+            <i class="fas fa-bullhorn"></i> Latest Updates
+        </div>
+        <div class="ticker-wrapper">
+            <div class="ticker-content">
+                <div class="ticker-item">🎉 10,000+ Jobs Posted on our platform!</div>
+                <div class="ticker-item">⭐ New AI matching algorithm now 95% accurate</div>
+                <div class="ticker-item">🚀 500+ Companies joined this month</div>
+                <div class="ticker-item">💼 50,000+ Candidates registered</div>
+                <div class="ticker-item">🏆 Best AI Recruitment Platform 2024</div>
+                <div class="ticker-item">📊 80% faster screening with AI technology</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Hero Section with Full Background Image -->
+<div class="hero-section">
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+        <h1>AI-Powered Resume Screening</h1>
+        <p class="hero-subtitle">
+            Intelligent resume screening powered by advanced AI technology.
+            <br>Connecting talented professionals with their dream careers,
+            <br>while helping companies find the perfect candidates faster.
+        </p>
+        
+        {% if not session.get('user_id') %}
+        <div class="hero-buttons">
+            <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg">Get Started</a>
+            <a href="#features" class="btn btn-secondary btn-lg">Learn More</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+
+<!-- Features Section - Enhanced Professional Design -->
+<section id="features" class="features-section">
+    <div class="section-header">
+        <h2 class="section-title">Why Choose Our Platform</h2>
+        <p class="section-subtitle">Experience the future of recruitment with cutting-edge AI technology</p>
+    </div>
+    
+    <div class="features-grid">
+        <!-- Feature 1 -->
+        <div class="feature-card">
+            <div class="feature-icon-wrapper">
+                <div class="feature-icon">
+                    <i class="fas fa-robot"></i>
+                </div>
+            </div>
+            <h3>Advanced AI Matching</h3>
+            <p>Our intelligent algorithm understands skill relationships, context, and synonyms. </p>
+            <div class="feature-stats">
+                <span class="stat-badge">95% Accuracy</span>
+                <span class="stat-badge">Real-time</span>
+            </div>
+        </div>
+        
+        <!-- Feature 2 -->
+        <div class="feature-card">
+            <div class="feature-icon-wrapper">
+                <div class="feature-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+            </div>
+            <h3>Comprehensive Analytics</h3>
+            <p>Get detailed breakdown of technical skills, soft skills, experience level, and education match with visual progress indicators.</p>
+            <div class="feature-stats">
+                <span class="stat-badge">4 Metrics</span>
+                <span class="stat-badge">Visual Reports</span>
+            </div>
+        </div>
+        
+        <!-- Feature 3 -->
+        <div class="feature-card">
+            <div class="feature-icon-wrapper">
+                <div class="feature-icon">
+                    <i class="fas fa-file-alt"></i>
+                </div>
+            </div>
+            <h3>Smart Resume Parsing</h3>
+            <p>Upload PDF, DOCX, or TXT files. Our AI automatically extracts skills, experience, education, and contact information.</p>
+            <div class="feature-stats">
+                <span class="stat-badge">Auto-extract</span>
+                <span class="stat-badge">All Formats</span>
+            </div>
+        </div>
+        
+        <!-- Feature 4 -->
+        <div class="feature-card">
+            <div class="feature-icon-wrapper">
+                <div class="feature-icon">
+                    <i class="fas fa-bolt"></i>
+                </div>
+            </div>
+            <h3>Instant Screening</h3>
+            <p>Reduce screening time by 80%. Get match scores instantly and focus on interviewing the best candidates.</p>
+            <div class="feature-stats">
+                <span class="stat-badge">80% Faster</span>
+                <span class="stat-badge">Instant Results</span>
+            </div>
+        </div>
+        
+        <!-- Feature 5 -->
+        <div class="feature-card">
+            <div class="feature-icon-wrapper">
+                <div class="feature-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+            </div>
+            <h3>Dual Role Platform</h3>
+            <p>Recruiters post jobs and manage candidates. Job seekers find opportunities and track applications seamlessly.</p>
+            <div class="feature-stats">
+                <span class="stat-badge">2-in-1 Platform</span>
+                <span class="stat-badge">Seamless</span>
+            </div>
+        </div>
+        
+        <!-- Feature 6 -->
+        <div class="feature-card">
+            <div class="feature-icon-wrapper">
+                <div class="feature-icon">
+                    <i class="fas fa-chart-pie"></i>
+                </div>
+            </div>
+            <h3>Data-Driven Insights</h3>
+            <p>Access detailed analytics about your hiring process, candidate quality, and time-to-hire metrics.</p>
+            <div class="feature-stats">
+                <span class="stat-badge">Analytics</span>
+                <span class="stat-badge">Reports</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+/* ===== NEWS TICKER / RUNNING MESSAGES ===== */
+.news-ticker {
+
+    background: linear-gradient(135deg, #1E2A4A, #2A3F8E);
+    padding: 0.8rem 0;
+    border-bottom: 1px solid rgba(44, 140, 76, 0.3);
+    position: relative;
+    z-index: 1;
+border-radius:40px;
+margin-top:2rem;
+}
+
+.ticker-container {
+
+    max-width: 1400px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0 2rem;
+
+}
+.ticker-label {
+    background: #2C8C4C;
+    color: white;
+    padding: 0.3rem 1rem;
+    border-radius: 30px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    box-shadow: 0 0 10px rgba(44, 140, 76, 0.5);
+}
+.ticker-wrapper {
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+}
+
+.ticker-content {
+    display: flex;
+    animation: tickerScroll 20s linear infinite;
+    white-space: nowrap;
+}
+
+.ticker-item {
+    padding: 0 2rem;
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 0.9rem;
+    display: inline-block;
+    position: relative;
+}
+.ticker-item::after {
+    content: '•';
+    position: absolute;
+    right: -5px;
+    color: #2C8C4C;
+    font-weight: bold;
+}
+
+@keyframes tickerScroll {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+}
+
+.ticker-wrapper:hover .ticker-content {
+    animation-play-state: paused;
+}
+
+/* ===== STATS HIGHLIGHT SECTION ===== */
+.stats-highlight {
+    background: linear-gradient(135deg, #1E2A4A, #0F1A30);
+    padding: 4rem 2rem;
+    margin: 3rem 0;
+    border-radius: 30px;
+    position: relative;
+    overflow: hidden;
+}
+
+.stats-highlight::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at 30% 50%, rgba(44, 140, 76, 0.1), transparent 70%);
+    pointer-events: none;
+}
+
+.stats-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2rem;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+}
+
+.stat-item-highlight {
+    padding: 1.5rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 20px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(44, 140, 76, 0.2);
+    transition: all 0.3s ease;
+}
+
+.stat-item-highlight:hover {
+    transform: translateY(-5px);
+    border-color: rgba(44, 140, 76, 0.5);
+    box-shadow: 0 10px 30px rgba(44, 140, 76, 0.15);
+}
+
+.stat-number {
+    font-size: 3rem;
+    font-weight: 800;
+    color: #2C8C4C;
+    margin-bottom: 0.5rem;
+    text-shadow: 0 0 10px rgba(44, 140, 76, 0.3);
+}
+
+.stat-label {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 1rem;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+}
+    /*.features-section {
+        padding: 5rem 2rem;
+        background: var(--bg-primary);
+        position: relative;
+    }
+
+    /* Section Header */
+    .section-header {
+        text-align: center;
+        margin-bottom: 3rem;
+    }
+
+    .section-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 1rem;
+        letter-spacing: -0.5px;
+    }
+
+    .section-subtitle {
+        font-size: 1.4rem;
+        color: var(--text-secondary);
+        max-width: 800px;
+        margin: 0 auto;
+        line-height: 1.6;
+    }
+
+    /* Features Grid */
+    .features-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 2rem;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    /* Feature Card */
+    .feature-card {
+
+        background:var(--bg-card);
+        border-radius: 24px;
+        padding: 2rem;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border: 1px solid /*var(--border)*/#2C8C4C;;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+        position: relative;
+        overflow: hidden;
+    }
+
+    /* Card Hover Effect */
+    .feature-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+        opacity: 0;
+        transition: opacity 0.3s;
+    }
+
+    .feature-card:hover {
+        transform: translateY(-8px);
+        border-color: var(--accent-primary);
+        box-shadow: 0 20px 40px rgba(42, 63, 142, 0.1);
+    }
+
+    .feature-card:hover::before {
+        opacity: 1;
+    }
+
+    /* Icon Wrapper */
+    .feature-icon-wrapper {
+        margin-bottom: 1.5rem;
+    }
+
+    .feature-icon {
+        width: 65px;
+        height: 65px;
+        background: #2C8C4C;/*inear-gradient(135deg, var(--accent-primary), var(--accent-secondary));*/
+        border-radius: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.8rem;
+        color: white;
+        transition: all 0.3s;
+        box-shadow: 0 8px 20px rgba(42, 63, 142, 0.2);
+    }
+
+    .feature-card:hover .feature-icon {
+        transform: scale(1.05);
+        border-radius: 18px;
+background-color:var(--accent-primary);
+
+    }
+.feature-icon-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 1.5rem;
+}
+
+    /* Card Content */
+    .feature-card h3 {
+        font-size: 1.4rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 0.75rem;
+        line-height: 1.3;
+    }
+
+    .feature-card p {
+        color: var(--text-secondary);
+        line-height: 1.6;
+        margin-bottom: 1.25rem;
+        font-size: 0.95rem;
+    }
+
+    /* Feature Stats Badges */
+    .feature-stats {
+        display: flex;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+        margin-top: 0.5rem;
+    }
+
+    .stat-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.35rem 0.9rem;
+        background: var(--blue-light);
+        color: var(--accent-primary);
+        border-radius: 30px;
+        font-size: 0.75rem;
+        font-weight: 500;
+        letter-spacing: 0.3px;
+        transition: all 0.2s;
+    }
+
+    .feature-card:hover .stat-badge {
+        background: var(--accent-primary);
+        color: white;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .features-section {
+            padding: 3rem 1rem;
+        }
+
+        .section-title {
+            font-size: 2rem;
+        }
+
+        .section-subtitle {
+            font-size: 1rem;
+            padding: 0 1rem;
+        }
+
+        .features-grid {
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+
+        .feature-card {
+            padding: 1.5rem;
+        }
+
+        .feature-icon {
+            width: 55px;
+            height: 55px;
+            font-size: 1.5rem;
+        }
+
+        .feature-card h3 {
+            font-size: 1.2rem;
+        }
+    }*/
+/* ===== FEATURES SECTION - FULLY CENTERED ===== */
+.features-section {
+    padding: 5rem 2rem;
+    background: var(--bg-primary);
+    position: relative;
+}
+
+.section-header {
+margin-top:10rem;
+    text-align: center;
+    margin-bottom: 4rem;
+}
+
+.section-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 2rem;
+    letter-spacing: -0.5px;
+    text-align: center;
+}
+
+.section-subtitle {
+    font-size: 1.4rem;
+    color: var(--text-secondary);
+    max-width: 800px;
+    margin: 0 auto;
+    line-height: 1.6;
+    text-align: center;
+}
+
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Feature Card - FULLY CENTERED */
+.feature-card {
+    background: var(--bg-card);
+    border-radius: 24px;
+    padding: 2rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid #2C8C4C;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+    position: relative;
+    overflow: hidden;
+    
+    /* CENTERING PROPERTIES */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+/* Card Hover Effect */
+.feature-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.feature-card:hover {
+    transform: translateY(-8px);
+    border-color: var(--accent-primary);
+    box-shadow: 0 20px 40px rgba(42, 63, 142, 0.1);
+}
+
+.feature-card:hover::before {
+    opacity: 1;
+}
+
+/* Icon Wrapper - Centers Icon */
+.feature-icon-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 1.5rem;
+}
+
+/* Icon Styling */
+.feature-icon {
+    width: 65px;
+    height: 65px;
+    background: /*linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));*/#2C8C4C;
+    border-radius: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    color: white;
+    transition: all 0.3s;
+    box-shadow: 0 8px 20px rgba(42, 63, 142, 0.2);
+}
+
+.feature-card:hover .feature-icon {
+    transform: scale(1.05);
+    border-radius: 18px;
+}
+
+/* Heading - Centered */
+.feature-card h3 {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.75rem;
+    line-height: 1.3;
+    text-align: center;
+    width: 100%;
+}
+
+/* Description - Centered */
+.feature-card p {
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin-bottom: 1.25rem;
+    font-size: 0.95rem;
+    text-align: center;
+    max-width: 90%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Feature Stats Badges - Centered */
+.feature-stats {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    margin-top: 0.5rem;
+    width: 100%;
+}
+
+.stat-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.35rem 0.9rem;
+    background: var(--blue-light);
+    color: var(--accent-primary);
+    border-radius: 30px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.3px;
+    transition: all 0.2s;
+    text-align: center;
+}
+
+.feature-card:hover .stat-badge {
+    background: var(--accent-primary);
+    color: white;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .features-section {
+        padding: 3rem 1rem;
+    }
+
+    .section-title {
+        font-size: 2rem;
+    }
+
+    .section-subtitle {
+        font-size: 1rem;
+        padding: 0 1rem;
+    }
+
+    .features-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+
+    .feature-card {
+        padding: 1.5rem;
+    }
+
+    .feature-icon {
+        width: 55px;
+        height: 55px;
+        font-size: 1.5rem;
+    }
+
+    .feature-card h3 {
+        font-size: 1.2rem;
+    }
+
+    .feature-card p {
+        max-width: 100%;
+    }
+}
+</style>
+
+
+<!-- How it works Steps -->
+<section id="how-it-works" class="how-it-works">
+    <h2 class="section-title">How It Works</h2>
+    
+    <div class="steps-horizontal">
+        <div class="step-item">
+            <div class="step-image">
+                <img src="https://images.unsplash.com/photo-1560250056-07ba64664864?w=300&h=200&fit=crop" alt="Create Account">
+                <div class="step-number">1</div>
+            </div>
+            <h3>Create Account</h3>
+            <p>Sign up as a recruiter or job seeker in under 2 minutes</p>
+            <div class="step-features">
+                <span>✓ Free registration</span>
+                <span>✓ 2-minute setup</span>
+            </div>
+        </div>
+        
+        <div class="step-item">
+            <div class="step-image">
+                <img src="https://images.unsplash.com/photo-1586281380349-632531db7ed4?w=300&h=200&fit=crop" alt="Upload Resume or Post Job">
+                <div class="step-number">2</div>
+            </div>
+            <h3>Upload/Post</h3>
+            <p>Job seekers upload resumes, recruiters post detailed job descriptions with requirements.</p>
+            <div class="step-features">
+                <span>✓ PDF/DOCX support</span>
+                <span>✓ AI parsing</span>
+            </div>
+        </div>
+        
+        <div class="step-item">
+            <div class="step-image">
+                <img src="https://images.unsplash.com/photo-1677442136019-21780ecad995?w=300&h=200&fit=crop" alt="AI Analysis">
+                <div class="step-number">3</div>
+            </div>
+            <h3>AI Analysis</h3>
+            <p>Our AI matches candidates with jobs using intelligent algorithms</p>
+            <div class="step-features">
+                <span>✓ 95% accuracy</span>
+                <span>✓ Skill matching</span>
+            </div>
+        </div>
+        
+        <div class="step-item">
+            <div class="step-image">
+                <img src="https://images.unsplash.com/photo-1521791136064-7986c2920216?w=300&h=200&fit=crop" alt="Get Hired">
+                <div class="step-number">4</div>
+            </div>
+            <h3>Get Hired/Hire</h3>
+            <p>Receive instant notifications and connect with your perfect match</p>
+            <div class="step-features">
+                <span>✓ Real-time alerts</span>
+                <span>✓ Direct messaging</span>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- Stats Section with Counter Animation -->
+<section class="stats-highlight">
+    <div class="stats-container">
+        <div class="stat-item-highlight">
+            <div class="stat-number" data-target="10000">0</div>
+            <div class="stat-label">Jobs Posted</div>
+        </div>
+        <div class="stat-item-highlight">
+            <div class="stat-number" data-target="500">0</div>
+            <div class="stat-label">Companies</div>
+        </div>
+        <div class="stat-item-highlight">
+            <div class="stat-number" data-target="50000">0</div>
+            <div class="stat-label">Candidates</div>
+        </div>
+        <div class="stat-item-highlight">
+            <div class="stat-number" data-target="95">0</div>
+            <div class="stat-label">Match Accuracy %</div>
+        </div>
+    </div>
+</section>
+<style>
+/* ===== MAKE HERO IMAGE TOUCH BOTH SIDES ===== */
+.hero-section {
+    width: 100vw;
+    position: relative;
+    left: 50%;
+    right: 50%;
+    margin-left: -50vw;
+    margin-right: -50vw;
+}
+
+/* Remove any extra spacing */
+.hero-section {
+    margin-top: 2rem !important;
+    margin-bottom: 0 !important;
+}
+    /* ===== HERO SECTION ===== */
+    .hero-section {
+
+        position: relative;
+        min-height: 85vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        background-image: url('https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=1600&h=900&fit=crop');
+        background-size: cover;
+        background-position: center;
+        margin-top: 0;
+        margin-bottom: 0;
+    }
+
+    .hero-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(135deg, rgba(0,0,0,0.7), rgba(0,0,0,0.5));
+    }
+
+    .hero-content {
+        position: relative;
+        z-index: 2;
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .hero-content h1 {
+        font-size: 3.8rem;
+        color: white;
+        margin-bottom: 1.5rem;
+        font-weight: 700;
+        text-shadow: 2px 2px 8px rgba(0,0,0,0.3);
+    }
+
+    .hero-subtitle {
+        font-size: 1.3rem;
+        color: rgba(255,255,255,0.95);
+        margin-bottom: 2rem;
+        line-height: 1.6;
+    }
+
+    .hero-buttons {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+    }
+
+    /* ===== HOW IT WORKS SECTION ===== */
+    .how-it-works {
+        padding: 5rem 2rem;
+        background: var(--bg-primary);
+margin-top:6rem;
+    }
+
+    .steps-horizontal {
+        display: flex;
+        justify-content: center;
+        gap: 2rem;
+        flex-wrap: wrap;
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+    .step-item {
+margin-top:4rem;
+        flex: 1;
+        min-width: 260px;
+        max-width: 320px;
+        background: white;
+        border-radius: 20px;
+        overflow: hidden;
+        text-align: center;
+        transition: all 0.3s;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+        border: 1px solid #2C8C4C;
+    }
+
+    .step-item:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        border-color: var(--accent-primary);
+    }
+
+    .step-image {
+        position: relative;
+        height: 200px;
+        overflow: hidden;
+    }
+
+    .step-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s;
+    }
+
+    .step-item:hover .step-image img {
+        transform: scale(1.08);
+    }
+
+    .step-number {
+        position: absolute;
+        top: 15px;
+        left: 15px;
+        width: 40px;
+        height: 40px;
+        background: #2C8C4C;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: white;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        z-index: 2;
+    }
+
+    .step-item h3 {
+        font-size: 1.3rem;
+        margin: 1rem 0 0.5rem;
+        color: #2C8C4C;
+        font-weight: 600;
+    }
+
+    .step-item p {
+        color: black;
+        padding: 0 1rem;
+        font-size: 0.9rem;
+        line-height: 1.5;
+        margin-bottom: 1rem;
+    }
+
+    .step-features {
+        padding: 0 1rem 1.5rem;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+    .step-features span {
+        display: inline-block;
+        background: var(--blue-light);
+        color: var(--accent-primary);
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 500;
+    }
+
+    /* ===== BUTTONS ===== */
+    .btn-lg {
+        padding: 0.9rem 2rem;
+        font-size: 1rem;
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 768px) {
+        .hero-section {
+            min-height: 70vh;
+        }
+
+        .hero-content h1 {
+            font-size: 2.2rem;
+        }
+
+        .hero-subtitle {
+            font-size: 1rem;
+        }
+
+        .hero-buttons {
+            flex-direction: column;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+        }
+
+        .steps-horizontal {
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .step-item {
+            max-width: 100%;
+        }
+
+        .features-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .feature-card {
+            padding: 1.5rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block footer %}
+<footer class="footer">
+    <div class="footer-container">
+        <!-- About Column -->
+        <div class="footer-column">
+            <h3>About HireSmart</h3>
+            <p>HireSmart is an AI-powered platform that connects talented professionals with dream careers and helps companies find the perfect candidates faster.</p>
+        </div>
+        
+        <!-- Quick Links -->
+        <div class="footer-column">
+            <h3>Quick Links</h3>
+            <ul>
+                <li><a href="{{ url_for('index') }}#features">Features</a></li>
+                <li><a href="{{ url_for('index') }}#how-it-works">How It Works</a></li>
+                <li><a href="{{ url_for('about') }}">About Us</a></li>
+                <li><a href="{{ url_for('faq') }}">FAQs</a></li>
+            </ul>
+        </div>
+        
+        <!-- Legal -->
+        <div class="footer-column">
+            <h3>Legal</h3>
+            <ul>
+                <li><a href="{{ url_for('privacy_policy') }}">Privacy Policy</a></li>
+                <li><a href="{{ url_for('terms_of_service') }}">Terms of Service</a></li>
+            </ul>
+        </div>
+        
+        <!-- Contact Info -->
+        <div class="footer-column">
+            <h3>Get in Touch</h3>
+            <ul class="contact-info">
+                <li><i class="fas fa-envelope"></i> support@hiresmart.com</li>
+                <li><i class="fas fa-phone"></i> +1 (555) 123-4567</li>
+                <li><i class="fas fa-map-marker-alt"></i> San Francisco, CA</li>
+            </ul>
+        </div>
+    </div>
+    
+    <!-- Bottom Bar -->
+    <div class="footer-bottom">
+        <p>&copy; 2024 HireSmart. All rights reserved. | Made with <i class="fas fa-heart"></i> for better hiring</p>
+    </div>
+</footer>
+
+<style>
+/* ===== FOOTER STYLES - FULL WIDTH & BOTTOM ===== */
+.footer {
+    background: #1E2A4A;
+    color: #fff;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    position: relative;
+    left: 0;
+    right: 0;
+}
+
+.footer-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1.5rem 2rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+}
+
+.footer-column h3 {
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin-bottom: 0.8rem;
+    color: #fff;
+    position: relative;
+    display: inline-block;
+}
+
+.footer-column h3::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 0;
+    width: 30px;
+    height: 2px;
+    background: #2C8C4C;
+    border-radius: 2px;
+}
+
+.footer-column p {
+    color: rgba(255, 255, 255, 0.7);
+    line-height: 1.4;
+    font-size: 0.8rem;
+    margin-bottom: 0.8rem;
+}
+
+.footer-column ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.footer-column ul li {
+    margin-bottom: 0.4rem;
+}
+
+.footer-column ul li a {
+    color: rgba(255, 255, 255, 0.7);
+    text-decoration: none;
+    font-size: 0.8rem;
+    transition: all 0.3s;
+}
+
+.footer-column ul li a:hover {
+    color: white;
+    padding-left: 3px;
+}
+
+/* Contact Info */
+.contact-info li {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.75rem;
+    margin-bottom: 0.5rem;
+}
+
+.contact-info li i {
+    width: 18px;
+    font-size: 0.75rem;
+    color: #2C8C4C;
+}
+
+/* Bottom Bar */
+.footer-bottom {
+    text-align: center;
+    padding: 0.8rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    width: 100%;
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.footer-bottom p {
+    font-size: 0.7rem;
+    color: rgba(255, 255, 255, 0.6);
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.footer-bottom i {
+    color: #ff6b6b;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .footer-container {
+        grid-template-columns: 1fr;
+        text-align: center;
+        gap: 1.2rem;
+        padding: 1.2rem 1.5rem;
+    }
+
+    .footer-column h3::after {
+        left: 50%;
+        transform: translateX(-50%);
+    }
+
+    .contact-info li {
+        justify-content: center;
+    }
+}
+</style>
+<!-- Counter Animation Script -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const statNumbers = document.querySelectorAll('.stat-number');
+    
+    const animateNumber = (element) => {
+        const target = parseInt(element.getAttribute('data-target'));
+        let current = 0;
+        const increment = target / 50;
+        const updateNumber = () => {
+            current += increment;
+            if (current < target) {
+                element.textContent = Math.floor(current);
+                requestAnimationFrame(updateNumber);
+            } else {
+                element.textContent = target;
+            }
+        };
+        updateNumber();
+    };
+     // Intersection Observer for stats animation
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const statNumbersInView = entry.target.querySelectorAll('.stat-number');
+                statNumbersInView.forEach(num => animateNumber(num));
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.5 });
+    
+    const statsSection = document.querySelector('.stats-highlight');
+    if (statsSection) {
+        observer.observe(statsSection);
+    }
+});
+</script>
+{% endblock %}
