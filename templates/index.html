@@ -975,6 +975,132 @@ margin-top:4rem;
 </section>
 
 <style>
+/* ===== FIX ALIGNMENT ONLY - NO COLOR/FOOTER CHANGES ===== */
+
+/* Fix hero section overlap */
+.hero-section {
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+    width: 100% !important;
+    left: auto !important;
+    right: auto !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    overflow-x: hidden;
+}
+
+/* Fix content spacing */
+.content-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Fix news ticker positioning */
+.news-ticker {
+    margin-top: 0;
+    width: 100%;
+    overflow-x: hidden;
+}
+
+/* Fix ticker container on mobile */
+@media (max-width: 768px) {
+    .ticker-container {
+        padding: 0 1rem;
+    }
+    
+    .ticker-label {
+        font-size: 0.7rem;
+        padding: 0.2rem 0.8rem;
+        white-space: nowrap;
+    }
+    
+    .ticker-item {
+        font-size: 0.75rem;
+        padding: 0 1rem;
+    }
+}
+
+/* Fix stats section alignment */
+.stats-highlight {
+    margin-left: 0;
+    margin-right: 0;
+    border-radius: 30px;
+}
+
+.stats-container {
+    padding: 0 1rem;
+}
+
+@media (max-width: 768px) {
+    .stats-container {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 1rem !important;
+    }
+    
+    .stat-item-highlight {
+        padding: 1rem;
+    }
+    
+    .stat-number {
+        font-size: 2rem;
+    }
+}
+
+/* Fix features section overlap */
+.features-section {
+    padding: 3rem 1rem;
+    overflow-x: hidden;
+}
+
+.section-header {
+    margin-top: 0;
+}
+
+.features-grid {
+    padding: 0;
+}
+
+/* Fix how it works section */
+.how-it-works {
+    padding: 3rem 1rem;
+    margin-top: 0;
+    overflow-x: hidden;
+}
+
+.steps-horizontal {
+    padding: 0;
+}
+
+/* Fix hero content on mobile */
+@media (max-width: 768px) {
+    .hero-content h1 {
+        font-size: 2rem !important;
+    }
+    
+    .hero-subtitle {
+        font-size: 0.9rem !important;
+    }
+    
+    .hero-buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .btn-lg {
+        width: 100%;
+        text-align: center;
+        justify-content: center;
+    }
+}
+
+/* Ensure footer stays visible */
+.footer {
+    width: 100%;
+    margin-top: 2rem;
+}
     .stat-number {
         font-size: 3rem;
         font-weight: 800;

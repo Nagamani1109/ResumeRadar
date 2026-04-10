@@ -337,13 +337,14 @@
             {% block content %}{% endblock %}
         </div>
     </main>
-
+{% block footer %}
     <footer class="footer">
         <div class="footer-bottom" style="text-align: center; padding: 1rem;">
             <p>&copy; 2024 HireSmart. All rights reserved.</p>
+
         </div>
     </footer>
-
+{% endblock %}
     <script>
         setTimeout(() => {
             document.querySelectorAll('.alert').forEach(alert => {

@@ -2850,27 +2850,19 @@ def nuclear_reset():
 
 @app.route('/about')
 def about():
-    """About Us page"""
     return render_template('about.html')
 
 @app.route('/faq')
 def faq():
-    """FAQ page"""
     return render_template('faq.html')
-
-
 
 @app.route('/privacy-policy')
 def privacy_policy():
-    """Privacy Policy page"""
     return render_template('privacy_policy.html')
 
 @app.route('/terms-of-service')
 def terms_of_service():
-    """Terms of Service page"""
     return render_template('terms_of_service.html')
-
-
 
 @app.errorhandler(500)
 def internal_error(error):
