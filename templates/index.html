@@ -143,7 +143,132 @@
     </div>
 </section>
 
-<style>
+<style>/* ===== FIX ALIGNMENT ONLY - NO COLOR/FOOTER CHANGES ===== */
+
+/* Fix hero section overlap */
+.hero-section {
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+    width: 100% !important;
+    left: auto !important;
+    right: auto !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    overflow-x: hidden;
+}
+
+/* Fix content spacing */
+.content-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Fix news ticker positioning */
+.news-ticker {
+    margin-top: 0;
+    width: 100%;
+    overflow-x: hidden;
+}
+
+/* Fix ticker container on mobile */
+@media (max-width: 768px) {
+    .ticker-container {
+        padding: 0 1rem;
+    }
+    
+    .ticker-label {
+        font-size: 0.7rem;
+        padding: 0.2rem 0.8rem;
+        white-space: nowrap;
+    }
+    
+    .ticker-item {
+        font-size: 0.75rem;
+        padding: 0 1rem;
+    }
+}
+
+/* Fix stats section alignment */
+.stats-highlight {
+    margin-left: 0;
+    margin-right: 0;
+    border-radius: 30px;
+}
+
+.stats-container {
+    padding: 0 1rem;
+}
+
+@media (max-width: 768px) {
+    .stats-container {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 1rem !important;
+    }
+    
+    .stat-item-highlight {
+        padding: 1rem;
+    }
+    
+    .stat-number {
+        font-size: 2rem;
+    }
+}
+
+/* Fix features section overlap */
+.features-section {
+    padding: 3rem 1rem;
+    overflow-x: hidden;
+}
+
+.section-header {
+    margin-top: 0;
+}
+
+.features-grid {
+    padding: 0;
+}
+
+/* Fix how it works section */
+.how-it-works {
+    padding: 3rem 1rem;
+    margin-top: 0;
+    overflow-x: hidden;
+}
+
+.steps-horizontal {
+    padding: 0;
+}
+
+/* Fix hero content on mobile */
+@media (max-width: 768px) {
+    .hero-content h1 {
+        font-size: 2rem !important;
+    }
+    
+    .hero-subtitle {
+        font-size: 0.9rem !important;
+    }
+    
+    .hero-buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .btn-lg {
+        width: 100%;
+        text-align: center;
+        justify-content: center;
+    }
+}
+
+/* Ensure footer stays visible */
+.footer {
+    width: 100%;
+    margin-top: 2rem;
+}
 /* ===== NEWS TICKER / RUNNING MESSAGES ===== */
 .news-ticker {
 
@@ -721,25 +846,38 @@ margin-top:10rem;
         </div>
     </div>
 </section>
-
+<!-- Stats Section with Counter Animation -->
+<section class="stats-highlight">
+    <div class="stats-container">
+        <div class="stat-item-highlight">
+            <div class="stat-number" data-target="10000">0</div>
+            <div class="stat-label">Jobs Posted</div>
+        </div>
+        <div class="stat-item-highlight">
+            <div class="stat-number" data-target="500">0</div>
+            <div class="stat-label">Companies</div>
+        </div>
+        <div class="stat-item-highlight">
+            <div class="stat-number" data-target="50000">0</div>
+            <div class="stat-label">Candidates</div>
+        </div>
+        <div class="stat-item-highlight">
+            <div class="stat-number" data-target="95">0</div>
+            <div class="stat-label">Match Accuracy %</div>
+        </div>
+    </div>
+</section>
 <style>
 /* ===== MAKE HERO IMAGE TOUCH BOTH SIDES ===== */
-/* ===== HERO SECTION - FIXED ALIGNMENT ===== */
 .hero-section {
-    width: 100%;
+    width: 100vw;
     position: relative;
-    min-height: 85vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    background-image: url('https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=1600&h=900&fit=crop');
-    background-size: cover;
-    background-position: center;
-    margin: 0;
-    padding: 0;
-    overflow-x: hidden;
+    left: 50%;
+    right: 50%;
+    margin-left: -50vw;
+    margin-right: -50vw;
 }
+
 /* Remove any extra spacing */
 .hero-section {
     margin-top: 2rem !important;
@@ -759,7 +897,7 @@ margin-top:10rem;
         background-position: center;
         margin-top: 0;
         margin-bottom: 0;
-    }*/
+    }
 
     .hero-overlay {
         position: absolute;
@@ -952,168 +1090,7 @@ margin-top:4rem;
     }
 </style>
 {% endblock %}
-<!-- Stats Section with Counter Animation -->
-<section class="stats-highlight" style="background: linear-gradient(135deg, #1E2A4A, #0F1A30); padding: 4rem 2rem; margin: 3rem 0; border-radius: 30px;">
-    <div style="max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(4, 1fr); gap: 2rem; text-align: center;">
-        <div style="padding: 1.5rem; background: rgba(255, 255, 255, 0.05); border-radius: 20px;">
-            <div class="stat-number" data-target="10000" style="font-size: 3rem; font-weight: 800; color: #2C8C4C;">10000</div>
-            <div style="color: white; font-size: 1rem;">Jobs Posted</div>
-        </div>
-        <div style="padding: 1.5rem; background: rgba(255, 255, 255, 0.05); border-radius: 20px;">
-            <div class="stat-number" data-target="500" style="font-size: 3rem; font-weight: 800; color: #2C8C4C;">500</div>
-            <div style="color: white; font-size: 1rem;">Companies</div>
-        </div>
-        <div style="padding: 1.5rem; background: rgba(255, 255, 255, 0.05); border-radius: 20px;">
-            <div class="stat-number" data-target="50000" style="font-size: 3rem; font-weight: 800; color: #2C8C4C;">50000</div>
-            <div style="color: white; font-size: 1rem;">Candidates</div>
-        </div>
-        <div style="padding: 1.5rem; background: rgba(255, 255, 255, 0.05); border-radius: 20px;">
-            <div class="stat-number" data-target="95" style="font-size: 3rem; font-weight: 800; color: #2C8C4C;">95 %</div>
-            <div style="color: white; font-size: 1rem;">Match Accuracy %</div>
-        </div>
-    </div>
-</section>
 
-<style>
-/* ===== FIX ALIGNMENT ONLY - NO COLOR/FOOTER CHANGES ===== */
-
-/* Fix hero section overlap */
-.hero-section {
-    margin-top: 0 !important;
-    margin-bottom: 0 !important;
-    width: 100% !important;
-    left: auto !important;
-    right: auto !important;
-    margin-left: 0 !important;
-    margin-right: 0 !important;
-    overflow-x: hidden;
-}
-
-/* Fix content spacing */
-.content-container {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 0 2rem;
-    width: 100%;
-    box-sizing: border-box;
-}
-
-/* Fix news ticker positioning */
-.news-ticker {
-    margin-top: 0;
-    width: 100%;
-    overflow-x: hidden;
-}
-
-/* Fix ticker container on mobile */
-@media (max-width: 768px) {
-    .ticker-container {
-        padding: 0 1rem;
-    }
-    
-    .ticker-label {
-        font-size: 0.7rem;
-        padding: 0.2rem 0.8rem;
-        white-space: nowrap;
-    }
-    
-    .ticker-item {
-        font-size: 0.75rem;
-        padding: 0 1rem;
-    }
-}
-
-/* Fix stats section alignment */
-.stats-highlight {
-    margin-left: 0;
-    margin-right: 0;
-    border-radius: 30px;
-}
-
-.stats-container {
-    padding: 0 1rem;
-}
-
-@media (max-width: 768px) {
-    .stats-container {
-        grid-template-columns: repeat(2, 1fr) !important;
-        gap: 1rem !important;
-    }
-    
-    .stat-item-highlight {
-        padding: 1rem;
-    }
-    
-    .stat-number {
-        font-size: 2rem;
-    }
-}
-
-/* Fix features section overlap */
-.features-section {
-    padding: 3rem 1rem;
-    overflow-x: hidden;
-}
-
-.section-header {
-    margin-top: 0;
-}
-
-.features-grid {
-    padding: 0;
-}
-
-/* Fix how it works section */
-.how-it-works {
-    padding: 3rem 1rem;
-    margin-top: 0;
-    overflow-x: hidden;
-}
-
-.steps-horizontal {
-    padding: 0;
-}
-
-/* Fix hero content on mobile */
-@media (max-width: 768px) {
-    .hero-content h1 {
-        font-size: 2rem !important;
-    }
-    
-    .hero-subtitle {
-        font-size: 0.9rem !important;
-    }
-    
-    .hero-buttons {
-        flex-direction: column;
-        align-items: center;
-    }
-    
-    .btn-lg {
-        width: 100%;
-        text-align: center;
-        justify-content: center;
-    }
-}
-
-/* Ensure footer stays visible */
-.footer {
-    width: 100%;
-    margin-top: 2rem;
-}
-    .stat-number {
-        font-size: 3rem;
-        font-weight: 800;
-        color: #2C8C4C;
-    }
-    
-    @media (max-width: 768px) {
-        .stats-highlight > div {
-            grid-template-columns: 1fr !important;
-            gap: 1rem !important;
-        }
-    }
-</style>
 {% block footer %}
 <footer class="footer">
     <div class="footer-container">
