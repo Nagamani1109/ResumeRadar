@@ -5,8 +5,8 @@ from datetime import datetime, timedelta
 from flask_mail import Mail, Message
 
 from authlib.integrations.flask_client import OAuth
-from flask_talisman import Talisman
-Talisman(app, force_https=True)
+#from flask_talisman import Talisman
+#Talisman(app, force_https=True)
 import os
 
 
