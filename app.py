@@ -3428,26 +3428,5 @@ def debug_scopes():
 
 if __name__ == '__main__':
     import os
-    
-    print("\n" + "="*60)
-    print("🌑 AI RESUME SCREENER - PROFESSIONAL EDITION")
-    print("="*60)
-    print(f"✅ MongoDB Connected")
-    print(f"✅ AI Matcher Initialized")
-    print(f"📧 Email: {'✅ Configured' if app.config.get('MAIL_USERNAME') else '⚠️ Not Configured'}")
-    print(f"🌐 Server: http://localhost:5000")
-    print("="*60)
-    print("\nFeatures:")
-    print("  • Advanced AI Matching")
-    print("  • Real Email Notifications")
-    print("  • Secure Authentication")
-    print("  • Password Change")
-    print("  • Profile Management")
-    print("  • Resume Upload")
-    print("  • Job Applications")
-    print("  • Saved Jobs")
-    print("="*60)
-    
-    # For Render deployment - use PORT environment variable
     port = int(os.environ.get('PORT', 5000))
     app.run(debug=False, host='0.0.0.0', port=port)
