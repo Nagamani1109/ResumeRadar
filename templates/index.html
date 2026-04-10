@@ -721,38 +721,25 @@ margin-top:10rem;
         </div>
     </div>
 </section>
-<!-- Stats Section with Counter Animation -->
-<section class="stats-highlight">
-    <div class="stats-container">
-        <div class="stat-item-highlight">
-            <div class="stat-number" data-target="10000">0</div>
-            <div class="stat-label">Jobs Posted</div>
-        </div>
-        <div class="stat-item-highlight">
-            <div class="stat-number" data-target="500">0</div>
-            <div class="stat-label">Companies</div>
-        </div>
-        <div class="stat-item-highlight">
-            <div class="stat-number" data-target="50000">0</div>
-            <div class="stat-label">Candidates</div>
-        </div>
-        <div class="stat-item-highlight">
-            <div class="stat-number" data-target="95">0</div>
-            <div class="stat-label">Match Accuracy %</div>
-        </div>
-    </div>
-</section>
+
 <style>
 /* ===== MAKE HERO IMAGE TOUCH BOTH SIDES ===== */
+/* ===== HERO SECTION - FIXED ALIGNMENT ===== */
 .hero-section {
-    width: 100vw;
+    width: 100%;
     position: relative;
-    left: 50%;
-    right: 50%;
-    margin-left: -50vw;
-    margin-right: -50vw;
+    min-height: 85vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    background-image: url('https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=1600&h=900&fit=crop');
+    background-size: cover;
+    background-position: center;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
 }
-
 /* Remove any extra spacing */
 .hero-section {
     margin-top: 2rem !important;
@@ -772,7 +759,7 @@ margin-top:10rem;
         background-position: center;
         margin-top: 0;
         margin-bottom: 0;
-    }
+    }*/
 
     .hero-overlay {
         position: absolute;
@@ -965,7 +952,42 @@ margin-top:4rem;
     }
 </style>
 {% endblock %}
+<!-- Stats Section with Counter Animation -->
+<section class="stats-highlight" style="background: linear-gradient(135deg, #1E2A4A, #0F1A30); padding: 4rem 2rem; margin: 3rem 0; border-radius: 30px;">
+    <div style="max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(4, 1fr); gap: 2rem; text-align: center;">
+        <div style="padding: 1.5rem; background: rgba(255, 255, 255, 0.05); border-radius: 20px;">
+            <div class="stat-number" data-target="10000" style="font-size: 3rem; font-weight: 800; color: #2C8C4C;">10000</div>
+            <div style="color: white; font-size: 1rem;">Jobs Posted</div>
+        </div>
+        <div style="padding: 1.5rem; background: rgba(255, 255, 255, 0.05); border-radius: 20px;">
+            <div class="stat-number" data-target="500" style="font-size: 3rem; font-weight: 800; color: #2C8C4C;">500</div>
+            <div style="color: white; font-size: 1rem;">Companies</div>
+        </div>
+        <div style="padding: 1.5rem; background: rgba(255, 255, 255, 0.05); border-radius: 20px;">
+            <div class="stat-number" data-target="50000" style="font-size: 3rem; font-weight: 800; color: #2C8C4C;">50000</div>
+            <div style="color: white; font-size: 1rem;">Candidates</div>
+        </div>
+        <div style="padding: 1.5rem; background: rgba(255, 255, 255, 0.05); border-radius: 20px;">
+            <div class="stat-number" data-target="95" style="font-size: 3rem; font-weight: 800; color: #2C8C4C;">95 %</div>
+            <div style="color: white; font-size: 1rem;">Match Accuracy %</div>
+        </div>
+    </div>
+</section>
 
+<style>
+    .stat-number {
+        font-size: 3rem;
+        font-weight: 800;
+        color: #2C8C4C;
+    }
+    
+    @media (max-width: 768px) {
+        .stats-highlight > div {
+            grid-template-columns: 1fr !important;
+            gap: 1rem !important;
+        }
+    }
+</style>
 {% block footer %}
 <footer class="footer">
     <div class="footer-container">
