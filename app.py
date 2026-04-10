@@ -3408,7 +3408,11 @@ def debug_scopes():
     </ul>
     <p>These should be configured in your Google Cloud Console under OAuth consent screen > Scopes.</p>
     <p><a href="/login/google">Test Google Login</a></p>
-    """
+@app.before_request
+def before_request():
+    if request.headers.get('X-Forwarded-Proto') == 'http':
+        url = request.url.replace('http://', 'https://', 1)
+        return redirect(url, code=301)   """
 # ==================== Run ====================
 
 if __name__ == '__main__':
