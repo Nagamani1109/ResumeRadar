@@ -3106,17 +3106,12 @@ def google_login():
 def google_callback():
     """Handle Google OAuth callback"""
     try:
-        print("="*50)
-        print("GOOGLE CALLBACK RECEIVED")
-        
         # Get token
         token = google.authorize_access_token()
-        print(f"Token received")
         
-        # Get user info using the token
-        resp = google.get('userinfo', token=token)
+        # Get user info
+        resp = google.get('userinfo')
         userinfo = resp.json()
-        print(f"User info: {userinfo}")
         
         email = userinfo.get('email')
         name = userinfo.get('name', email.split('@')[0])
@@ -3129,7 +3124,6 @@ def google_callback():
         user = users_collection.find_one({'email': email})
         
         if user:
-            # Existing user - login
             session['user_id'] = str(user['_id'])
             session['user_email'] = user['email']
             session['user_name'] = user.get('full_name') or user.get('name', name)
@@ -3144,7 +3138,7 @@ def google_callback():
             else:
                 return redirect(url_for('jobseeker_dashboard'))
         else:
-            # New user - create account
+            # Create new user
             new_user = {
                 'name': name,
                 'full_name': name,
@@ -3168,8 +3162,6 @@ def google_callback():
             
     except Exception as e:
         print(f"Google OAuth error: {str(e)}")
-        import traceback
-        traceback.print_exc()
         flash('Google login failed. Please try again.', 'error')
         return redirect(url_for('login'))
 @app.route('/debug/urls')
