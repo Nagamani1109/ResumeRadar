@@ -312,7 +312,7 @@ margin-top:2rem;
 
 .ticker-content {
     display: flex;
-    animation: tickerScroll 20s linear infinite;
+    animation: tickerScroll 7s linear infinite;
     white-space: nowrap;
 }
 
@@ -845,6 +845,7 @@ margin-top:10rem;
             </div>
         </div>
     </div>
+</section>
 <!-- Stats Section with Counter Animation -->
 <section class="stats-highlight">
     <div class="stats-container">
@@ -866,65 +867,6 @@ margin-top:10rem;
         </div>
     </div>
 </section>
-
-<style>
-    /* Stats section - mobile responsive */
-    .stats-highlight {
-        background: linear-gradient(135deg, #1E2A4A, #0F1A30);
-        padding: 3rem 1rem;
-        margin: 2rem 0;
-        border-radius: 30px;
-        width: 100%;
-    }
-    
-    .stats-container {
-        max-width: 1200px;
-        margin: 0 auto;
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 1.5rem;
-        text-align: center;
-    }
-    
-    .stat-item-highlight {
-        padding: 1.2rem;
-        background: rgba(255, 255, 255, 0.05);
-        border-radius: 20px;
-        border: 1px solid rgba(44, 140, 76, 0.2);
-    }
-    
-    .stat-number {
-        font-size: 2.5rem;
-        font-weight: 800;
-        color: #2C8C4C;
-        margin-bottom: 0.5rem;
-    }
-    
-    .stat-label {
-        color: rgba(255, 255, 255, 0.8);
-        font-size: 0.9rem;
-    }
-    
-    /* Mobile responsive */
-    @media (max-width: 768px) {
-        .stats-container {
-            grid-template-columns: repeat(2, 1fr) !important;
-            gap: 1rem !important;
-        }
-        
-        .stat-number {
-            font-size: 1.8rem;
-        }
-        
-        .stat-label {
-            font-size: 0.75rem;
-        }
-        
-        .stat-item-highlight {
-            padding: 0.8rem;
-        }
-    }
-</style>
 <style>
 /* ===== MAKE HERO IMAGE TOUCH BOTH SIDES ===== */
 .hero-section {

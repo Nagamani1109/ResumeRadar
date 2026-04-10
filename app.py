@@ -3086,15 +3086,14 @@ google = oauth.register(
 )
 @app.route('/login/google')
 def google_login():
-    """Redirect to Google OAuth"""
     try:
-        redirect_uri = 'http://localhost:5000/google/callback'
+        # Force the exact redirect URI
+        redirect_uri = 'https://ai-resume-screener-e0zj.onrender.com/google/callback'
         return google.authorize_redirect(redirect_uri)
     except Exception as e:
         print(f"Google login error: {str(e)}")
         flash('Unable to login with Google. Please try again.', 'error')
         return redirect(url_for('login'))
-
 @app.route('/google/callback')
 def google_callback():
     """Handle Google OAuth callback"""
@@ -3413,6 +3412,11 @@ def before_request():
     if request.headers.get('X-Forwarded-Proto') == 'http':
         url = request.url.replace('http://', 'https://', 1)
         return redirect(url, code=301)   """
+@app.route('/debug/redirect-uri')
+def debug_redirect_uri():
+    from flask import url_for
+    redirect_uri = url_for('google_callback', _external=True)
+    return f"Your app is using this redirect URI: <strong>{redirect_uri}</strong>"
 # ==================== Run ====================
 
 if __name__ == '__main__':
