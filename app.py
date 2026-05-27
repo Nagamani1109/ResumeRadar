@@ -3417,6 +3417,9 @@ def debug_redirect_uri():
     from flask import url_for
     redirect_uri = url_for('google_callback', _external=True)
     return f"Your app is using this redirect URI: <strong>{redirect_uri}</strong>"
+@app.route('/health')
+def health_check():
+    return "OK", 200
 # ==================== Run ====================
 
 if __name__ == '__main__':
