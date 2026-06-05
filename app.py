@@ -3,25 +3,15 @@ from werkzeug.middleware.proxy_fix import ProxyFix
 import secrets
 from datetime import datetime, timedelta
 from flask_mail import Mail, Message
-
 from authlib.integrations.flask_client import OAuth
-#from flask_talisman import Talisman
-#Talisman(app, force_https=True)
 import os
-
-
-
-# Add these imports at the top
 import secrets
 import hashlib
 import requests
 from datetime import datetime, timedelta
-
 from bson import json_util
 import json
-
 from datetime import datetime, timedelta
-
 import os
 import secrets
 from datetime import datetime
@@ -36,24 +26,9 @@ from functools import wraps
 import certifi
 import traceback
 from dotenv import load_dotenv
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 import PyPDF2
 import docx
-from ai_matcher import analyze_resume_advanced
+from matcher import analyze_resume
 
 # Load environment variables
 load_dotenv()
@@ -115,30 +90,6 @@ except Exception as e:
     print("Please check your MongoDB connection and restart.")
     exit(1)
 
-
-# MongoDB Connection
-try:
-    mongo_uri = os.getenv('MONGODB_URI', 'mongodb://localhost:27017/')
-    client = MongoClient(mongo_uri, tlsCAFile=certifi.where(), serverSelectionTimeoutMS=5000)
-    client.admin.command('ping')
-    print("✅ MongoDB Connected Successfully!")
-    
-    db = client[os.getenv('MONGODB_DB', 'resume_screener')]
-    users_collection = db.users
-    jobs_collection = db.jobs
-    applications_collection = db.applications
-    password_resets_collection = db.password_resets
-    notifications_collection = db.notifications
-    complaints_collection = db.complaints  # ADD THIS LINE
-    
-    # Create indexes
-    users_collection.create_index('email', unique=True)
-    applications_collection.create_index([('user_id', 1), ('job_id', 1)], unique=True)
-    
-except Exception as e:
-    print(f"❌ MongoDB Connection Error: {str(e)}")
-    print("Please check your MongoDB connection and restart.")
-    exit(1)
 # ==================== Helper Functions ====================
 
 def admin_required(f):
@@ -259,118 +210,6 @@ def get_unread_count(user_id):
         })
     except:
         return 0
-
-
-
-
-
-
-
-# ==================== Complaint System ====================
-
-@app.route('/admin/complaints')
-@admin_required
-def admin_complaints():
-    """View all complaints raised against users"""
-    try:
-        complaints = list(complaints_collection.find().sort('created_at', -1))
-        
-        for complaint in complaints:
-            complaint['_id'] = str(complaint['_id'])
-            # Get reporter details
-            reporter = users_collection.find_one({'_id': ObjectId(complaint['reporter_id'])})
-            if reporter:
-                complaint['reporter_name'] = reporter.get('full_name') or reporter.get('name', 'Unknown')
-                complaint['reporter_email'] = reporter.get('email')
-            
-            # Get reported user details
-            reported_user = users_collection.find_one({'_id': ObjectId(complaint['reported_user_id'])})
-            if reported_user:
-                complaint['reported_user_name'] = reported_user.get('full_name') or reported_user.get('name', 'Unknown')
-                complaint['reported_user_email'] = reported_user.get('email')
-                complaint['reported_user_role'] = reported_user.get('role', 'unknown')
-                complaint['profile_picture'] = reported_user.get('profile_picture') or reported_user.get('company_logo')
-        
-        unread_count = get_unread_count(session['user_id'])
-        
-        return render_template('admin/complaints.html',
-                             complaints=complaints,
-                             unread_notifications=unread_count,
-                             user_name=session.get('user_name'))
-        
-    except Exception as e:
-        print(f"Admin complaints error: {str(e)}")
-        flash('Error loading complaints', 'error')
-        return redirect(url_for('admin_dashboard'))
-
-@app.route('/admin/complaint/<complaint_id>/resolve', methods=['POST'])
-@admin_required
-def resolve_complaint(complaint_id):
-    """Mark a complaint as resolved"""
-    try:
-        complaints_collection.update_one(
-            {'_id': ObjectId(complaint_id)},
-            {'$set': {'status': 'resolved', 'resolved_at': datetime.utcnow(), 'resolved_by': session['user_id']}}
-        )
-        flash('Complaint marked as resolved', 'success')
-    except Exception as e:
-        print(f"Resolve complaint error: {str(e)}")
-        flash('Error resolving complaint', 'error')
-    
-    return redirect(url_for('admin_complaints'))
-
-@app.route('/report-user/<user_id>', methods=['POST'])
-@login_required
-def report_user(user_id):
-    """Report a user for inappropriate behavior"""
-    try:
-        reason = request.form.get('reason')
-        description = request.form.get('description')
-        
-        if not reason:
-            flash('Please provide a reason for reporting', 'error')
-            return redirect(request.referrer)
-        
-        complaint = {
-            'reporter_id': session['user_id'],
-            'reported_user_id': user_id,
-            'reason': reason,
-            'description': description,
-            'status': 'pending',
-            'created_at': datetime.utcnow()
-        }
-        
-        complaints_collection.insert_one(complaint)
-        
-        # Notify admin
-        create_notification(
-            'admin',
-            'New Complaint Received',
-            f'A new complaint has been filed against user',
-            'warning',
-            url_for('admin_complaints')
-        )
-        
-        flash('Complaint submitted successfully. Admin will review it.', 'success')
-        
-    except Exception as e:
-        print(f"Report user error: {str(e)}")
-        flash('Error submitting complaint', 'error')
-    
-    return redirect(request.referrer)
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 # ==================== Auth Routes ====================
 
@@ -2291,7 +2130,11 @@ def jobseeker_job_detail(job_id):
         # Get AI analysis if user has resume and hasn't applied
         analysis = None
         if user and 'resume_text' in user and user['resume_text'] and not has_applied:
-            analysis = analyze_resume_advanced(user['resume_text'], job)
+            analysis = analyze_resume(
+                             user['resume_text'],
+                             job.get('description', ''),
+                            job.get('title', '')
+                                    )
         
         job['_id'] = str(job['_id'])
         unread_count = get_unread_count(session['user_id'])
@@ -3426,3 +3269,4 @@ if __name__ == '__main__':
     import os
     port = int(os.environ.get('PORT', 5000))
     app.run(debug=False, host='0.0.0.0', port=port)
+   
