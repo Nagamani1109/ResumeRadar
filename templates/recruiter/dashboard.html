@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Recruiter Dashboard - AI Resume Screener{% endblock %}
+{% block title %}Recruiter Dashboard - ResumeRadar{% endblock %}
 
 {% block content %}
 <div class="dashboard-container">
@@ -166,7 +166,7 @@
     }
 
     .dashboard-header {
- margin-top: 3rem;
+        margin-top: 3rem;
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -197,14 +197,14 @@
         display: flex;
         align-items: center;
         gap: 1rem;
-        border: 1px solid /*var(--border);*/#2C8C4C;
+        border: 1px solid #2C8C4C;
         box-shadow: var(--shadow);
     }
 
     .stat-icon {
         width: 50px;
         height: 50px;
-        background: /*linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));*/#2C8C4C;
+        background:#2C8C4C;
         border-radius: 10px;
         display: flex;
         align-items: center;
@@ -284,7 +284,7 @@
 
     .section-title {
         font-size: 1.5rem;
- margin-top: 4rem;
+        margin-top: 4rem;
         margin-bottom: 1.5rem;
 
     }
@@ -302,7 +302,7 @@
         border: 1px solid #2C8C4C;
         box-shadow: var(--shadow);
         transition: all 0.2s;
-margin-bottom:5rem;
+        margin-bottom:5rem;
     }
 
     .job-card:hover {
@@ -414,7 +414,7 @@ margin-bottom:5rem;
     }
 
     .btn-primary {
-        background: /*linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));*/#2C8C4C;
+        background:#2C8C4C;
         color: white;
     }
 
@@ -424,27 +424,26 @@ margin-bottom:5rem;
     }
 
     .btn-secondary {
-        background: /*var(--bg-primary);*/linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+        background:linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
         color: white;
         border: 1px solid var(--border);
     }
 
     .btn-secondary:hover {
-       /* background: var(--border);*/
-background:linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
- transform: translateY(-1px);
+        background:linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+        transform: translateY(-1px);
         box-shadow: var(--shadow-lg);
         
     }
 
     .btn-danger {
-        background: /*red;*/#FF0000;
+        background:#FF0000;
         color: white;
         border: 1px solid #fecaca;
     }
 
     .btn-danger:hover {
-transform: translateY(-1px);
+        transform: translateY(-1px);
         background:#FF0000;
     }
 

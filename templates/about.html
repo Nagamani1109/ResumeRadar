@@ -1,78 +1,70 @@
 {% extends "base.html" %}
 
-{% block title %}About Us - HireSmart{% endblock %}
+{% block title %}About Us - ResumeRadar{% endblock %}
 
 {% block content %}
 <div class="page-wrapper">
     <div class="page-header">
-        <h1>About HireSmart</h1>
-        <p>Transforming recruitment through intelligent AI technology</p>
+        <h1>About ResumeRadar</h1>
+        <p>A skill-matching platform built with Flask and MongoDB</p>
     </div>
     
-    <!-- Mission Section -->
+    <!-- What is ResumeRadar Section -->
     <div class="mission-section">
         <div class="mission-content">
-            <h2>Our Mission</h2>
-            <p>To revolutionize the hiring process by connecting talented professionals with their dream careers while helping companies build exceptional teams faster, fairer, and smarter through the power of artificial intelligence.</p>
+            <h2>What is ResumeRadar?</h2>
+            <p>ResumeRadar is a web-based platform that helps recruiters find the most relevant candidates for their job openings. It uses keyword matching and text comparison to rank applicants based on how well their resumes match job descriptions.</p>
         </div>
         <div class="mission-icon">
-            <i class="fas fa-bullseye"></i>
+            <i class="fas fa-search"></i>
         </div>
     </div>
     
-    <!-- Vision Section -->
+    <!-- How It Works Section -->
     <div class="vision-section">
-        <h2>Our Vision</h2>
-        <p>To become the world's most trusted AI-powered recruitment platform, where every candidate finds their perfect opportunity and every employer discovers their ideal team member without bias or delay.</p>
+        <h2>How It Works</h2>
+        <p>Recruiters post job descriptions. Job seekers upload their resumes. The platform compares resumes against job descriptions using TF-IDF vectorization and cosine similarity — techniques commonly used in search engines and text analysis.</p>
+        <p>Each applicant receives a match score that helps recruiters quickly identify the most promising candidates.</p>
     </div>
     
-    <!-- Story Section -->
+    <!-- Project Story Section -->
     <div class="story-section">
-        <h2>Our Story</h2>
-        <p>HireSmart was founded in 2023 by a team of recruitment experts and AI engineers who experienced firsthand the challenges of traditional hiring. We saw recruiters spending countless hours manually screening hundreds of resumes, while qualified candidates got lost in the system.</p>
-        <p>We built HireSmart to solve this problem. Our platform uses advanced natural language processing and machine learning to understand the nuances of skills, experience, and job requirements. Today, we're proud to serve thousands of companies and job seekers worldwide, making hiring faster, more accurate, and more equitable.</p>
+        <h2>Project Background</h2>
+        <p>ResumeRadar was developed as a Computer Science final year project. The goal was to build a complete full-stack web application that solves a real-world problem: the time-consuming process of manually screening resumes.</p>
+        <p>The project demonstrates skills in:</p>
+        <ul class="skill-list">
+            <li><strong>Backend Development</strong> — Flask (Python), MongoDB Atlas</li>
+            <li><strong>Frontend Development</strong> — HTML, CSS, JavaScript</li>
+            <li><strong>Deployment</strong> — Render cloud platform</li>
+            <li><strong>Authentication</strong> — Google OAuth integration</li>
+            <li><strong>Text Processing</strong> — TF-IDF vectorization, cosine similarity</li>
+        </ul>
     </div>
     
-    <!-- Values Section -->
+    <!-- Features Section -->
     <div class="values-section">
-        <h2>Our Values</h2>
+        <h2>Platform Features</h2>
         <div class="values-grid">
             <div class="value-card">
-                <i class="fas fa-lightbulb"></i>
-                <h3>Innovation First</h3>
-                <p>We continuously push boundaries to deliver the most advanced matching technology available.</p>
+                <i class="fas fa-user-tie"></i>
+                <h3>For Recruiters</h3>
+                <p>Post jobs, view ranked candidates, shortlist, hire. Dashboard shows all applications with match scores.</p>
             </div>
             <div class="value-card">
-                <i class="fas fa-handshake"></i>
-                <h3>Integrity Always</h3>
-                <p>We believe in transparent, unbiased recruitment that gives everyone a fair chance.</p>
+                <i class="fas fa-user-graduate"></i>
+                <h3>For Job Seekers</h3>
+                <p>Upload resumes, browse jobs, see match scores before applying, track applications in real time.</p>
             </div>
             <div class="value-card">
-                <i class="fas fa-users"></i>
-                <h3>People-Centric</h3>
-                <p>Everything we do is designed to improve the experience for both recruiters and job seekers.</p>
+                <i class="fas fa-chart-bar"></i>
+                <h3>Admin Dashboard</h3>
+                <p>Overview of platform activity, user management, job moderation, and system statistics.</p>
             </div>
-            
-        </div>
-    </div>
-    
-    <!-- Stats Section -->
-    <div class="about-stats">
-        <div class="stat">
-            <div class="stat-number">10,000+</div>
-            <div class="stat-label">Companies Trust Us</div>
-        </div>
-        <div class="stat">
-            <div class="stat-number">500,000+</div>
-            <div class="stat-label">Job Seekers Served</div>
-        </div>
-        <div class="stat">
-            <div class="stat-number">95%</div>
-            <div class="stat-label">Match Accuracy</div>
-        </div>
-        <div class="stat">
-            <div class="stat-number">80%</div>
-            <div class="stat-label">Time Saved</div>
+            <div class="value-card">
+                <i class="fas fa-file-alt"></i>
+                <h3>Resume Parsing</h3>
+                <p>Extracts text from PDF and DOCX files automatically. Skills, experience and education are identified from resume content.</p>
+            </div>
         </div>
     </div>
 </div>
@@ -144,6 +136,7 @@
     color: #2F3B64;
     line-height: 1.6;
     font-size: 1rem;
+    margin-bottom: 0.5rem;
 }
 
 .story-section {
@@ -162,6 +155,26 @@
     margin-bottom: 1rem;
 }
 
+.skill-list {
+    list-style: none;
+    padding: 0;
+    margin: 1rem 0;
+}
+
+.skill-list li {
+    padding: 0.5rem 0;
+    color: #2F3B64;
+    border-bottom: 1px solid #E0E6F2;
+}
+
+.skill-list li:last-child {
+    border-bottom: none;
+}
+
+.skill-list strong {
+    color: #1E2A4A;
+}
+
 .values-section {
     margin-bottom: 3rem;
 }
@@ -175,7 +188,7 @@
 
 .values-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
     gap: 1.5rem;
 }
 
@@ -201,7 +214,7 @@
 }
 
 .value-card h3 {
-    font-size: 1.2rem;
+    font-size: 1.1rem;
     color: #1E2A4A;
     margin-bottom: 0.5rem;
 }
@@ -212,37 +225,11 @@
     line-height: 1.5;
 }
 
-.about-stats {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 1.5rem;
-    background: #E9EEFA;
-    padding: 2rem;
-    border-radius: 20px;
-    text-align: center;
-}
-
-.stat-number {
-    font-size: 2rem;
-    font-weight: 700;
-    color: #2C8C4C;
-    margin-bottom: 0.5rem;
-}
-
-.stat-label {
-    color: #2F3B64;
-    font-size: 0.9rem;
-}
-
 @media (max-width: 768px) {
     .mission-section {
         flex-direction: column;
         text-align: center;
         gap: 1rem;
-    }
-    
-    .about-stats {
-        grid-template-columns: repeat(2, 1fr);
     }
     
     .values-grid {

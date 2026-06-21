@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Manage Users - Admin{% endblock %}
+{% block title %}Manage Users - ResumeRadar{% endblock %}
 
 {% block content %}
 <div class="users-container">
@@ -24,15 +24,15 @@
                 <span class="stat-label">Recruiters</span>
             </div>
             <div class="stat-badge">
-                <span class="stat-value">{{ total_admins }}</span>
-                <span class="stat-label">Admins</span>
+                <span class="stat-value">{{ total_ResumeRadars }}</span>
+                <span class="stat-label">ResumeRadars</span>
             </div>
         </div>
     </div>
 
     <!-- Filters -->
     <div class="filters-bar">
-        <form method="GET" action="{{ url_for('admin_users') }}" class="filters-form">
+        <form method="GET" action="{{ url_for('ResumeRadar_users') }}" class="filters-form">
             <div class="search-box">
                 <i class="fas fa-search"></i>
                 <input type="text" name="search" placeholder="Search by name or email..." 
@@ -43,11 +43,11 @@
                 <option value="">All Roles</option>
                 <option value="jobseeker" {% if selected_role == 'jobseeker' %}selected{% endif %}>Job Seekers</option>
                 <option value="recruiter" {% if selected_role == 'recruiter' %}selected{% endif %}>Recruiters</option>
-                <option value="admin" {% if selected_role == 'admin' %}selected{% endif %}>Admins</option>
+                <option value="ResumeRadar" {% if selected_role == 'ResumeRadar' %}selected{% endif %}>ResumeRadars</option>
             </select>
             
             <button type="submit" class="btn btn-primary">Search</button>
-            <a href="{{ url_for('admin_users') }}" class="btn btn-secondary">Clear</a>
+            <a href="{{ url_for('ResumeRadar_users') }}" class="btn btn-secondary">Clear</a>
         </form>
     </div>
 
@@ -109,12 +109,12 @@
                     </td>
                     <td>
                         <div class="action-buttons">
-                            <a href="{{ url_for('admin_user_detail', user_id=user._id) }}" 
+                            <a href="{{ url_for('ResumeRadar_user_detail', user_id=user._id) }}" 
                                class="btn btn-sm btn-info" title="View Details">
                                 <i class="fas fa-eye"></i>
                             </a>
                             
-                            <form method="POST" action="{{ url_for('admin_toggle_user_status', user_id=user._id) }}" 
+                            <form method="POST" action="{{ url_for('ResumeRadar_toggle_user_status', user_id=user._id) }}" 
                                   style="display: inline;">
                                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                                 <button type="submit" class="btn btn-sm btn-{% if user.is_active %}warning{% else %}success{% endif %}"
@@ -145,7 +145,7 @@
     </div>
 </div>
 
-<!-- Delete Confirmation Modal -->
+
 <div id="deleteModal" class="modal" style="display: none;">
     <div class="modal-content">
         <h3><i class="fas fa-exclamation-triangle" style="color: #EF4444;"></i> Confirm Delete</h3>
@@ -173,7 +173,7 @@
         justify-content: space-between;
         align-items: center;
         margin-bottom: 3rem;
-margin-top:3rem;
+        margin-top:3rem;
         flex-wrap: wrap;
         gap: 1rem;
     }
@@ -329,13 +329,13 @@ margin-top:3rem;
     }
 
     .btn-secondary {
-        background: /*transparent*/lightblue;
+        background: lightblue;
         color: black;
         border: 1px solid #1E2A4A;
     }
 
     .btn-secondary:hover {
-       background: /*transparent*/lightblue;
+       background: lightblue;
         color: black;
         transform: translateY(-2px);
     }
@@ -464,7 +464,7 @@ margin-bottom:4rem;
         color: #2563EB;
     }
 
-    .role-admin {
+    .role-ResumeRadar {
         background: #FEE2E2;
         color: #EF4444;
     }
@@ -520,7 +520,7 @@ margin-bottom:4rem;
         opacity: 0.5;
     }
 
-    /* Modal Styles */
+  
     .modal {
         position: fixed;
         top: 0;
@@ -610,7 +610,7 @@ margin-bottom:4rem;
 <script>
     function confirmDelete(userId, userName) {
         document.getElementById('deleteUserName').textContent = userName;
-        document.getElementById('deleteForm').action = `/admin/user/${userId}/delete`;
+        document.getElementById('deleteForm').action = `/ResumeRadar/user/${userId}/delete`;
         document.getElementById('deleteModal').style.display = 'flex';
     }
 

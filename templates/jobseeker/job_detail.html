@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}{{ job.title }} - AI Resume Screener{% endblock %}
+{% block title %}{{ job.title }} - ResumeRadar{% endblock %}
 
 {% block content %}
 <div class="job-detail-container">
@@ -84,7 +84,7 @@
             <circle cx="50" cy="50" r="45" class="score-fill" 
                     style="stroke-dasharray: 283; stroke-dashoffset: {{ 283 - (283 * analysis.overall / 100) }};"></circle>
         </svg>
-        <div class="score-value">{{ analysis.overall }}%</div>
+        <div class="score-value">{{ analysis.overall or analysis.overall_score or 0 }}%</div>
     </div>
     <p>Overall Match</p>
 </div>
@@ -247,8 +247,8 @@
     .job-detail-container {
         max-width: 1200px;
         margin: 0 auto;
-margin-top:3rem;
-margin-bottom:3rem;
+        margin-top:3rem;
+        margin-bottom:3rem;
     }
 
     .back-link {
@@ -326,7 +326,7 @@ margin-bottom:3rem;
     }
 
     .btn-secondary:hover {
-background: var(--accent-primary);
+        background: var(--accent-primary);
         color: white;
         transform: translateY(-3px);
     }
@@ -787,7 +787,7 @@ background: var(--accent-primary);
             }
         });
     }
-// Update score circle on page load
+
 document.addEventListener('DOMContentLoaded', function() {
     const score = {{ analysis.overall if analysis else 0 }};
     const radius = 45;

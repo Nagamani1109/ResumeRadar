@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}My Jobs - AI Resume Screener{% endblock %}
+{% block title %}My Jobs - ResumeRadar{% endblock %}
 
 {% block content %}
 <div class="jobs-container">
@@ -14,17 +14,7 @@
             <i class="fas fa-plus"></i> Post New Job
         </a>
     </div>
-<style>
-.btn-post
-{
-background:#2C8C4C;
-color:white;
-}
- .btn-post:hover {
-        transform: translateY(-3px);
-        box-shadow: var(--shadow-lg);
-    }
-</style>
+
     <!-- Job Search Section -->
     <div class="search-section">
         <h2><i class="fas fa-search"></i> Search Jobs</h2>
@@ -166,6 +156,15 @@ color:white;
 </div>
 
 <style>
+    .btn-post
+      {
+        background:#2C8C4C;
+        color:white;
+    }
+    .btn-post:hover {
+        transform: translateY(-3px);
+        box-shadow: var(--shadow-lg);
+    }
     .jobs-container {
         max-width: 1200px;
         margin: 0 auto;
@@ -179,7 +178,7 @@ color:white;
         margin-bottom: 2rem;
         flex-wrap: wrap;
         gap: 1rem;
-margin-top: 3rem;
+        margin-top: 3rem;
     }
 
     .jobs-header h1 {
@@ -191,7 +190,7 @@ margin-top: 3rem;
         color: var(--text-secondary);
     }
 
-    /* Search Section Styles */
+   
     .search-section {
         background: var(--bg-card);
         border-radius: 12px;
@@ -273,7 +272,7 @@ margin-top: 3rem;
         background: var(--bg-card);
         border-radius: 12px;
         padding: 1.5rem;
-        border: 1px solid /*var(--border);*/#2C8C4C;
+        border: 1px solid #2C8C4C;
         box-shadow: var(--shadow);
         transition: all 0.2s;
     }
@@ -473,7 +472,7 @@ margin-top: 3rem;
     .btn-success:hover {
         background:  #2C8C4C;
         color: white;
-transform: translateY(-3px);
+        transform: translateY(-3px);
     }
 
     .btn-secondary {
@@ -495,7 +494,7 @@ transform: translateY(-3px);
     .btn-danger:hover {
         background: #FF0000;
         color: white;
-transform: translateY(-3px);
+        transform: translateY(-3px);
     }
 
     .empty-state {

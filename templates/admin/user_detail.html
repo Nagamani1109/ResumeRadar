@@ -1,12 +1,12 @@
 {% extends "base.html" %}
 
-{% block title %}User Details - {{ user.full_name }} - Admin{% endblock %}
+{% block title %}User Details - {{ user.full_name }} - ResumeRadar{% endblock %}
 
 {% block content %}
 <div class="user-detail-container">
     <!-- Header -->
     <div class="detail-header">
-        <a href="{{ url_for('admin_users') }}" class="btn btn-secondary">
+        <a href="{{ url_for('ResumeRadar_users') }}" class="btn btn-secondary">
             <i class="fas fa-arrow-left"></i> Back to Users
         </a>
         <div class="header-actions">
@@ -62,7 +62,7 @@
         </div>
         
         <div class="profile-actions">
-            <form method="POST" action="{{ url_for('admin_toggle_user_status', user_id=user._id) }}" style="display: inline;">
+            <form method="POST" action="{{ url_for('ResumeRadar_toggle_user_status', user_id=user._id) }}" style="display: inline;">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <button type="submit" class="btn btn-{% if user.is_active %}warning{% else %}success{% endif %}">
                     <i class="fas fa-{% if user.is_active %}ban{% else %}check{% endif %}"></i>
@@ -348,7 +348,7 @@
         <h3><i class="fas fa-exclamation-triangle" style="color: #EF4444;"></i> Confirm Delete</h3>
         <p>Are you sure you want to delete user <strong>{{ user.full_name or user.name }}</strong>?</p>
         <p class="warning-text">⚠️ This action cannot be undone. All user data will be permanently deleted.</p>
-        <form method="POST" action="{{ url_for('admin_delete_user', user_id=user._id) }}">
+        <form method="POST" action="{{ url_for('ResumeRadar_delete_user', user_id=user._id) }}">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <div class="modal-actions">
                 <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
@@ -468,7 +468,7 @@ margin-top:3rem;
 
     .role-jobseeker { background: #E8F0FE; color: #1E2A4A; }
     .role-recruiter { background: #DBEAFE; color: #2563EB; }
-    .role-admin { background: #FEE2E2; color: #EF4444; }
+    .role-ResumeRadar { background: #FEE2E2; color: #EF4444; }
 
     /* Profile Card */
     .profile-card {

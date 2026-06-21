@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Post a Job - AI Resume Screener{% endblock %}
+{% block title %}Post a Job - ResumeRadar{% endblock %}
 
 {% block content %}
 <div class="form-container">
@@ -64,7 +64,7 @@
                 </div>
             </div>
 
-            <!-- NEW: Age Requirements Section -->
+            
             <div class="form-row">
                 <div class="form-group">
                     <label class="form-label">Minimum Age (Optional)</label>
@@ -81,7 +81,7 @@
                 </div>
             </div>
 
-            <!-- NEW: Languages Required Section -->
+            
             <div class="form-group">
                 <label class="form-label">Languages Required (Optional)</label>
                 <input type="text" name="required_languages" class="form-control" 
@@ -91,13 +91,13 @@
 
             <div class="form-row">
                 <div class="form-group">
-                    <label class="form-label">Salary Min ($)</label>
+                    <label class="form-label">Salary Min (₹)</label>
                     <input type="number" name="salary_min" class="form-control" 
                            placeholder="e.g., 60000">
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">Salary Max ($)</label>
+                    <label class="form-label">Salary Max (₹)</label>
                     <input type="number" name="salary_max" class="form-control" 
                            placeholder="e.g., 90000">
                 </div>
@@ -145,7 +145,7 @@
     transition: box-shadow 0.3s ease;
 }
 
-.form-card:hover {
+  .form-card:hover {
     box-shadow: 0 25px 50px -12px rgba(44, 140, 76, 0.5),
                 0 12px 30px -8px rgba(44, 140, 76, 0.35),
                 0 0 0 2px rgba(44, 140, 76, 0.2) inset;
@@ -228,7 +228,7 @@
     }
 
     .btn-primary {
-        background: /*linear-gradient(135deg, var(--accent-primary), var(--accent-secondary))*/#2C8C4C;
+        background:#2C8C4C;
         color: white;
         border: none;
         font-weight: 600;
@@ -269,4 +269,4 @@
         }
     }
 </style>
-{% endblock %} iin this any chance to add images but doesnot affect function of code
+{% endblock %}

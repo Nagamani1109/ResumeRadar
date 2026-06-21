@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}System Statistics - Admin{% endblock %}
+{% block title %}System Statistics - ResumeRadar{% endblock %}
 
 {% block content %}
 <div class="stats-container">
@@ -9,9 +9,9 @@
         <p class="text-muted">Analytics and insights for the platform</p>
         
         <div class="period-selector">
-            <a href="{{ url_for('admin_stats', period=7) }}" class="period-btn {% if period == 7 %}active{% endif %}">Last 7 Days</a>
-            <a href="{{ url_for('admin_stats', period=30) }}" class="period-btn {% if period == 30 %}active{% endif %}">Last 30 Days</a>
-            <a href="{{ url_for('admin_stats', period=90) }}" class="period-btn {% if period == 90 %}active{% endif %}">Last 90 Days</a>
+            <a href="{{ url_for('ResumeRadar_stats', period=7) }}" class="period-btn {% if period == 7 %}active{% endif %}">Last 7 Days</a>
+            <a href="{{ url_for('ResumeRadar_stats', period=30) }}" class="period-btn {% if period == 30 %}active{% endif %}">Last 30 Days</a>
+            <a href="{{ url_for('ResumeRadar_stats', period=90) }}" class="period-btn {% if period == 90 %}active{% endif %}">Last 90 Days</a>
         </div>
     </div>
 
@@ -21,11 +21,11 @@
         <h3><i class="fas fa-chart-pie"></i> Users by Role Distribution</h3>
         <div class="pie-chart-wrapper">
             <div class="pie-chart-container">
-                {% set total = users_by_role.jobseeker + users_by_role.recruiter + users_by_role.admin %}
+                {% set total = users_by_role.jobseeker + users_by_role.recruiter + users_by_role.ResumeRadar %}
                 {% if total > 0 %}
                     {% set jobseeker_percent = (users_by_role.jobseeker / total * 100) %}
                     {% set recruiter_percent = (users_by_role.recruiter / total * 100) %}
-                    {% set admin_percent = (users_by_role.admin / total * 100) %}
+                    {% set ResumeRadar_percent = (users_by_role.ResumeRadar / total * 100) %}
                     
                     <div class="pie-chart">
                         <canvas id="userRolePieChart" width="300" height="300"></canvas>
@@ -45,7 +45,7 @@
                 </div>
                 <div class="legend-item">
                     <span class="color-dot" style="background: #f59e0b;"></span>
-                    <span>Admins ({{ users_by_role.admin }}) - {{ "%.1f"|format(admin_percent) }}%</span>
+                    <span>ResumeRadars ({{ users_by_role.ResumeRadar }}) - {{ "%.1f"|format(ResumeRadar_percent) }}%</span>
                 </div>
             </div>
         </div>
@@ -265,7 +265,7 @@ margin-top:3rem;
         text-align: center;
     }
 
-    /* Growth Chart Styles */
+  
     .growth-chart-container {
         overflow-x: auto;
     }
@@ -325,7 +325,7 @@ margin-top:3rem;
         white-space: nowrap;
     }
 
-    /* Bar Chart Styles */
+    
     .bar-chart {
         display: flex;
         flex-direction: column;
@@ -370,7 +370,7 @@ margin-top:3rem;
         font-weight: 500;
     }
 
-    /* Pie Chart Styles - HIGHLIGHTED */
+   
     .pie-chart-card {
         background: linear-gradient(135deg, #ffffff, #f8fafc);
         border: 2px solid #1E2A4A;
@@ -450,7 +450,7 @@ margin-top:3rem;
         box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.8);
     }
 
-    /* Activity Feed */
+  
     .activity-feed {
         display: flex;
         flex-direction: column;
@@ -545,16 +545,16 @@ margin-bottom:4rem;
     document.addEventListener('DOMContentLoaded', function() {
         const jobseekers = {{ users_by_role.jobseeker }};
         const recruiters = {{ users_by_role.recruiter }};
-        const admins = {{ users_by_role.admin }};
+        const ResumeRadars = {{ users_by_role.ResumeRadar }};
         
         const ctx = document.getElementById('userRolePieChart').getContext('2d');
         
         new Chart(ctx, {
             type: 'pie',
             data: {
-                labels: ['Job Seekers', 'Recruiters', 'Admins'],
+                labels: ['Job Seekers', 'Recruiters', 'ResumeRadars'],
                 datasets: [{
-                    data: [jobseekers, recruiters, admins],
+                    data: [jobseekers, recruiters, ResumeRadars],
                     backgroundColor: ['#3b82f6', '#10b981', '#f59e0b'],
                     borderColor: ['#ffffff', '#ffffff', '#ffffff'],
                     borderWidth: 3,
@@ -590,7 +590,7 @@ margin-bottom:4rem;
                             label: function(context) {
                                 const label = context.label || '';
                                 const value = context.raw || 0;
-                                const total = jobseekers + recruiters + admins;
+                                const total = jobseekers + recruiters + ResumeRadars;
                                 const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
                                 return `${label}: ${value} (${percentage}%)`;
                             }

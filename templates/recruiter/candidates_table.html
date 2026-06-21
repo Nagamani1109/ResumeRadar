@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Candidates for {{ job.title }} - AI Resume Screener{% endblock %}
+{% block title %}Candidates for {{ job.title }} - ResumeRadar{% endblock %}
 
 {% block content %}
 <div class="candidates-container">
@@ -230,23 +230,23 @@
 </div>
 
 <style>
-.btn-print
-{
-background:var(--accent-primary);
-color:white;
-}
- .btn-print:hover {
+    .btn-print
+         {
+         background:var(--accent-primary);
+         color:white;
+    }
+    .btn-print:hover {
         background: var(--accent-primary);
- color: white;
-transform: translateY(-3px);
+        color: white;
+        transform: translateY(-3px);
     }
 
     .candidates-container {
         max-width: 1400px;
         margin: 0 auto;
         padding: 1rem;
-margin-top:3rem;
-margin-bottom:3rem;
+        margin-top:3rem;
+        margin-bottom:3rem;
     }
 
     .candidates-header {
@@ -971,11 +971,6 @@ margin-bottom:3rem;
         const modal = document.getElementById('candidateModal');
         if (event.target == modal) closeCandidateModal();
     }
-
-
-
-
-
 
 
 function reportUser(userId) {

@@ -1,10 +1,8 @@
 import re
 import logging
-from collections import defaultdict
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
-# Setup logging instead of print
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
@@ -15,7 +13,6 @@ class ResumeMatcher:
     def __init__(self):
         logger.info("Initializing Resume Matcher with TF-IDF...")
         
-        # Expanded skill dictionary with more keywords
         self.tech_skills = {
             'python': ['python', 'django', 'flask', 'fastapi', 'numpy', 'pandas', 'jupyter', 'scipy'],
             'javascript': ['javascript', 'react', 'angular', 'vue', 'node', 'express', 'typescript', 'js', 'es6'],
@@ -35,6 +32,14 @@ class ResumeMatcher:
             'react': ['react', 'reactjs', 'react.js', 'next.js', 'nextjs'],
             'vue': ['vue', 'vuejs', 'vue.js', 'nuxt'],
             'angular': ['angular', 'angularjs', 'angular.js', 'ng'],
+            
+            'springboot': ['spring boot', 'springboot', 'spring mvc', 'spring framework', 'hibernate', 'jsp', 'servlet', 'j2ee'],
+            'testing': ['selenium', 'testng', 'junit', 'pytest', 'unit testing', 'automation testing', 'manual testing'],
+            'devops': ['jenkins', 'linux', 'bash', 'shell script', 'ci/cd', 'ansible', 'terraform'],
+            'datatools': ['power bi', 'tableau', 'excel', 'data analysis', 'pandas', 'numpy', 'matplotlib'],
+            'apitools': ['postman', 'swagger', 'rest api', 'soap', 'api testing'],
+            'mobile': ['android', 'kotlin', 'react native', 'flutter', 'ios', 'swift'],
+            'cloud': ['azure', 'gcp', 'google cloud', 'heroku', 'digitalocean', 'firebase'],
         }
         
         self.soft_skills = {
@@ -53,7 +58,6 @@ class ResumeMatcher:
             'highschool': ['high school', 'hsc', 'ssc', 'ged', 'secondary'],
         }
         
-        # Education level values (for scoring)
         self.edu_level_values = {
             'phd': 5,
             'master': 4,
@@ -74,30 +78,24 @@ class ResumeMatcher:
             'java': ['ocjp', 'java certified', 'scjp'],
         }
         
-        self.tfidf_vectorizer = TfidfVectorizer(max_features=500, stop_words='english')
         
         logger.info("Resume Matcher Ready!")
     
     def _tokenize_words(self, text):
-        """Better tokenization that handles punctuation and slashes"""
         text_lower = text.lower()
         words = re.findall(r'\b[a-z0-9#+.]+\b', text_lower)
         return set(words)
     
     def extract_education(self, text):
-        """Extract education degrees using pattern matching"""
         text_lower = text.lower()
         found_degrees = []
         
-        # Check against education variations
         for degree_type, variations in self.edu_variations.items():
             for variation in variations:
-                # Use word boundary to avoid partial matches
                 if re.search(r'\b' + re.escape(variation) + r'\b', text_lower):
                     found_degrees.append(degree_type)
                     break
         
-        # Look for degree with field (e.g., "Bachelor of Science in Computer Science")
         degree_patterns = [
             r'bachelor[^\w]*of[^\w]*(\w+(?:\s+\w+){0,2})',
             r'master[^\w]*of[^\w]*(\w+(?:\s+\w+){0,2})',
@@ -113,7 +111,6 @@ class ResumeMatcher:
                 if match not in found_degrees:
                     found_degrees.append(match)
         
-        # Remove duplicates and return
         result = list(set(found_degrees)) if found_degrees else []
         
         if not result:
@@ -122,7 +119,6 @@ class ResumeMatcher:
         return result
     
     def extract_certifications(self, text):
-        """Extract professional certifications"""
         text_lower = text.lower()
         found = []
         
@@ -138,19 +134,16 @@ class ResumeMatcher:
         return found
     
     def extract_experience(self, text):
-        """Extract years of experience using comprehensive patterns"""
         text_lower = text.lower()
         
-        # Comprehensive experience patterns
         patterns = [
-            # Pattern, multiplier, description
             (r'(\d+(?:\.\d+)?)\+?\s*(?:years?|yrs?)(?:\s+of)?\s+experience', 1),
             (r'experience of (\d+(?:\.\d+)?)\+?\s*(?:years?|yrs?)', 1),
             (r'(\d+(?:\.\d+)?)\+?\s*(?:years?|yrs?)\s+(?:of|in|as)', 1),
-            (r'minimum\s+(\d+(?:\.\d+)?)\+?\s*(?:years?|yrs?)', 1),  # "minimum 3 years"
-            (r'at\s+least\s+(\d+(?:\.\d+)?)\+?\s*(?:years?|yrs?)', 1),  # "at least 2 years"
+            (r'minimum\s+(\d+(?:\.\d+)?)\+?\s*(?:years?|yrs?)', 1),
+            (r'at\s+least\s+(\d+(?:\.\d+)?)\+?\s*(?:years?|yrs?)', 1),
             (r'(\d+(?:\.\d+)?)\+?\s*\+?\s*(?:years?|yrs?)\s+experience', 1),
-            (r'(\d+(?:\.\d+)?)\+?\s*months?', 0.08333),  # months to years
+            (r'(\d+(?:\.\d+)?)\+?\s*months?', 0.08333),
             (r'(\d+(?:\.\d+)?)\+?\s*months?\s+experience', 0.08333),
         ]
         
@@ -164,7 +157,6 @@ class ResumeMatcher:
                 except (ValueError, TypeError):
                     pass
         
-        # Handle written numbers
         number_words = {
             'one': 1, 'two': 2, 'three': 3, 'four': 4, 'five': 5,
             'six': 6, 'seven': 7, 'eight': 8, 'nine': 9, 'ten': 10,
@@ -175,12 +167,10 @@ class ResumeMatcher:
             if re.search(rf'\b{word}\s+(?:years?|yrs?)', text_lower):
                 max_years = max(max_years, num)
         
-        # Handle ranges (e.g., "3-5 years" -> take the lower bound)
         range_pattern = r'(\d+(?:\.\d+)?)\s*-\s*(\d+(?:\.\d+)?)\s*(?:years?|yrs?)'
         matches = re.findall(range_pattern, text_lower)
         for match in matches:
             try:
-                # Take the lower bound as minimum experience
                 max_years = max(max_years, float(match[0]))
             except (ValueError, TypeError):
                 pass
@@ -193,18 +183,15 @@ class ResumeMatcher:
         return max_years
     
     def extract_technical_skills(self, text):
-        """Extract technical skills using exact keyword matching"""
         text_lower = text.lower()
         found = {}
         
         for skill, keywords in self.tech_skills.items():
             skill_score = 0
             for keyword in keywords:
-                # Use word boundary to avoid partial matches
                 if re.search(r'\b' + re.escape(keyword) + r'\b', text_lower):
                     skill_score += 1
             if skill_score > 0:
-                # Normalize to 0-100 based on how many keywords matched
                 found[skill] = min(100, (skill_score / len(keywords)) * 100)
         
         if found:
@@ -213,7 +200,6 @@ class ResumeMatcher:
         return found
     
     def extract_soft_skills(self, text):
-        """Extract soft skills using exact keyword matching"""
         text_lower = text.lower()
         found = []
         
@@ -229,9 +215,7 @@ class ResumeMatcher:
         return list(set(found))
     
     def calculate_semantic_similarity(self, resume_text, job_text):
-        """Calculate TF-IDF similarity between two texts"""
         try:
-            # Create a fresh vectorizer for each call (thread-safe)
             vectorizer = TfidfVectorizer(max_features=500, stop_words='english')
             corpus = [resume_text, job_text]
             tfidf_matrix = vectorizer.fit_transform(corpus)
@@ -240,7 +224,6 @@ class ResumeMatcher:
             return similarity
         except Exception as e:
             logger.error(f"TF-IDF similarity failed: {e}")
-            # Fallback to simple token overlap
             resume_words = self._tokenize_words(resume_text)
             job_words = self._tokenize_words(job_text)
             if not job_words:
@@ -251,45 +234,37 @@ class ResumeMatcher:
             return similarity
     
     def calculate_education_score(self, resume_education_list, job_text):
-        """Calculate education level match score - FIXED: now accepts list and job text"""
         job_lower = job_text.lower()
         
-        # Find highest required education level in job
         required_level = 0
         required_degree = None
         
         for edu_type, variations in self.edu_variations.items():
             for variation in variations:
                 if re.search(r'\b' + re.escape(variation) + r'\b', job_lower):
-                    # Get level value
                     if edu_type in self.edu_level_values:
                         if self.edu_level_values[edu_type] > required_level:
                             required_level = self.edu_level_values[edu_type]
                             required_degree = edu_type
         
-        # Find highest resume education level
         resume_level = 0
-        
-        # Convert the education list to a string for easier matching
         resume_edu_str = ' '.join(resume_education_list).lower() if resume_education_list else ''
         
         for edu_type, level in self.edu_level_values.items():
-            # Check if this education type appears in resume
+           
             if edu_type in resume_edu_str:
                 resume_level = max(resume_level, level)
-            else:
-                # Check variations
-                for variation in self.edu_variations.get(edu_type, []):
-                    if variation in resume_edu_str:
-                        resume_level = max(resume_level, level)
-                        break
+                continue
+            
+            for variation in self.edu_variations.get(edu_type, []):
+                if re.search(r'\b' + re.escape(variation) + r'\b', resume_edu_str):
+                    resume_level = max(resume_level, level)
+                    break
         
-        # If no requirement found, score is 1.0 (no penalty)
         if required_level == 0:
             logger.debug("No education requirement found, score = 1.0")
             return 1.0
         
-        # Calculate score
         if resume_level >= required_level:
             score = 1.0
         elif resume_level == 0:
@@ -297,17 +272,15 @@ class ResumeMatcher:
         else:
             score = resume_level / required_level
         
-        # Ensure score is between 0 and 1
         score = max(0.0, min(1.0, score))
         
         logger.debug(f"Education score: {score} (required: {required_level}, resume: {resume_level})")
         return score
     
     def calculate_experience_score(self, resume_years, job_text):
-        """Calculate experience match score"""
+        """Calculate experience match score with fresher friendly logic"""
         job_lower = job_text.lower()
         
-        # Extract required years from job with comprehensive patterns
         required_years = 0
         
         patterns = [
@@ -327,30 +300,45 @@ class ResumeMatcher:
                 except (ValueError, TypeError):
                     pass
         
-        # If no requirement found, score is 1.0 (no penalty)
+        # No experience requirement found
         if required_years == 0:
             logger.debug("No experience requirement found, score = 1.0")
             return 1.0
         
-        # Calculate score
-        if resume_years >= required_years:
-            score = 1.0
-        elif resume_years == 0:
-            score = 0.0
-        elif resume_years >= required_years * 0.8:
-            score = 0.9
-        elif resume_years >= required_years * 0.6:
-            score = 0.75
-        elif resume_years >= required_years * 0.4:
-            score = 0.5
-        else:
-            score = max(0.2, resume_years / required_years)
+        # Fresher role = job needs 0 to 1 year
+        is_fresher_role = required_years <= 1.0
         
-        logger.debug(f"Experience score: {score} (required: {required_years}, resume: {resume_years})")
+        if is_fresher_role:
+            if resume_years >= required_years:
+                score = 1.0
+            elif resume_years >= 0.5:
+                # Has internship experience — give good score
+                score = 0.9
+            elif resume_years > 0:
+                score = 0.75
+            else:
+                # Truly zero experience for fresher role
+                # Still give 0.5 because fresher roles expect this
+                score = 0.5
+        else:
+            # Normal scoring for experienced roles
+            if resume_years >= required_years:
+                score = 1.0
+            elif resume_years == 0:
+                score = 0.1
+            elif resume_years >= required_years * 0.8:
+                score = 0.9
+            elif resume_years >= required_years * 0.6:
+                score = 0.75
+            elif resume_years >= required_years * 0.4:
+                score = 0.5
+            else:
+                score = max(0.2, resume_years / required_years)
+        
+        logger.debug(f"Experience score: {score} (required: {required_years}, resume: {resume_years}, fresher_role: {is_fresher_role})")
         return score
     
     def calculate_certification_score(self, resume_certs, job_text):
-        """Calculate certification match score"""
         job_lower = job_text.lower()
         required_certs = []
         
@@ -360,12 +348,10 @@ class ResumeMatcher:
                     required_certs.append(cert)
                     break
         
-        # If no certification required, score is 1.0 (no penalty)
         if not required_certs:
             logger.debug("No certification requirements found, score = 1.0")
             return 1.0
         
-        # Calculate score
         matched = sum(1 for cert in required_certs if cert in resume_certs)
         score = matched / len(required_certs)
         
@@ -373,8 +359,6 @@ class ResumeMatcher:
         return score
     
     def _calculate_tech_score(self, resume_tech, required_tech):
-        """Calculate technical skills match score"""
-        # If no skills required, return 1.0 (no penalty)
         if not required_tech:
             logger.debug("No technical skills required, score = 1.0")
             return 1.0
@@ -386,7 +370,6 @@ class ResumeMatcher:
             max_possible += required_weight
             if skill in resume_tech:
                 resume_weight = resume_tech[skill]
-                # Take the minimum of required and resume weights (can't exceed what's needed)
                 total_score += min(required_weight, resume_weight)
         
         score = total_score / max_possible if max_possible > 0 else 1.0
@@ -394,13 +377,10 @@ class ResumeMatcher:
         return score
     
     def _calculate_soft_score(self, resume_soft, required_soft):
-        """Calculate soft skills match score"""
-        # If no soft skills required, return 1.0 (no penalty)
         if not required_soft:
             logger.debug("No soft skills required, score = 1.0")
             return 1.0
         
-        # Calculate score based on required skills
         matched = sum(1 for skill in required_soft if skill in resume_soft)
         score = matched / len(required_soft) if required_soft else 1.0
         
@@ -408,7 +388,6 @@ class ResumeMatcher:
         return score
     
     def _extract_required_years(self, text):
-        """Helper to extract required years from job text"""
         patterns = [
             r'(\d+(?:\.\d+)?)\+?\s*(?:years?|yrs?)\s+of\s+experience',
             r'minimum\s+(\d+(?:\.\d+)?)\+?\s*(?:years?|yrs?)',
@@ -425,12 +404,7 @@ class ResumeMatcher:
         return 0
     
     def match(self, resume_text, job_description, job_title=""):
-        """
-        Main matching function - returns scores and details
-        This function is thread-safe and handles errors properly
-        """
         try:
-            # Input validation
             if not resume_text or not isinstance(resume_text, str):
                 logger.error("Invalid resume text provided")
                 return self._error_response("No resume text provided")
@@ -441,19 +415,16 @@ class ResumeMatcher:
             
             logger.info(f"Starting match analysis for job: {job_title[:50] if job_title else 'Unknown'}")
             
-            # Extract features
             resume_education = self.extract_education(resume_text)
             resume_certs = self.extract_certifications(resume_text)
             resume_years = self.extract_experience(resume_text)
             resume_tech = self.extract_technical_skills(resume_text)
             resume_soft = self.extract_soft_skills(resume_text)
             
-            # Job text for requirement extraction
             job_full = f"{job_title} {job_description}"
             required_tech = self.extract_technical_skills(job_full)
             required_soft = self.extract_soft_skills(job_full)
             
-            # Calculate scores (returns 0-1, then convert to 0-100)
             tech_score_raw = self._calculate_tech_score(resume_tech, required_tech)
             soft_score_raw = self._calculate_soft_score(resume_soft, required_soft)
             exp_score_raw = self.calculate_experience_score(resume_years, job_full)
@@ -461,23 +432,13 @@ class ResumeMatcher:
             cert_score_raw = self.calculate_certification_score(resume_certs, job_full)
             semantic_score_raw = self.calculate_semantic_similarity(resume_text, job_full)
             
-            # Convert to 0-100 scale
-            tech_score = tech_score_raw * 100
-            soft_score = soft_score_raw * 100
-            exp_score = exp_score_raw * 100
-            edu_score = edu_score_raw * 100
-            cert_score = cert_score_raw * 100
-            semantic_score = semantic_score_raw * 100
+            tech_score = max(0.0, min(100.0, tech_score_raw * 100))
+            soft_score = max(0.0, min(100.0, soft_score_raw * 100))
+            exp_score = max(0.0, min(100.0, exp_score_raw * 100))
+            edu_score = max(0.0, min(100.0, edu_score_raw * 100))
+            cert_score = max(0.0, min(100.0, cert_score_raw * 100))
+            semantic_score = max(0.0, min(100.0, semantic_score_raw * 100))
             
-            # Ensure scores are valid (0-100)
-            tech_score = max(0.0, min(100.0, tech_score))
-            soft_score = max(0.0, min(100.0, soft_score))
-            exp_score = max(0.0, min(100.0, exp_score))
-            edu_score = max(0.0, min(100.0, edu_score))
-            cert_score = max(0.0, min(100.0, cert_score))
-            semantic_score = max(0.0, min(100.0, semantic_score))
-            
-            # Overall weighted score (weights sum to 1.0)
             overall = (
                 (tech_score_raw * 0.45) +
                 (soft_score_raw * 0.15) +
@@ -487,7 +448,6 @@ class ResumeMatcher:
                 (semantic_score_raw * 0.05)
             ) * 100
             
-            # Generate feedback and recommendations
             feedback, recommendations = self._generate_detailed_feedback(
                 overall, tech_score, soft_score, exp_score, edu_score, cert_score,
                 resume_tech, required_tech, resume_soft, required_soft,
@@ -523,9 +483,6 @@ class ResumeMatcher:
     def _generate_detailed_feedback(self, overall, tech_score, soft_score, exp_score, edu_score, cert_score,
                                      resume_tech, required_tech, resume_soft, required_soft,
                                      resume_years, job_text):
-        """Generate detailed feedback and recommendations"""
-        
-        # Main feedback based on overall score
         if overall >= 85:
             feedback = "Excellent match! Your profile aligns very well with this position."
         elif overall >= 75:
@@ -539,33 +496,27 @@ class ResumeMatcher:
         
         recommendations = []
         
-        # Technical skill recommendations
         missing_tech = [s for s in required_tech if s not in resume_tech]
         if missing_tech and tech_score < 60:
             top_missing = missing_tech[:3]
             recommendations.append(f"💻 Add experience with: {', '.join(top_missing)}")
         
-        # Soft skill recommendations
         missing_soft = [s for s in required_soft if s not in resume_soft]
         if missing_soft and soft_score < 60:
             recommendations.append(f"🗣️ Highlight soft skills: {', '.join(missing_soft[:2])}")
         
-        # Experience recommendations
         req_years = self._extract_required_years(job_text)
         if req_years > 0 and resume_years < req_years and exp_score < 60:
             gap = req_years - resume_years
             if gap > 0:
                 recommendations.append(f"⏰ Gain {round(gap, 1)} more years of experience to meet requirement")
         
-        # Education recommendations
         if edu_score < 50:
             recommendations.append("🎓 Consider pursuing relevant education or certifications")
         
-        # Certification recommendations
         if cert_score < 50:
             recommendations.append("📜 Consider obtaining relevant certifications")
         
-        # Positive feedback if doing well
         if not recommendations and overall >= 75:
             recommendations.append("✅ Your profile looks strong! Keep it updated.")
         elif not recommendations:
@@ -574,7 +525,6 @@ class ResumeMatcher:
         return feedback, recommendations
     
     def _error_response(self, error_message):
-        """Return a proper error response instead of fake scores"""
         return {
             'overall_score': None,
             'technical_score': None,
@@ -591,9 +541,11 @@ class ResumeMatcher:
             'education_found': [],
             'certifications_found': [],
             'feedback': f"Error: {error_message}",
-            'recommendations': ["Check that both resume and job description are provided", 
-                               "Ensure text is readable", 
-                               "Try again or contact support"],
+            'recommendations': [
+                "Check that both resume and job description are provided",
+                "Ensure text is readable",
+                "Try again or contact support"
+            ],
             'error': True
         }
 

@@ -1,12 +1,12 @@
 {% extends "base.html" %}
 
-{% block title %}FAQs - HireSmart{% endblock %}
+{% block title %}FAQs - ResumeRadar{% endblock %}
 
 {% block content %}
 <div class="page-wrapper">
     <div class="page-header">
         <h1>Frequently Asked Questions</h1>
-        <p>Find answers to common questions about HireSmart</p>
+        <p>Find answers to common questions about ResumeRadar</p>
     </div>
     
     <div class="faq-search">
@@ -17,7 +17,7 @@
     <div class="faq-content">
         <!-- For Job Seekers -->
         <div class="faq-category">
-            <h2><i class="fas fa-user-graduate"></i> For Job Seekers </h2>
+            <h2><i class="fas fa-user-graduate"></i> For Job Seekers</h2>
             
             <div class="faq-item">
                 <div class="faq-question" onclick="toggleAnswer(this)">
@@ -35,17 +35,17 @@
                     <i class="fas fa-chevron-down"></i>
                 </div>
                 <div class="faq-answer">
-                    <p>We accept PDF, DOCX, and TXT files. Maximum file size is 10MB. For best results, we recommend using PDF format as it preserves formatting and is most compatible with our AI parser.</p>
+                    <p>We accept PDF, DOCX, and TXT files. Maximum file size is 16MB. For best results, we recommend using PDF format as it preserves formatting and is most compatible with our parser.</p>
                 </div>
             </div>
             
             <div class="faq-item">
                 <div class="faq-question" onclick="toggleAnswer(this)">
-                    <span>How does the AI matching work?</span>
+                    <span>How does the matching work?</span>
                     <i class="fas fa-chevron-down"></i>
                 </div>
                 <div class="faq-answer">
-                    <p>Our AI analyzes your resume to extract skills, experience, education, and other qualifications. It then compares this information against job descriptions to calculate a match score. The AI understands synonyms (e.g., "5 years" = "five years") and related skills (e.g., Python and Django are related).</p>
+                    <p>Our platform extracts skills, experience, and education from your resume using text extraction (PyPDF2 for PDFs, python-docx for DOCX files). It then compares this information against job descriptions using TF-IDF vectorization and cosine similarity to calculate a match score.</p>
                 </div>
             </div>
             
@@ -65,7 +65,7 @@
                     <i class="fas fa-chevron-down"></i>
                 </div>
                 <div class="faq-answer">
-                    <p>You can track all your applications from your dashboard. You'll see real-time status updates including "Pending", "Shortlisted", "Interview", and "Hired". You'll also receive email notifications when your application status changes.</p>
+                    <p>You can track all your applications from your dashboard. You'll see real-time status updates including "Pending", "Shortlisted", and "Hired". You'll also receive notifications when your application status changes.</p>
                 </div>
             </div>
             
@@ -75,17 +75,7 @@
                     <i class="fas fa-chevron-down"></i>
                 </div>
                 <div class="faq-answer">
-                    <p>Yes! Creating a profile, uploading your resume, and applying to jobs is completely free for job seekers. You can apply to unlimited jobs without any cost.</p>
-                </div>
-            </div>
-            
-            <div class="faq-item">
-                <div class="faq-question" onclick="toggleAnswer(this)">
-                    <span>How often should I update my resume?</span>
-                    <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="faq-answer">
-                    <p>We recommend updating your resume whenever you gain new skills, complete a project, or change jobs. Regular updates help our AI provide better job matches.</p>
+                    <p>Yes! Creating a profile, uploading your resume, and applying to jobs is completely free for job seekers.</p>
                 </div>
             </div>
             
@@ -105,7 +95,7 @@
                     <i class="fas fa-chevron-down"></i>
                 </div>
                 <div class="faq-answer">
-                    <p>After applying, you'll receive a confirmation email and the application status will show as "Pending" in your dashboard. You'll be notified when the recruiter reviews your application.</p>
+                    <p>After applying, the application status will show as "Pending" in your dashboard. You'll be notified when the recruiter reviews your application.</p>
                 </div>
             </div>
             
@@ -115,17 +105,7 @@
                     <i class="fas fa-chevron-down"></i>
                 </div>
                 <div class="faq-answer">
-                    <p>When shortlisted, you'll receive an email notification. The recruiter may contact you for an interview or additional information. Check your dashboard for next steps.</p>
-                </div>
-            </div>
-            
-            <div class="faq-item">
-                <div class="faq-question" onclick="toggleAnswer(this)">
-                    <span>Can I delete my account?</span>
-                    <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="faq-answer">
-                    <p>Yes, you can delete your account from profile settings. This action is permanent and will remove all your data from our system.</p>
+                    <p>When shortlisted, you'll receive a notification. The recruiter may contact you for an interview or additional information. Check your dashboard for next steps.</p>
                 </div>
             </div>
             
@@ -162,7 +142,7 @@
         
         <!-- For Recruiters -->
         <div class="faq-category">
-            <h2><i class="fas fa-briefcase"></i> For Recruiters </h2>
+            <h2><i class="fas fa-briefcase"></i> For Recruiters</h2>
             
             <div class="faq-item">
                 <div class="faq-question" onclick="toggleAnswer(this)">
@@ -180,7 +160,7 @@
                     <i class="fas fa-chevron-down"></i>
                 </div>
                 <div class="faq-answer">
-                    <p>Visit your job listing and click "View Candidates". You'll see all applicants ranked by their AI match score. You can filter by score, status, skills, and more. Click on any candidate to view their full profile and resume.</p>
+                    <p>Visit your job listing and click "View Candidates". You'll see all applicants ranked by their match score. You can filter by score, status, and more. Click on any candidate to view their full profile and resume.</p>
                 </div>
             </div>
             
@@ -190,27 +170,17 @@
                     <i class="fas fa-chevron-down"></i>
                 </div>
                 <div class="faq-answer">
-                    <p>Yes! You can shortlist candidates directly from the candidates list. Shortlisted candidates will receive an email notification and can be easily filtered in your dashboard for quick access.</p>
+                    <p>Yes! You can shortlist candidates directly from the candidates list using the "Shortlist" button. Shortlisted candidates will receive a notification and can be easily filtered in your dashboard.</p>
                 </div>
             </div>
             
             <div class="faq-item">
                 <div class="faq-question" onclick="toggleAnswer(this)">
-                    <span>How accurate is the AI matching?</span>
+                    <span>How accurate is the matching?</span>
                     <i class="fas fa-chevron-down"></i>
                 </div>
                 <div class="faq-answer">
-                    <p>Our AI achieves 95% accuracy in matching candidates to jobs. It uses multiple algorithms including keyword matching, semantic similarity, skill relationship mapping, and experience calculation to ensure the most relevant candidates rise to the top.</p>
-                </div>
-            </div>
-            
-            <div class="faq-item">
-                <div class="faq-question" onclick="toggleAnswer(this)">
-                    <span>Is there a limit on job postings?</span>
-                    <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="faq-answer">
-                    <p>Basic accounts can post up to 10 active jobs. Premium accounts offer unlimited job postings, featured listings, and advanced analytics. Contact our sales team for enterprise plans.</p>
+                    <p>The matching uses TF-IDF vectorization and cosine similarity — the same techniques used in search engines. It ranks candidates based on keyword relevance and skill matching. Match scores should be used as a guide, not as the sole decision factor.</p>
                 </div>
             </div>
             
@@ -220,7 +190,7 @@
                     <i class="fas fa-chevron-down"></i>
                 </div>
                 <div class="faq-answer">
-                    <p>Yes! You can export candidate lists to Excel format. This includes candidate names, scores, contact information, and application status for offline analysis.</p>
+                    <p>Yes! You can export candidate lists to CSV format. This includes candidate names, scores, contact information, and application status for offline analysis.</p>
                 </div>
             </div>
             
@@ -230,27 +200,17 @@
                     <i class="fas fa-chevron-down"></i>
                 </div>
                 <div class="faq-answer">
-                    <p>Use the "Reject" button on a candidate's profile. The candidate will receive a polite rejection email with constructive feedback to help them improve.</p>
+                    <p>Use the "Reject" button on a candidate's profile. The candidate will receive a polite rejection notification with constructive feedback to help them improve.</p>
                 </div>
             </div>
-            
-            <div class="faq-item">
-                <div class="faq-question" onclick="toggleAnswer(this)">
-                    <span>Can I edit a posted job?</span>
-                    <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="faq-answer">
-                    <p>Yes, you can edit your job postings at any time. Changes are immediately reflected for candidates viewing the job.</p>
-                </div>
-            </div>
-            
+                     
             <div class="faq-item">
                 <div class="faq-question" onclick="toggleAnswer(this)">
                     <span>What happens when a job is filled?</span>
                     <i class="fas fa-chevron-down"></i>
                 </div>
                 <div class="faq-answer">
-                    <p>You can mark the job as "Hired" to close it. The job will no longer accept new applications, and candidates will see it as filled.</p>
+                    <p>You can mark the job as "Hired" to close it. The job will no longer accept new applications, and candidates will see it as filled. Notifications will be sent to all applicants.</p>
                 </div>
             </div>
             
@@ -260,7 +220,7 @@
                     <i class="fas fa-chevron-down"></i>
                 </div>
                 <div class="faq-answer">
-                    <p>Yes, you can send messages to candidates through the platform. All communications are tracked and stored for reference.</p>
+                    <p>Yes, you can view candidate contact information (email, phone) from their profile. All communications are tracked and stored for reference.</p>
                 </div>
             </div>
             
@@ -276,18 +236,18 @@
             
             <div class="faq-item">
                 <div class="faq-question" onclick="toggleAnswer(this)">
-                    <span>Can I create candidate shortlists?</span>
+                    <span>Is there a limit on job postings?</span>
                     <i class="fas fa-chevron-down"></i>
                 </div>
                 <div class="faq-answer">
-                    <p>Yes! You can create custom shortlists for different positions. Shortlisted candidates can be easily accessed from your dashboard.</p>
+                    <p>Recruiters can create job postings without a hard limit. Jobs can be closed when positions are filled.</p>
                 </div>
             </div>
         </div>
         
         <!-- Account & Security -->
         <div class="faq-category">
-            <h2><i class="fas fa-shield-alt"></i> Account & Security </h2>
+            <h2><i class="fas fa-shield-alt"></i> Account & Security</h2>
             
             <div class="faq-item">
                 <div class="faq-question" onclick="toggleAnswer(this)">
@@ -305,7 +265,7 @@
                     <i class="fas fa-chevron-down"></i>
                 </div>
                 <div class="faq-answer">
-                    <p>Yes! We take security seriously. All data is encrypted in transit (SSL/TLS) and at rest. Passwords are hashed using bcrypt, and we never store sensitive information in plain text. We're GDPR compliant and regularly audited for security.</p>
+                    <p>Yes! We take security seriously. All data is encrypted in transit (SSL/TLS) and at rest. Passwords are hashed using bcrypt, and we never store sensitive information in plain text. The application is hosted on Render's secure cloud platform.</p>
                 </div>
             </div>
             
@@ -315,17 +275,7 @@
                     <i class="fas fa-chevron-down"></i>
                 </div>
                 <div class="faq-answer">
-                    <p>Yes, you can update your email address in profile settings. You'll need to verify the new email address before it becomes active.</p>
-                </div>
-            </div>
-            
-            <div class="faq-item">
-                <div class="faq-question" onclick="toggleAnswer(this)">
-                    <span>How do I enable two-factor authentication?</span>
-                    <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="faq-answer">
-                    <p>2FA is available for premium accounts. Go to Security Settings in your profile to enable it. You'll need an authenticator app like Google Authenticator.</p>
+                    <p>Yes, you can update your email address in profile settings. The new email will be used for all future communications and login attempts.</p>
                 </div>
             </div>
             
@@ -345,99 +295,14 @@
                     <i class="fas fa-chevron-down"></i>
                 </div>
                 <div class="faq-answer">
-                    <p>Users are limited to one account per email address. If you need both recruiter and job seeker access, contact support for assistance.</p>
-                </div>
-            </div>
-            
-            <div class="faq-item">
-                <div class="faq-question" onclick="toggleAnswer(this)">
-                    <span>How do I report suspicious activity?</span>
-                    <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="faq-answer">
-                    <p>Contact our support team immediately at security@hiresmart.com or use the "Report" button on any suspicious profile or job posting.</p>
-                </div>
-            </div>
-            
-            <div class="faq-item">
-                <div class="faq-question" onclick="toggleAnswer(this)">
-                    <span>How long is my data retained?</span>
-                    <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="faq-answer">
-                    <p>We retain your data while your account is active. If you delete your account, data is removed within 30 days, except where required for legal compliance.</p>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Billing & Subscription -->
-        <div class="faq-category">
-            <h2><i class="fas fa-credit-card"></i> Billing & Subscription </h2>
-            
-            <div class="faq-item">
-                <div class="faq-question" onclick="toggleAnswer(this)">
-                    <span>Is HireSmart free to use?</span>
-                    <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="faq-answer">
-                    <p>Yes! Job seekers can create profiles and apply to jobs completely free. Recruiters can post up to 10 jobs for free. Premium plans are available for unlimited access and advanced features.</p>
-                </div>
-            </div>
-            
-            <div class="faq-item">
-                <div class="faq-question" onclick="toggleAnswer(this)">
-                    <span>What payment methods do you accept?</span>
-                    <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="faq-answer">
-                    <p>We accept all major credit cards (Visa, Mastercard, American Express), PayPal, and bank transfers for annual plans. All payments are processed securely through Stripe.</p>
-                </div>
-            </div>
-            
-            <div class="faq-item">
-                <div class="faq-question" onclick="toggleAnswer(this)">
-                    <span>Can I cancel my subscription?</span>
-                    <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="faq-answer">
-                    <p>Yes, you can cancel anytime from your billing settings. No cancellation fees. Your account will remain active until the end of your billing period.</p>
-                </div>
-            </div>
-            
-            <div class="faq-item">
-                <div class="faq-question" onclick="toggleAnswer(this)">
-                    <span>Do you offer refunds?</span>
-                    <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="faq-answer">
-                    <p>We offer a 14-day money-back guarantee for first-time subscribers. After that, subscriptions are non-refundable but can be cancelled anytime.</p>
-                </div>
-            </div>
-            
-            <div class="faq-item">
-                <div class="faq-question" onclick="toggleAnswer(this)">
-                    <span>What's included in premium plans?</span>
-                    <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="faq-answer">
-                    <p>Premium plans include unlimited job postings, featured listings, advanced analytics, priority support, candidate insights, and API access.</p>
-                </div>
-            </div>
-            
-            <div class="faq-item">
-                <div class="faq-question" onclick="toggleAnswer(this)">
-                    <span>Do you offer enterprise plans?</span>
-                    <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="faq-answer">
-                    <p>Yes! Contact our sales team for custom enterprise plans with dedicated support, custom integrations, and volume discounts.</p>
+                    <p>Users are limited to one account per email address. If you need both recruiter and job seeker access, you'll need to create separate accounts with different email addresses.</p>
                 </div>
             </div>
         </div>
         
         <!-- Technical Support -->
         <div class="faq-category">
-            <h2><i class="fas fa-headset"></i> Technical Support </h2>
+            <h2><i class="fas fa-headset"></i> Technical Support</h2>
             
             <div class="faq-item">
                 <div class="faq-question" onclick="toggleAnswer(this)">
@@ -445,7 +310,7 @@
                     <i class="fas fa-chevron-down"></i>
                 </div>
                 <div class="faq-answer">
-                    <p>We support the latest versions of Chrome, Firefox, Safari, and Edge. For the best experience, we recommend using Chrome.</p>
+                    <p>We support the latest versions of Chrome, Firefox, Safari, and Edge. For the best experience, we recommend using Chrome or Firefox.</p>
                 </div>
             </div>
             
@@ -455,7 +320,7 @@
                     <i class="fas fa-chevron-down"></i>
                 </div>
                 <div class="faq-answer">
-                    <p>Currently, we offer a mobile-responsive website that works great on all devices. A dedicated mobile app is coming soon!</p>
+                    <p>Currently, we offer a mobile-responsive website that works great on all devices. A dedicated mobile app is not yet available.</p>
                 </div>
             </div>
             
@@ -465,7 +330,7 @@
                     <i class="fas fa-chevron-down"></i>
                 </div>
                 <div class="faq-answer">
-                    <p>Contact our support team at support@hiresmart.com with details about the issue, including screenshots if possible. We typically respond within 24 hours.</p>
+                    <p>Contact us at naga2005mani@gmail.com with details about the issue, including screenshots if possible. We'll respond as quickly as possible.</p>
                 </div>
             </div>
             
@@ -475,7 +340,7 @@
                     <i class="fas fa-chevron-down"></i>
                 </div>
                 <div class="faq-answer">
-                    <p>Check that your file is in PDF, DOCX, or TXT format and under 10MB. If the issue persists, try clearing your browser cache or using a different browser.</p>
+                    <p>Check that your file is in PDF, DOCX, or TXT format and under 16MB. If the issue persists, try clearing your browser cache or using a different browser.</p>
                 </div>
             </div>
             
@@ -485,7 +350,7 @@
                     <i class="fas fa-chevron-down"></i>
                 </div>
                 <div class="faq-answer">
-                    <p>Email us at support@hiresmart.com or use the contact form on our website. Our support team is available Monday-Friday, 9am-6pm EST.</p>
+                    <p>Email us at naga2005mani@gmail.com or use the contact form on our website. We'll get back to you as soon as possible.</p>
                 </div>
             </div>
         </div>
@@ -493,8 +358,8 @@
     
     <div class="contact-support">
         <h3>Still have questions?</h3>
-        <p>We're here to help! Contact our support team and we'll get back to you within 24 hours.</p>
-        <p class="support-email"><i class="fas fa-envelope"></i> support@hiresmart.com</p>
+        <p>We're here to help! Contact our support team and we'll get back to you as soon as possible.</p>
+        <p class="support-email"><i class="fas fa-envelope"></i> naga2005mani@gmail.com</p>
     </div>
 </div>
 

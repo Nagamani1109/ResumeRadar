@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Dashboard - AI Resume Screener{% endblock %}
+{% block title %}Dashboard - ResumeRadar{% endblock %}
 
 {% block content %}
 <div class="dashboard-header">
@@ -9,15 +9,6 @@
         <p class="text-muted">Find your dream job with AI-powered matching</p>
     </div>
 </div>
-
-
-
-
-
-
-
-
-
 
 <!-- Resume Status -->
 <div class="resume-section">
@@ -49,11 +40,6 @@
     </div>
 </div>
 
-
-
-
-
-<!-- Add this after the resume section -->
 <div class="quick-search">
     <form method="GET" action="{{ url_for('search_jobs') }}" class="quick-search-form">
         <div class="search-box">
@@ -67,65 +53,6 @@
     </form>
 </div>
 
-<style>
-.btn-search
-{
-color:white;
-background:#2c8c4c;
-}
-.btn-filter
-{
-background:var(--accent-primary);
-color:white;
-}
-.btn-filter:hover
-{
-background:var(--accent-primary);
-color:white;
-transform: translateY(-3px);
-}
-    .quick-search {
-        margin-bottom: 5rem;
-    }
-    
-    .quick-search-form {
-        display: flex;
-        gap: 1rem;
-    }
-    
-    .search-box {
-        flex: 1;
-        display: flex;
-        align-items: center;
-        background: var(--bg-card);
-        border: 1px solid #2C8c4c;
-        border-radius: 8px;
-        overflow: hidden;
-    }
-    
-    .search-box i {
-        padding: 0 1rem;
-        color: var(--text-secondary);
-    }
-    
-    .search-input {
-        flex: 1;
-        padding: 0.75rem 1rem 0.75rem 0;
-        background: none;
-        border: none;
-        color: var(--text-primary);
-    }
-    
-    .search-input:focus {
-        outline: none;
-    }
-    
-    @media (max-width: 768px) {
-        .quick-search-form {
-            flex-direction: column;
-        }
-    }
-</style>
 <!-- Available Jobs -->
 <h2 class="section-title">
     <i class="fas fa-briefcase"></i> Available Jobs
@@ -193,9 +120,71 @@ transform: translateY(-3px);
 {% endif %}
 
 <style>
+    
+    .btn-search
+      {
+        color:white;
+        background:#2c8c4c;
+    }
+
+    .btn-filter
+      {
+        background:var(--accent-primary);
+        color:white;
+    }
+
+    .btn-filter:hover
+      {
+        background:var(--accent-primary);
+        color:white;
+        transform: translateY(-3px);
+    }
+    .quick-search {
+        margin-bottom: 5rem;
+    }
+    
+    .quick-search-form {
+        display: flex;
+        gap: 1rem;
+    }
+    
+    .search-box {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        background: var(--bg-card);
+        border: 1px solid #2C8c4c;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+    
+    .search-box i {
+        padding: 0 1rem;
+        color: var(--text-secondary);
+    }
+    
+    .search-input {
+        flex: 1;
+        padding: 0.75rem 1rem 0.75rem 0;
+        background: none;
+        border: none;
+        color: var(--text-primary);
+    }
+    
+    .search-input:focus {
+        outline: none;
+    }
+    
+    @media (max-width: 768px) {
+        .quick-search-form {
+            flex-direction: column;
+        }
+    }
+     
+
     .dashboard-header {
         margin-bottom: 2rem;
-margin-top:3rem;
+        margin-top:3rem;
     }
 
     .text-muted {
@@ -303,7 +292,7 @@ margin-top:3rem;
         padding: 1.5rem;
         border: 1px solid #2c8c4c;
         transition: all 0.3s;
-margin-bottom:3rem;
+        margin-bottom:3rem;
     }
 
     .job-card:hover {
