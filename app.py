@@ -81,7 +81,7 @@ except Exception as e:
     logger.error(f"MongoDB Connection Error: {str(e)}")
     exit(1)
 
- ==================== Helper Functions ====================
+# ==================== Helper Functions ====================
 
 def login_required(f):
     @wraps(f)
