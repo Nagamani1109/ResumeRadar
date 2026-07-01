@@ -70,11 +70,11 @@
             </div>
         </div>
 
-        <!-- Right Column - AI Analysis -->
+        <!-- Right Column - Analysis -->
         {% if analysis and not has_applied %}
         <div class="analysis-column">
             <div class="analysis-card">
-                <h2><i class="fas fa-robot"></i> AI Match Analysis</h2>
+                <h2><i class="fas fa-brain"></i>Match Analysis</h2>
                 
                 <!-- Overall Score -->
 <div class="overall-score">
@@ -84,7 +84,7 @@
             <circle cx="50" cy="50" r="45" class="score-fill" 
                     style="stroke-dasharray: 283; stroke-dashoffset: {{ 283 - (283 * analysis.overall / 100) }};"></circle>
         </svg>
-        <div class="score-value">{{ analysis.overall or analysis.overall_score or 0 }}%</div>
+        <div class="score-value">{{ analysis.overall_score|default(0) }}%</div>
     </div>
     <p>Overall Match</p>
 </div>
@@ -93,33 +93,33 @@
                 <div class="detailed-scores">
                     <div class="score-item">
                         <span>Technical Skills</span>
-                        <span class="score-percent">{{ analysis.technical }}%</span>
+                        <span class="score-percent">{{ analysis.technical_score|default(0) }}%</span>
                         <div class="progress">
-                            <div class="progress-bar technical-bar" style="width: {{ analysis.technical }}%"></div>
+                            <div class="progress-bar technical-bar" style="width: {{ analysis.technical_score|default(0) }}%"></div>
                         </div>
                     </div>
                     
                     <div class="score-item">
                         <span>Soft Skills</span>
-                        <span class="score-percent">{{ analysis.soft_skills }}%</span>
+                        <span class="score-percent">{{ analysis.soft_skills_score|default(0) }}%</span>
                         <div class="progress">
-                            <div class="progress-bar soft-bar" style="width: {{ analysis.soft_skills }}%"></div>
+                            <div class="progress-bar soft-bar" style="width: {{ analysis.soft_skills_score|default(0) }}%"></div>
                         </div>
                     </div>
                     
                     <div class="score-item">
                         <span>Experience</span>
-                        <span class="score-percent">{{ analysis.experience }}%</span>
+                        <span class="score-percent">{{ analysis.experience_score|default(0) }}%</span>
                         <div class="progress">
-                            <div class="progress-bar exp-bar" style="width: {{ analysis.experience }}%"></div>
+                            <div class="progress-bar exp-bar" style="width: {{ analysis.experience_score|default(0) }}%"></div>
                         </div>
                     </div>
                     
                     <div class="score-item">
                         <span>Education</span>
-                        <span class="score-percent">{{ analysis.education }}%</span>
+                        <span class="score-percent">{{ analysis.education_score|default(0) }}%</span>
                         <div class="progress">
-                            <div class="progress-bar edu-bar" style="width: {{ analysis.education }}%"></div>
+                            <div class="progress-bar edu-bar" style="width: {{ analysis.education_score|default(0) }}%"></div>
                         </div>
                     </div>
                 </div>
@@ -164,7 +164,7 @@
                 <!-- Feedback -->
                 {% if analysis.feedback %}
                 <div class="feedback">
-                    <h3>AI Feedback</h3>
+                    <h3>Feedback</h3>
                     <p>{{ analysis.feedback }}</p>
                 </div>
                 {% endif %}

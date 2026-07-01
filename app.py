@@ -347,7 +347,7 @@ def notification_count():
     except:
         return jsonify({'count': 0})
 
-# ==================== Admin Routes (NO COMPLAINTS) ====================
+# ==================== Admin Routes  ====================
 
 @app.route('/admin/dashboard')
 @admin_required
@@ -363,20 +363,14 @@ def admin_dashboard():
         recent_users = list(users_collection.find().sort('created_at', -1).limit(10))
         for user in recent_users:
             user['_id'] = str(user['_id'])
-            if 'created_at' in user:
-                user['created_at_str'] = user['created_at'].strftime('%Y-%m-%d %H:%M')
         
         recent_jobs = list(jobs_collection.find().sort('posted_date', -1).limit(10))
         for job in recent_jobs:
             job['_id'] = str(job['_id'])
-            if 'posted_date' in job:
-                job['posted_date_str'] = job['posted_date'].strftime('%Y-%m-%d')
         
         recent_apps = list(applications_collection.find().sort('applied_date', -1).limit(10))
         for app in recent_apps:
             app['_id'] = str(app['_id'])
-            if 'applied_date' in app:
-                app['applied_date_str'] = app['applied_date'].strftime('%Y-%m-%d')
         
         return render_template('admin/dashboard.html',
                              total_users=total_users,
@@ -413,11 +407,9 @@ def admin_users():
             ]
         
         users = list(users_collection.find(query).sort('created_at', -1))
-        
         user_list = []
         for user in users:
             user_id = str(user['_id'])
-            
             if user.get('role') == 'jobseeker':
                 applications_count = applications_collection.count_documents({'user_id': user_id})
                 shortlisted_count = applications_collection.count_documents({'user_id': user_id, 'status': 'shortlisted'})
@@ -441,7 +433,6 @@ def admin_users():
                 'role': user.get('role', 'unknown'),
                 'company': user.get('company', ''),
                 'created_at': user.get('created_at'),
-                'created_at_str': user.get('created_at').strftime('%Y-%m-%d') if user.get('created_at') else 'N/A',
                 'is_active': user.get('is_active', True),
                 'applications_count': applications_count,
                 'shortlisted_count': shortlisted_count,
@@ -468,7 +459,7 @@ def admin_users():
         logger.error(f"Admin users error: {str(e)}")
         flash('Error loading users', 'error')
         return redirect(url_for('admin_dashboard'))
-        
+
 @app.route('/admin/user/<user_id>/toggle-status', methods=['POST'])
 @admin_required
 def admin_toggle_user_status(user_id):
